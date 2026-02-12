@@ -19,12 +19,13 @@
             v-model="question"
             class="test_ipt"
           />
-          <!--          <uploadImg-->
-          <!--            v-if="category === 2"-->
-          <!--            style="transform: translate(7px, -45px); margin-bottom: -30px"-->
-          <!--            v-model="file"-->
-          <!--            :acceptType="fileType"-->
-          <!--          ></uploadImg>-->
+          <uploadImg
+            v-if="category === 2"
+            style="transform: translate(7px, -45px); margin-bottom: -30px"
+            v-model="file"
+            :acceptType="fileType"
+            :maxSize="maxSize"
+          ></uploadImg>
           <div class="test_btn">
             <el-button type="primary" size="small" @click="startTest">
               {{ $t('knowledgeManage.startTest') }}
@@ -219,6 +220,7 @@ export default {
       question: '',
       file: null,
       fileType: '.png,.jpg,.jpeg',
+      maxSize: 3,
       resultLoading: false,
       knowledgeIdList: {},
       searchList: [],
@@ -256,6 +258,9 @@ export default {
                 .find(item => item.fileType === 'image')
                 .flatMap(item => item.extList || [])
                 .join(',.');
+            this.maxSize = res.data.uploadLimitList.find(
+              item => item.fileType === 'image',
+            ).maxSize;
           }
         });
     });

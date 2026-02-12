@@ -232,7 +232,7 @@
               </div>
               <div
                 class="text item"
-                v-html="parseImagesOnly(item.content)"
+                v-html="Md2Img(item.content)"
                 @click="handleClick(item, index)"
               ></div>
               <div
@@ -324,13 +324,11 @@
             :render-header="renderHeader"
           >
             <template slot-scope="scope">
-              <el-input
-                type="textarea"
+              <uploadFileMD
                 v-model="scope.row.content"
-                :autosize="{ minRows: 3, maxRows: 5 }"
-                class="full-width-textarea"
-                :disabled="[POWER_TYPE_READ].includes(permissionType)"
-              ></el-input>
+                :permission-type="permissionType"
+                :knowledgeId="obj.knowledgeId"
+              ></uploadFileMD>
               <div
                 v-if="
                   cardObj[0]['isParent'] &&
@@ -430,19 +428,20 @@
                           !editingSegments[`${scope.row.contentId}-${index}`]
                         "
                         class="content-display"
-                      >
-                        {{ segment.content }}
-                      </div>
+                        v-html="Md2Img(segment.content)"
+                      ></div>
                       <div v-else class="content-edit">
-                        <el-input
-                          v-model="
-                            editingContent[`${scope.row.contentId}-${index}`]
+                        <uploadFileMD
+                          v-model="segment.content"
+                          :permission-type="permissionType"
+                          :knowledgeId="obj.knowledgeId"
+                          @input="
+                            newContent =>
+                              (editingContent[
+                                `${scope.row.contentId}-${index}`
+                              ] = newContent)
                           "
-                          type="textarea"
-                          :rows="3"
-                          placeholder="请输入内容"
-                          class="edit-input"
-                        />
+                        ></uploadFileMD>
                       </div>
                     </div>
                   </el-collapse-item>
@@ -523,7 +522,7 @@ import dataBaseDialog from './dataBaseDialog';
 import tagDialog from './tagDialog.vue';
 import createChunk from './chunk/createChunk.vue';
 import { mapGetters } from 'vuex';
-import { parseImagesOnly } from '@/utils/util';
+import { Md2Img } from '@/utils/util';
 import {
   INITIAL,
   POWER_TYPE_READ,
@@ -532,9 +531,16 @@ import {
   POWER_TYPE_SYSTEM_ADMIN,
 } from '@/views/knowledge/constants';
 import SearchInput from '@/components/searchInput.vue';
+import uploadFileMD from '@/components/uploadImgMd.vue';
 
 export default {
-  components: { SearchInput, dataBaseDialog, tagDialog, createChunk },
+  components: {
+    SearchInput,
+    dataBaseDialog,
+    tagDialog,
+    createChunk,
+    uploadFileMD,
+  },
   data() {
     return {
       submitLoading: false,
@@ -615,7 +621,7 @@ export default {
     this.clearTimer();
   },
   methods: {
-    parseImagesOnly,
+    Md2Img,
     handleSearch(val) {
       this.getList(val);
     },
@@ -1144,15 +1150,10 @@ export default {
       .content-display {
         word-wrap: break-word;
         line-height: 1.5;
-      }
 
-      .content-edit {
-        .edit-input {
-          ::v-deep .el-textarea__inner {
-            border: 1px solid $color;
-            border-radius: 4px;
-            resize: vertical;
-          }
+        img {
+          width: auto;
+          max-height: 115px;
         }
       }
     }

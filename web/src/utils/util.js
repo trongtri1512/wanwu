@@ -443,8 +443,7 @@ export function formatFileSize(bytes, decimals = 2) {
   );
 }
 
-// 只解析md图片
-export function parseImagesOnly(markdownText) {
+export function Md2Img(markdownText) {
   // 匹配 Markdown 图片语法的正则表达式
   // ![](image.jpg) 或 ![alt](image.jpg) 或 ![alt](image.jpg "title")
   const imageRegex = /!\[(.*?)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g;
@@ -472,4 +471,17 @@ export function parseImagesOnly(markdownText) {
   result += markdownText.substring(lastIndex);
 
   return result;
+}
+
+export function Img2Md(htmlString) {
+  // 匹配 img 标签的正则表达式
+  const imgRegex = /<img\s+[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/gi;
+
+  // 替换 img 标签为 Markdown 格式
+  return htmlString.replace(imgRegex, (match, src) => {
+    // 提取 alt 属性（如果有）
+    const altMatch = match.match(/alt\s*=\s*["']([^"']*)["']/i);
+    const alt = altMatch ? altMatch[1] : '';
+    return `![${alt}](${src})`;
+  });
 }
