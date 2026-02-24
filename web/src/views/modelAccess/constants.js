@@ -121,8 +121,9 @@ export const TYPE_OBJ = {
     [JINA]: 'jina_c08*********wMm',
   },
   inferUrl: {
-    [`${ASR}_${QWEN}`]:
-      'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions',
+    [`${ASR}_${QWEN}`]: 'https://dashscope.aliyuncs.com/api/v1',
+    [`${ASR}_${HUOSHAN}`]:
+      'https://openspeech.bytedance.com/api/v3/auc/bigmodel/recognize/flash',
     [`${MULTIMODAL_EMBEDDING}_${YUAN_JING}`]: i18n.t('modelAccess.noInferUrl'),
     [`${MULTIMODAL_RERANK}_${YUAN_JING}`]:
       'https://maas-api.ai-yuanjing.com/openapi/v1/yuanjing/reranker',
