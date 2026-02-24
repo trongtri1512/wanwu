@@ -30,17 +30,33 @@
               v-if="item.avatar && item.avatar.path"
               :src="avatarSrc(item.avatar.path)"
             />
-            <div class="mcp_detailBox" style="width: 100%">
+            <div class="mcp_detailBox">
               <span class="mcp_name">{{ item.name }}</span>
               <span class="mcp_from tool_tag">
                 <label
                   style="font-size: 11px"
-                  v-if="item.tags && item.tags.length"
-                  v-for="it in item.tags"
+                  v-for="it in item.tags?.slice(0, 2) || []"
                   :key="it"
                 >
                   {{ it }}
                 </label>
+                <el-tooltip
+                  effect="light"
+                  placement="bottom"
+                  v-if="item.tags && item.tags.length > 2"
+                  popper-class="custom-tooltip"
+                >
+                  <div slot="content" class="tool_tag">
+                    <label
+                      style="font-size: 11px"
+                      v-for="it in item.tags.slice(2)"
+                      :key="it"
+                    >
+                      {{ it }}
+                    </label>
+                  </div>
+                  <label style="font-size: 11px">...</label>
+                </el-tooltip>
               </span>
             </div>
           </div>
@@ -96,6 +112,7 @@ export default {
 };
 </script>
 <style lang="scss">
+@import '@/style/customTooltip.scss';
 .card-search-cust {
   text-align: left !important;
 
