@@ -1,0 +1,27 @@
+services:
+
+  wga-sandbox:
+    restart: always
+    image: ${WANWU_WGA_SANDBOX_IMAGE}
+    container_name: wga-sandbox-wanwu
+    security_opt:
+      - seccomp=unconfined
+    networks:
+      - ${WANWU_DOCKER_NETWORK}
+    ports:
+      - 8080:8080
+    # volumes:
+    #   - ./configs/microservice/bff-service/configs/agent-skills:/home/root/.claude/skills
+    environment:
+      USER: root
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8080"]
+      interval: 15s
+      timeout: 5s
+      retries: 99
+      start_period: 10s
+
+
+networks:
+  wanwu-net:
+    external: true

@@ -1,0 +1,52 @@
+FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.152
+
+# 该Dockerfile参考：
+# https://sandbox.agent-infra.com/zh/blog/announcing-0
+
+# 镜像会以 -e USER=root 启动，因此这里指定root，后续都以此setup
+USER root
+
+# ----------------------
+# 安装额外系统依赖（若有）
+# installed path: /usr/bin/*
+# ----------------------
+# RUN set -eux; \
+#     apt-get update; \
+#     apt-get install -y --no-install-recommends \
+#         ${your_system_dep} \
+#         --no-install-recommends; \
+#     # clean up
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*;
+
+# opencode 安装
+RUN curl -fsSL https://opencode.ai/install | bash -s -- --version 1.1.65
+ENV PATH="/root/.opencode/bin:${PATH}"
+
+# ----------------------
+# npm 安装（若有）
+#
+# ----------------------
+# RUN npm i -g ${your_npm_package}
+
+# openapi-to-skills
+RUN npm i -g openapi-to-skills
+
+# ----------------------
+# python pip 安装（若有）
+# installed path: /usr/local/bin/*
+# ----------------------
+# RUN pip install ${your_python_package}
+
+# 添加自定义 Server 服务
+# COPY ./supervisord.agent_server.conf /opt/tiger/run/supervisord/agent_server.conf
+# 绑定 Nginx 路由
+# COPY ./nginx.agent_server.conf /opt/gem/nginx/nginx.agent_server.conf
+
+# 若不需要 AIO 里的服务，可进行删除，例如 Code Server
+## 删除 Code Server 进程和路由
+# RUN rm -rf /opt/gem/supervisord/supervisord.code_server.conf
+## 删除 Code Server 路由
+# RUN rm -rf /opt/gem/nginx/code_server.conf
+
+RUN mkdir -p /home/root/workspace
