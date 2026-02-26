@@ -224,28 +224,6 @@
           tokens
         </el-form-item>
         <el-form-item
-          v-if="showAppAndAccessKey()"
-          label="APP Key"
-          prop="appKey"
-        >
-          <el-input
-            type="password"
-            v-model="createForm.appKey"
-            :placeholder="$t('common.hint.appKey')"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          v-if="showAppAndAccessKey()"
-          label="Access Key"
-          prop="accessKey"
-        >
-          <el-input
-            type="password"
-            v-model="createForm.accessKey"
-            :placeholder="$t('common.hint.accessKey')"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
           v-if="provider.key !== ollama && !showAppAndAccessKey()"
           :label="$t('modelAccess.table.apiKey')"
           prop="apiKey"
@@ -258,6 +236,22 @@
             "
           ></el-input>
         </el-form-item>
+        <div v-if="showAppAndAccessKey()">
+          <el-form-item label="APP Key" prop="appKey">
+            <el-input
+              type="password"
+              v-model="createForm.appKey"
+              :placeholder="$t('common.hint.appKey')"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="Access Key" prop="accessKey">
+            <el-input
+              type="password"
+              v-model="createForm.accessKey"
+              :placeholder="$t('common.hint.accessKey')"
+            ></el-input>
+          </el-form-item>
+        </div>
         <el-form-item
           :label="$t('modelAccess.table.inferUrl')"
           prop="endpointUrl"
