@@ -413,3 +413,21 @@ export const getRecommendQuestionUrl = (type = 'agentChat', assistantId) => {
     return `${OPENURL_API}/agent/${assistantId}/recommend`;
   }
 };
+
+// 获取草稿智能体会话历史
+export const getConversationDraftHistory = params => {
+  return service({
+    url: `${USER_API}/assistant/conversation/draft/detail`,
+    method: 'get',
+    params,
+  });
+};
+
+// 清空草稿智能会话
+export const delConversationDraft = data => {
+  return service({
+    url: `${USER_API}/assistant/conversation/draft`,
+    method: 'delete',
+    data,
+  });
+};

@@ -17,6 +17,7 @@
             class="component"
             :chatType="'rag'"
             :sessionStatus="sessionStatus"
+            :supportClear="false"
             @clearHistory="clearHistory"
             @refresh="refresh"
             @queryCopy="queryCopy"
@@ -42,6 +43,8 @@
             :type="'ragChat'"
             @preSend="preSend"
             @setSessionStatus="setSessionStatus"
+            @clearHistory="clearHistory"
+            @inputHeightChange="handleInputHeightChange"
           />
         </div>
       </div>
@@ -183,6 +186,11 @@ export default {
     },
     reminderClick(n) {
       this.$refs['editable'].setPrompt(n.prompt);
+    },
+    // 处理输入框高度变化
+    handleInputHeightChange(height) {
+      this.$refs['session-com'] &&
+        this.$refs['session-com'].setHistoryBoxHeight(height);
     },
   },
 };

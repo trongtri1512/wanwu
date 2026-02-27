@@ -1,5 +1,5 @@
 <template>
-  <div class="compare-container page-wrapper">
+  <div class="compare-container compare-container-wrapper page-wrapper">
     <div class="compare-header">
       <div class="compare-header-left">
         <span class="el-icon-arrow-left go-back" @click="goBack"></span>
@@ -161,10 +161,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.compare-container-wrapper {
+  height: calc(100vh - 32px) !important;
+  overflow: hidden;
+}
+
 .compare-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
   width: 100%;
   padding: 0 10px;
   box-sizing: border-box;
