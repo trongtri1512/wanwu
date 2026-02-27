@@ -81,7 +81,7 @@ export default {
       index: '应用开发',
       all: '全部',
       agent: '智能体',
-      rag: '文本问答',
+      rag: '知识问答',
       workflow: '工作流',
       chatflow: '对话流',
       custom: '自定义工具',
@@ -283,7 +283,7 @@ export default {
       },
       {
         key: 'rag',
-        name: '文本问答',
+        name: '知识问答',
         desc: '用于生成单轮对话任务，支持上传私域知识库',
       },
       {
@@ -299,7 +299,7 @@ export default {
     workflowExport: '文件导入',
     workflow: '工作流',
     chat: '对话流',
-    rag: '文本问答',
+    rag: '知识问答',
     agent: '智能体',
     agentTemp: '智能体模板',
     agentAuto: '自定义智能体',
