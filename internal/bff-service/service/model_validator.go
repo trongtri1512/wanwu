@@ -355,7 +355,7 @@ func ValidateOcrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 	if err != nil {
 		return fmt.Errorf("open file failed: %v", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 创建内存缓冲区
 	body := &bytes.Buffer{}
@@ -371,7 +371,7 @@ func ValidateOcrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 	if _, err := io.Copy(part, file); err != nil {
 		return fmt.Errorf("copy file content failed: %v", err)
 	}
-	writer.Close()
+	defer func() { _ = writer.Close() }()
 
 	// 模拟HTTP请求
 	mockReq, _ := http.NewRequest("POST", "", body)
@@ -414,7 +414,7 @@ func ValidatePdfParserModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	if err != nil {
 		return fmt.Errorf("open file failed: %v", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 创建内存缓冲区
 	body := &bytes.Buffer{}
@@ -430,7 +430,7 @@ func ValidatePdfParserModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	if _, err := io.Copy(part, file); err != nil {
 		return fmt.Errorf("copy file content failed: %v", err)
 	}
-	writer.Close()
+	defer func() { _ = writer.Close() }()
 
 	// 模拟HTTP请求
 	mockReq, _ := http.NewRequest("POST", "", body)

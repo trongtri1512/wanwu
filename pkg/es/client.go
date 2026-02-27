@@ -71,7 +71,7 @@ func newClient(ctx context.Context, c Config) (*client, error) {
 		}
 
 		if res != nil {
-			defer res.Body.Close()
+			defer func() { _ = res.Body.Close() }()
 
 			if res.IsError() {
 				lastErr = fmt.Errorf("ES连接响应错误 [%s]: %s", addr, res.String())
@@ -129,7 +129,7 @@ func (c *client) IndexDocument(ctx context.Context, index string, document inter
 	if err != nil {
 		return fmt.Errorf("写入ES失败: %v", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.IsError() {
 		return fmt.Errorf("ES写入响应错误: %s", res.String())
@@ -171,7 +171,7 @@ func (c *client) SearchByFields(ctx context.Context, index string, fieldConditio
 	if err != nil {
 		return nil, 0, fmt.Errorf("ES查询失败: %v", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.IsError() {
 		return nil, 0, fmt.Errorf("ES查询响应错误: %s", res.String())
@@ -247,7 +247,7 @@ func (c *client) DeleteByFields(ctx context.Context, index string, fieldConditio
 	if err != nil {
 		return fmt.Errorf("ES删除失败: %v", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.IsError() {
 		return fmt.Errorf("ES删除响应错误: %s", res.String())
@@ -267,7 +267,7 @@ func (c *client) CreateIndexTemplate(ctx context.Context, templateName string, t
 	if err != nil {
 		return fmt.Errorf("创建索引模板失败: %v", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.IsError() {
 		return fmt.Errorf("创建索引模板响应错误: %s", res.String())
@@ -286,7 +286,7 @@ func (c *client) IndexTemplateExists(ctx context.Context, templateName string) (
 	if err != nil {
 		return false, fmt.Errorf("检查索引模板失败: %v", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode == 404 {
 		return false, nil

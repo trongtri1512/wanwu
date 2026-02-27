@@ -767,10 +767,10 @@ func ragLineProcessor(messageId, query string, hitData *KnowledgeHitData, histor
 		defer utils.PrintPanicStack()
 		if len(resp.Choices) > 0 {
 			var finish = 0
-			finishReason := resp.Choices[0].FinishReason
-			if finishReason == "stop" {
+			switch finishReason := resp.Choices[0].FinishReason; finishReason {
+			case "stop":
 				finish = 1
-			} else if finishReason == "sensitive_cancel" {
+			case "sensitive_cancel":
 				finish = 4
 			}
 

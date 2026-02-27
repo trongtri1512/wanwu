@@ -206,7 +206,7 @@ func getLocalWorkflowTemplateList(ctx context.Context, category, name string) (*
 		if name != "" && !strings.Contains(wtfCfg.Name, name) {
 			continue
 		}
-		if !(category == "" || category == "all") && !strings.Contains(wtfCfg.Category, category) {
+		if category != "" && category != "all" && !strings.Contains(wtfCfg.Category, category) {
 			continue
 		}
 		resWorkflowTemp = append(resWorkflowTemp, buildWorkflowTempInfo(ctx, *wtfCfg))

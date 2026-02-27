@@ -87,7 +87,7 @@ func UploadAvatar(ctx *gin.Context, fileHeader *multipart.FileHeader) (string, e
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(err_code.Code_BFFInvalidArg, "bff_avatar_upload_error", err.Error())
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	// 读取图片到内存缓冲区
 	imgBuf := new(bytes.Buffer)
@@ -360,7 +360,7 @@ func cacheWorkflowAvatar(avatarURL, appType string) request.Avatar {
 		log.Errorf("cache avatar %v download %v err: %v", avatarURL, newAvatarURL, err)
 		return avatar
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		log.Errorf("cache avatar %v download %v HTTP error: %v", avatarURL, newAvatarURL, resp.Status)
 		return avatar

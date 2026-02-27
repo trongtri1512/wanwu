@@ -34,7 +34,7 @@ func ListTools(ctx context.Context, sseUrl string) ([]*protocol.Tool, error) {
 	if err != nil {
 		return nil, fmt.Errorf("mcp list tools (%v) init client err: %v", sseUrl, err)
 	}
-	defer mcpClient.Close()
+	defer func() { _ = mcpClient.Close() }()
 
 	// 获取可用工具列表
 	resp, err := mcpClient.ListTools(ctx)

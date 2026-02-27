@@ -44,7 +44,7 @@ func setupTidb(execMode string) error {
 	if err != nil {
 		return fmt.Errorf("init db exec mode %v err: %v", execMode, err)
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 	switch execMode {
 	case EXEC_MODE_SET_PASSWORD:
 		if err = db.Ping(); err != nil {
@@ -58,7 +58,7 @@ func setupTidb(execMode string) error {
 			if err != nil {
 				return fmt.Errorf("init db exec mode %v without password err: %v", execMode, err)
 			}
-			defer db.Close()
+			defer func() { _ = db.Close() }()
 		} else {
 			log.Printf("already setup db, exec mode: %v", execMode)
 			return nil

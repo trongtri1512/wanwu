@@ -16,7 +16,7 @@ func loadXlsxTextConfigs(i18nXlsxPath string, sheets, langs []string) ([]*textCo
 	if err != nil {
 		return nil, fmt.Errorf("i18n open %v err: %v", i18nXlsxPath, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// load sheet
 	var ret []*textConfig

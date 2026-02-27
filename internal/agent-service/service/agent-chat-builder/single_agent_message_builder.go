@@ -2,11 +2,12 @@ package agent_chat_builder
 
 import (
 	"fmt"
+	"sort"
+	"unicode/utf8"
+
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/response"
 	"github.com/cloudwego/eino/schema"
-	"sort"
-	"unicode/utf8"
 )
 
 const (
@@ -254,10 +255,10 @@ func buildContentByStep(chatMessage *schema.Message, step response.ToolStep, too
 
 // buildMessageTool 构造消息工具内容数据
 func buildMessageTool(chatMessage *schema.Message, toolId string) *schema.ToolCall {
-	var length = len(chatMessage.ToolCalls)
-	if length == 0 {
+	switch length := len(chatMessage.ToolCalls); length {
+	case 0:
 		return nil
-	} else if length == 1 {
+	case 1:
 		return &chatMessage.ToolCalls[0]
 	}
 

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	net_url "net/url"
 	"strconv"
 
 	app_service "github.com/UnicomAI/wanwu/api/proto/app-service"
@@ -25,7 +24,7 @@ import (
 )
 
 func CreateChatflow(ctx *gin.Context, orgID, name, desc, iconUri string) (*response.CozeWorkflowIDData, error) {
-	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.CreateUri)
+	url, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.CreateUri)
 	ret := &response.CozeWorkflowIDResp{}
 	if resp, err := resty.New().
 		R().
@@ -52,7 +51,7 @@ func CreateChatflow(ctx *gin.Context, orgID, name, desc, iconUri string) (*respo
 }
 
 func CreateChatflowConversation(ctx *gin.Context, userId, orgId, workflowId, conversationName string) (*response.OpenAPIChatflowCreateConversationResponse, error) {
-	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.CreateChatflowConversationUri)
+	url, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.CreateChatflowConversationUri)
 	ret := &response.CozeCreateConversationResponse{}
 	if resp, err := resty.New().
 		R().
@@ -95,7 +94,7 @@ func CreateChatflowConversation(ctx *gin.Context, userId, orgId, workflowId, con
 }
 
 func GetConversationMessageList(ctx *gin.Context, userId, orgId, appId, conversationId, limit string) (*response.OpenAPIChatflowGetConversationMessageListResponse, error) {
-	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetConversationMessageListUri)
+	url, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetConversationMessageListUri)
 	ret := &response.CozeListMessageApiResponse{}
 	if resp, err := resty.New().
 		R().
@@ -124,7 +123,7 @@ func GetConversationMessageList(ctx *gin.Context, userId, orgId, appId, conversa
 }
 
 func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, message string, parameters map[string]any) error {
-	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ChatflowRunByOpenapiUri)
+	url, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.ChatflowRunByOpenapiUri)
 	p, err := json.Marshal(parameters)
 	if err != nil {
 		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_chat", err.Error())
@@ -179,7 +178,7 @@ func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, m
 		}
 		return grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_chatflow_chat", fmt.Sprintf("[%v] %v", resp.StatusCode(), string(b)))
 	}
-	defer resp.RawBody().Close()
+	defer func() { _ = resp.RawBody().Close() }()
 
 	// 设置 SSE 响应头
 	ctx.Writer.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
@@ -220,7 +219,7 @@ func ChatflowChat(ctx *gin.Context, userId, orgId, workflowId, conversationId, m
 
 func ChatflowApplicationList(ctx *gin.Context, userId, orgId, workflowId string) (*response.CozeDraftIntelligenceListData, error) {
 	// 1.先获取workflow-wanwu的draft intelligence list信息
-	getDraftUrl, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetDraftIntelligenceListUri)
+	getDraftUrl, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetDraftIntelligenceListUri)
 	// 构造referer url
 	baseURL := config.Cfg().Server.WebBaseUrl // e.g. "http://172.25.214.210:8081"
 
@@ -271,7 +270,7 @@ func ChatflowApplicationList(ctx *gin.Context, userId, orgId, workflowId string)
 		}, nil
 	}
 	// 3.如果没有记录，则通过workflow接口创建一条，并且替换掉返回值中的ID
-	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetProjectConversationDef)
+	url, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetProjectConversationDef)
 	ret := &response.CozeCreateProjectConversationDefResponse{}
 	if resp, err := resty.New().
 		R().
@@ -322,7 +321,7 @@ func ChatflowApplicationInfo(ctx *gin.Context, userId, orgId string, req request
 		return nil, err
 	}
 	// 再去workflow接口获取draft intelligence info
-	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetDraftIntelligenceInfoUri)
+	url, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.GetDraftIntelligenceInfoUri)
 	// 构造请求
 	getDraftInfoResp := &response.CozeGetDraftIntelligenceInfoResponse{}
 	if resp, err := resty.New().
@@ -349,7 +348,7 @@ func ChatflowApplicationInfo(ctx *gin.Context, userId, orgId string, req request
 }
 
 func DeleteChatflowConversation(ctx *gin.Context, orgId, projectId, uniqueId string) error {
-	url, _ := net_url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.DeleteConversationUri)
+	url, _ := url.JoinPath(config.Cfg().Workflow.Endpoint, config.Cfg().Workflow.DeleteConversationUri)
 	ret := &response.CozeDeleteProjectConversationDefResponse{}
 	if resp, err := resty.New().
 		R().

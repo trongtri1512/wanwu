@@ -147,13 +147,13 @@ func AgentRecommendChatCompletions(ctx *gin.Context, modelID string, req *mp_com
 							joinStr = joinStr + delta.Content
 							skipFlag = true
 							if strings.Contains(joinStr, startSign) || strings.Contains(joinStr, errorSign) {
-								// 标识符<START>满足条件
-								if joinStr == startSign {
+								switch joinStr {
+								case startSign:
 									skipFlag = true
-								} else if joinStr == errorSign {
+								case errorSign:
 									skipFlag = true
 									errorFlag = true
-								} else {
+								default:
 									// 截取输出内容，不跳过本次输出
 									if strings.Contains(joinStr, startSign) {
 										delta.Content = joinStr[len(startSign):]
@@ -162,7 +162,6 @@ func AgentRecommendChatCompletions(ctx *gin.Context, modelID string, req *mp_com
 										delta.Content = joinStr[len(errorSign):]
 										skipFlag = false
 									}
-
 								}
 								startFlag = true
 								joinStr = ""

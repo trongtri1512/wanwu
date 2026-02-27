@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	iam_service "github.com/UnicomAI/wanwu/api/proto/iam-service"
 	knowledgebase_doc_service "github.com/UnicomAI/wanwu/api/proto/knowledgebase-doc-service"
@@ -651,7 +650,7 @@ func GetDocUploadLimit(ctx *gin.Context, userId, orgId string, req *request.Quer
 	}
 	if knowledge == nil || knowledge.EmbeddingModelInfo == nil {
 		log.Errorf("查询知识库失败")
-		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "knowledge is nil")
+		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "knowledge is nil")
 	}
 	embModelId := knowledge.EmbeddingModelInfo.ModelId
 	// 2.获取图片限制大小
@@ -677,15 +676,15 @@ func getEmbImageSize(ctx *gin.Context, userId, orgId, embModelId string) (int, e
 	}
 	// 校验模型类型
 	if modelInfo.ModelType != mp.ModelTypeMultiEmbedding {
-		return 0, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "modelType mismatch")
+		return 0, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "modelType mismatch")
 	}
 	// 模型配置断言
 	modelConfig, ok := modelInfo.Config.(*mp_jina.MultiModalEmbedding)
 	if !ok {
-		return 0, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "embedding模型配置错误")
+		return 0, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "embedding模型配置错误")
 	}
 	if modelConfig == nil || modelConfig.MaxImageSize == nil {
-		return 0, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "embedding模型配置错误")
+		return 0, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "embedding模型配置错误")
 	}
 	return int(*(modelConfig.MaxImageSize)), nil
 }

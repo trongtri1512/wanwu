@@ -30,7 +30,7 @@ func ParseSensitiveExcel(fileData []byte) ([]SensitiveRawData, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	sheetName := f.GetSheetList()[0]
 	rows, err := f.GetRows(sheetName)

@@ -14,8 +14,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/client/orm"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
-	dify_service "github.com/UnicomAI/wanwu/internal/knowledge-service/service"
-	rag_service "github.com/UnicomAI/wanwu/internal/knowledge-service/service"
+	knowledge_service "github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	wanwu_util "github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/samber/lo"
@@ -193,7 +192,7 @@ func (s *Service) KnowledgeHit(ctx context.Context, req *knowledgebase_service.K
 	if err != nil {
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseHitFailed)
 	}
-	hitResp, err := rag_service.RagKnowledgeHit(ctx, ragHitParams)
+	hitResp, err := knowledge_service.RagKnowledgeHit(ctx, ragHitParams)
 	if err != nil {
 		log.Errorf("RagKnowledgeHit error %s", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseHitFailed)
@@ -328,15 +327,16 @@ func (s *Service) GetKnowledgeGraph(ctx context.Context, req *knowledgebase_serv
 	}
 	var processCount, successCount, failCount int32
 	for _, info := range docInfo {
-		if info.GraphStatus == model.GraphProcessing {
+		switch info.GraphStatus {
+		case model.GraphProcessing:
 			processCount++
-		} else if info.GraphStatus == model.GraphSuccess {
+		case model.GraphSuccess:
 			successCount++
-		} else if info.GraphStatus == model.GraphChunkFail || info.GraphStatus == model.GraphExtractFail || info.GraphStatus == model.GraphStoreFail {
+		case model.GraphChunkFail, model.GraphExtractFail, model.GraphStoreFail:
 			failCount++
 		}
 	}
-	resp, err := rag_service.RagKnowledgeGraph(ctx, &rag_service.RagKnowledgeGraphParams{
+	resp, err := knowledge_service.RagKnowledgeGraph(ctx, &knowledge_service.RagKnowledgeGraphParams{
 		KnowledgeId:   knowledge.KnowledgeId,
 		KnowledgeBase: knowledge.RagName,
 		UserId:        knowledge.UserId,
@@ -430,7 +430,7 @@ func (s *Service) CreateKnowledgeExternalAPI(ctx context.Context, req *knowledge
 		UserId:        req.UserId,
 		OrgId:         req.OrgId,
 	}
-	_, err := dify_service.DifyGetDatasets(ctx, externalAPI, &dify_service.DifyGetDatasetsParams{IncludeAll: true})
+	_, err := knowledge_service.DifyGetDatasets(ctx, externalAPI, &knowledge_service.DifyGetDatasetsParams{IncludeAll: true})
 	if err != nil {
 		log.Errorf("check dify getDatasets err: %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPICheckFailed)
@@ -475,7 +475,7 @@ func (s *Service) SelectKnowledgeExternalList(ctx context.Context, req *knowledg
 		log.Errorf("get knowledge external api info err: %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
 	}
-	resp, err := dify_service.DifyGetDatasets(ctx, externalAPIInfo, &dify_service.DifyGetDatasetsParams{IncludeAll: true})
+	resp, err := knowledge_service.DifyGetDatasets(ctx, externalAPIInfo, &knowledge_service.DifyGetDatasetsParams{IncludeAll: true})
 	if err != nil {
 		log.Errorf("get dify getDatasets err: %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalListSelectFailed)
@@ -502,7 +502,7 @@ func (s *Service) SelectKnowledgeExternalInfo(ctx context.Context, req *knowledg
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
 	}
 	// 3.调用dify api
-	resp, err := dify_service.DifyGetDataset(ctx, externalAPIInfo, externalKnowledgeInfo.ExternalKnowledgeId)
+	resp, err := knowledge_service.DifyGetDataset(ctx, externalAPIInfo, externalKnowledgeInfo.ExternalKnowledgeId)
 	if err != nil {
 		log.Errorf("get dify getDataset err: %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalInfoSelectFailed)
@@ -523,7 +523,7 @@ func (s *Service) CreateKnowledgeExternal(ctx context.Context, req *knowledgebas
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
 	}
 	// 3.查询外部知识库详情
-	difyKnowledgeInfo, err := dify_service.DifyGetDataset(ctx, externalAPIInfo, req.ExternalKnowledgeId)
+	difyKnowledgeInfo, err := knowledge_service.DifyGetDataset(ctx, externalAPIInfo, req.ExternalKnowledgeId)
 	if err != nil {
 		log.Errorf("get dify getDataset err: %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalInfoSelectFailed)
@@ -563,7 +563,7 @@ func (s *Service) UpdateKnowledgeExternal(ctx context.Context, req *knowledgebas
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalAPIInfoSelectFailed)
 	}
 	// 4.查询外部知识库详情
-	difyKnowledgeInfo, err := dify_service.DifyGetDataset(ctx, externalAPIInfo, req.ExternalKnowledgeId)
+	difyKnowledgeInfo, err := knowledge_service.DifyGetDataset(ctx, externalAPIInfo, req.ExternalKnowledgeId)
 	if err != nil {
 		log.Errorf("get  dify getDataset err: %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeExternalInfoSelectFailed)
@@ -666,10 +666,10 @@ func handleReqMetaList(metaList []*knowledgebase_service.MetaValueOperation) (re
 		if _, exists := keyMap[meta.MetaInfo.Key]; !exists {
 			keyMap[meta.MetaInfo.Key] = meta
 		} else {
-			// 同一key优先级：删除 > 更新 > 新增
-			if meta.Option == MetaOperationDelete {
+			switch meta.Option {
+			case MetaOperationDelete:
 				keyMap[meta.MetaInfo.Key] = meta
-			} else if meta.Option == MetaOperationUpdate {
+			case MetaOperationUpdate:
 				if keyMap[meta.MetaInfo.Key].Option == MetaOperationAdd {
 					keyMap[meta.MetaInfo.Key] = meta
 				}
@@ -741,7 +741,7 @@ func handleDeleteMeta(req *knowledgebase_service.UpdateKnowledgeMetaValueReq, me
 	}
 }
 
-func buildRagHitParams(req *knowledgebase_service.KnowledgeHitReq, list []*model.KnowledgeBase, knowledgeIDToName map[string]string) (*rag_service.KnowledgeHitParams, error) {
+func buildRagHitParams(req *knowledgebase_service.KnowledgeHitReq, list []*model.KnowledgeBase, knowledgeIDToName map[string]string) (*knowledge_service.KnowledgeHitParams, error) {
 	matchParams := req.KnowledgeMatchParams
 	priorityMatch := matchParams.PriorityMatch
 	filterEnable, metaParams, err := buildRagHitMetaParams(req, knowledgeIDToName)
@@ -750,7 +750,7 @@ func buildRagHitParams(req *knowledgebase_service.KnowledgeHitReq, list []*model
 	}
 	idList, nameList := buildKnowledgeList(list)
 	// bff做了代理，直接传请求里的userId
-	ret := &rag_service.KnowledgeHitParams{
+	ret := &knowledge_service.KnowledgeHitParams{
 		UserId:               req.UserId,
 		Question:             req.Question,
 		KnowledgeIdList:      idList,
@@ -770,11 +770,11 @@ func buildRagHitParams(req *knowledgebase_service.KnowledgeHitReq, list []*model
 	return ret, nil
 }
 
-func buildAttachmentList(attachmentFiles []*knowledgebase_service.DocFileInfo) []*rag_service.AttachmentInfo {
-	retList := make([]*rag_service.AttachmentInfo, 0)
+func buildAttachmentList(attachmentFiles []*knowledgebase_service.DocFileInfo) []*knowledge_service.AttachmentInfo {
+	retList := make([]*knowledge_service.AttachmentInfo, 0)
 	if len(attachmentFiles) > 0 {
 		for _, attachment := range attachmentFiles {
-			retList = append(retList, &rag_service.AttachmentInfo{
+			retList = append(retList, &knowledge_service.AttachmentInfo{
 				FileType: "image",
 				FileUrl:  attachment.DocUrl,
 			})
@@ -783,9 +783,9 @@ func buildAttachmentList(attachmentFiles []*knowledgebase_service.DocFileInfo) [
 	return retList
 }
 
-func buildRagHitMetaParams(req *knowledgebase_service.KnowledgeHitReq, knowledgeIDToName map[string]string) (bool, []*rag_service.MetadataFilterItem, error) {
+func buildRagHitMetaParams(req *knowledgebase_service.KnowledgeHitReq, knowledgeIDToName map[string]string) (bool, []*knowledge_service.MetadataFilterItem, error) {
 	filterEnable := false // 标记是否有启用的元数据过滤
-	var metaFilterConditions []*rag_service.MetadataFilterItem
+	var metaFilterConditions []*knowledge_service.MetadataFilterItem
 	for _, k := range req.KnowledgeList {
 		// 检查元数据过滤参数是否有效
 		filterParams := k.MetaDataFilterParams
@@ -804,7 +804,7 @@ func buildRagHitMetaParams(req *knowledgebase_service.KnowledgeHitReq, knowledge
 			return false, nil, err
 		}
 		// 添加过滤项到结果
-		metaFilterConditions = append(metaFilterConditions, &rag_service.MetadataFilterItem{
+		metaFilterConditions = append(metaFilterConditions, &knowledge_service.MetadataFilterItem{
 			FilterKnowledgeName: knowledgeIDToName[k.KnowledgeId],
 			LogicalOperator:     filterParams.FilterLogicType,
 			Conditions:          metaItems,
@@ -814,8 +814,8 @@ func buildRagHitMetaParams(req *knowledgebase_service.KnowledgeHitReq, knowledge
 }
 
 // 构建元数据项列表
-func buildRagHitMetaItems(knowledgeID string, params []*knowledgebase_service.MetaFilterParams) ([]*rag_service.MetaItem, error) {
-	var metaItems []*rag_service.MetaItem
+func buildRagHitMetaItems(knowledgeID string, params []*knowledgebase_service.MetaFilterParams) ([]*knowledge_service.MetaItem, error) {
+	var metaItems []*knowledge_service.MetaItem
 	for _, param := range params {
 		// 基础参数校验
 		if err := validateMetaFilterParam(knowledgeID, param); err != nil {
@@ -827,7 +827,7 @@ func buildRagHitMetaItems(knowledgeID string, params []*knowledgebase_service.Me
 			log.Errorf("kbId: %s, convert value failed: %v", knowledgeID, err)
 			return nil, fmt.Errorf("convert value for key %s: %s", param.Key, err.Error())
 		}
-		metaItems = append(metaItems, &rag_service.MetaItem{
+		metaItems = append(metaItems, &knowledge_service.MetaItem{
 			MetaName:           param.Key,
 			MetaType:           param.Type,
 			ComparisonOperator: param.Condition,
@@ -1045,7 +1045,7 @@ func buildKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeReq) (*mo
 }
 
 // buildExternalKnowledgeBaseModel 构造外部知识库
-func buildExternalKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeExternalReq, externalAPIInfo *model.KnowledgeExternalAPI, difyKnowledgeInfo *dify_service.DifyDatasetData) (*model.KnowledgeBase, error) {
+func buildExternalKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeExternalReq, externalAPIInfo *model.KnowledgeExternalAPI, difyKnowledgeInfo *knowledge_service.DifyDatasetData) (*model.KnowledgeBase, error) {
 	externalKnowledgeInfo, err := json.Marshal(ExternalKnowledgeInfo{
 		ExternalAPIId:         req.ExternalApiId,
 		ExternalAPIName:       externalAPIInfo.Name,
@@ -1092,7 +1092,7 @@ func buildKnowledgeList(knowledgeList []*model.KnowledgeBase) (knowledgeIdList, 
 }
 
 // buildKnowledgeBaseHitResp 构造知识库命中返回
-func buildKnowledgeBaseHitResp(ragKnowledgeHitResp *rag_service.RagKnowledgeHitResp) *knowledgebase_service.KnowledgeHitResp {
+func buildKnowledgeBaseHitResp(ragKnowledgeHitResp *knowledge_service.RagKnowledgeHitResp) *knowledgebase_service.KnowledgeHitResp {
 	knowledgeHitData := ragKnowledgeHitResp.Data
 	var searchList = make([]*knowledgebase_service.KnowledgeSearchInfo, 0)
 	list := knowledgeHitData.SearchList
@@ -1130,7 +1130,7 @@ func buildKnowledgeBaseHitResp(ragKnowledgeHitResp *rag_service.RagKnowledgeHitR
 	}
 }
 
-func buildRerankInfo(rerankInfo []*rag_service.RerankInfo) []*knowledgebase_service.RerankInfo {
+func buildRerankInfo(rerankInfo []*knowledge_service.RerankInfo) []*knowledgebase_service.RerankInfo {
 	rerankInfoList := make([]*knowledgebase_service.RerankInfo, 0)
 	if len(rerankInfo) > 0 {
 		for _, v := range rerankInfo {
@@ -1174,11 +1174,11 @@ func buildRerankMod(priorityType int32) string {
 }
 
 // buildWeight 构造权重信息
-func buildWeight(priorityType int32, semanticsPriority float32, keywordPriority float32) *rag_service.WeightParams {
+func buildWeight(priorityType int32, semanticsPriority float32, keywordPriority float32) *knowledge_service.WeightParams {
 	if priorityType != 1 {
 		return nil
 	}
-	return &rag_service.WeightParams{
+	return &knowledge_service.WeightParams{
 		VectorWeight: semanticsPriority,
 		TextWeight:   keywordPriority,
 	}
@@ -1223,7 +1223,7 @@ func storeKnowledgeStoreSchema(knowledgeId string, knowledgeGraph *knowledgebase
 	if knowledgeGraph.Switch && knowledgeGraph.SchemaUrl != "" {
 		go func() {
 			defer wanwu_util.PrintPanicStack()
-			copyFile, _, _, err := rag_service.CopyFile(context.Background(), knowledgeGraph.SchemaUrl, "", false)
+			copyFile, _, _, err := knowledge_service.CopyFile(context.Background(), knowledgeGraph.SchemaUrl, "", false)
 			if err != nil {
 				log.Errorf("store knowledge copy file (%v) err: %v", knowledgeGraph.SchemaUrl, err)
 				return
@@ -1263,7 +1263,7 @@ func buildKnowledgeExternalAPIInfoResp(externalAPI *model.KnowledgeExternalAPI) 
 	}
 }
 
-func buildKnowledgeExternalSelectListResp(externalAPI *model.KnowledgeExternalAPI, difyGetDatasetsResp *dify_service.DifyGetDatasetsResp) *knowledgebase_service.KnowledgeExternalSelectListResp {
+func buildKnowledgeExternalSelectListResp(externalAPI *model.KnowledgeExternalAPI, difyGetDatasetsResp *knowledge_service.DifyGetDatasetsResp) *knowledgebase_service.KnowledgeExternalSelectListResp {
 	var externalKnowledgeList []*knowledgebase_service.KnowledgeExternalInfo
 	for _, dataset := range difyGetDatasetsResp.Data {
 		if dataset.ExternalKnowledgeInfo != nil && dataset.ExternalKnowledgeInfo.ExternalKnowledgeId != "" {
@@ -1276,7 +1276,7 @@ func buildKnowledgeExternalSelectListResp(externalAPI *model.KnowledgeExternalAP
 	}
 }
 
-func buildKnowledgeExternalInfoResp(externalAPI *model.KnowledgeExternalAPI, difyDatasetData *dify_service.DifyDatasetData) *knowledgebase_service.KnowledgeExternalInfo {
+func buildKnowledgeExternalInfoResp(externalAPI *model.KnowledgeExternalAPI, difyDatasetData *knowledge_service.DifyDatasetData) *knowledgebase_service.KnowledgeExternalInfo {
 	return &knowledgebase_service.KnowledgeExternalInfo{
 		ExternalKnowledgeId:   difyDatasetData.Id,
 		ExternalKnowledgeName: difyDatasetData.Name,
@@ -1301,7 +1301,7 @@ func buildKnowledgeExternalInfoResp(externalAPI *model.KnowledgeExternalAPI, dif
 	}
 }
 
-func buildDifyWeights(weights *dify_service.DifyWeights) *knowledgebase_service.Weights {
+func buildDifyWeights(weights *knowledge_service.DifyWeights) *knowledgebase_service.Weights {
 	if weights == nil {
 		return nil
 	}

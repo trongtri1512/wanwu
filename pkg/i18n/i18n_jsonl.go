@@ -13,7 +13,7 @@ func loadJsonlTextConfigs(i18nJsonlPath string) ([]*textConfig, error) {
 	if err != nil {
 		return nil, fmt.Errorf("i18n open %v err: %v", i18nJsonlPath, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	// load jsonl
 	var ret []*textConfig
 	var line int

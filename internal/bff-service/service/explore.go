@@ -189,7 +189,7 @@ func explorerationFilterRag(ctx *gin.Context, explorationApp []*app_service.Expl
 	if name != "" {
 		var filteredList []*response.ExplorationAppInfo
 		for _, ret := range retAppList {
-			if strings.Contains(strings.ToLower(ret.AppBriefInfo.Name), strings.ToLower(name)) {
+			if strings.Contains(strings.ToLower(ret.Name), strings.ToLower(name)) {
 				filteredList = append(filteredList, ret)
 			}
 		}
@@ -247,7 +247,7 @@ func explorerationFilterAgent(ctx *gin.Context, apps []*app_service.ExplorationA
 	if name != "" {
 		var filteredList []*response.ExplorationAppInfo
 		for _, ret := range retAppList {
-			if strings.Contains(strings.ToLower(ret.AppBriefInfo.Name), strings.ToLower(name)) {
+			if strings.Contains(strings.ToLower(ret.Name), strings.ToLower(name)) {
 				filteredList = append(filteredList, ret)
 			}
 		}

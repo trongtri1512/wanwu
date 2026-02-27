@@ -47,7 +47,7 @@ func TestI18nConvertXlsx2Jsonl(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	// write jsonl
 	encoder := json.NewEncoder(f)
 	for _, textCfg := range textCfgs {

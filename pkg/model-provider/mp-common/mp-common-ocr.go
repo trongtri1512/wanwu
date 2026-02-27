@@ -166,7 +166,7 @@ func Ocr(ctx *gin.Context, provider, apiKey, url string, req *OcrReq, headers ..
 		if err != nil {
 			return nil, fmt.Errorf("request %v %v ocr err: %v", url, provider, err)
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		request.SetFileReader("file", req.Files.Filename, file)
 
 	// 传入 OcrData（base64 编码）

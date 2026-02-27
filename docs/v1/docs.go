@@ -9342,7 +9342,7 @@ const docTemplate = `{
                 "tags": [
                     "model"
                 ],
-                "summary": "‌查询单个模型",
+                "summary": "查询单个模型",
                 "parameters": [
                     {
                         "description": "模型ID",

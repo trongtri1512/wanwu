@@ -271,7 +271,7 @@ func toMCPSquareDetail(ctx *gin.Context, mcpSquare *mcp_service.SquareMCPDetail)
 		},
 	}
 	for _, tool := range mcpSquare.Tool.Tools {
-		ret.MCPActions.Tools = append(ret.MCPActions.Tools, toToolAction(tool))
+		ret.Tools = append(ret.Tools, toToolAction(tool))
 	}
 	return ret
 }

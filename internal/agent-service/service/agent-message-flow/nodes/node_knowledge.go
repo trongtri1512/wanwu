@@ -60,7 +60,7 @@ func (k *KnowledgeRetriever) Retrieve(ctx context.Context, reqContext *request.A
 			continue
 		}
 		number := idx + 1
-		packedRes.WriteString(fmt.Sprintf("---\nrecall slice %d: 【%d^】%s\n", number, number, doc.Snippet))
+		fmt.Fprintf(&packedRes, "---\nrecall slice %d: 【%d^】%s\n", number, number, doc.Snippet)
 	}
 	knowledgeData := packedRes.String()
 	if len(knowledgeData) > 0 {

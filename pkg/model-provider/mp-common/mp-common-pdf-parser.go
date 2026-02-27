@@ -126,7 +126,7 @@ func PdfParser(ctx *gin.Context, provider, apiKey, url string, req *PdfParserReq
 	if err != nil {
 		return nil, fmt.Errorf("request %v %v pdfParser err: %v", url, provider, err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	formData := map[string]string{
 		"file_name": req.FileName,

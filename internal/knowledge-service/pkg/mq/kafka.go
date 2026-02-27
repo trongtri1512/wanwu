@@ -95,7 +95,7 @@ func initKafka(kafkaAdmin sarama.ClusterAdmin) (sarama.SyncProducer, error) {
 	log.Infof("Producer创建成功，开始初始化Admin客户端")
 
 	// 初始化Kafka Admin客户端
-	defer kafkaAdmin.Close()
+	defer func() { _ = kafkaAdmin.Close() }()
 	log.Infof("Admin客户端初始化成功，开始获取Topics列表")
 
 	// 获取所有topics

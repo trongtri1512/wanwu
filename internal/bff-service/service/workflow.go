@@ -228,7 +228,7 @@ func ImportWorkflow(ctx *gin.Context, orgID, appType string) (*response.CozeWork
 	if err != nil {
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", fmt.Sprintf("open file err: %v", err))
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		return nil, grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_import_file", fmt.Sprintf("read file err: %v", err))

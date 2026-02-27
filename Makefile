@@ -79,17 +79,17 @@ create-docker-net:
 check:
 	go vet ./...
 	go fmt ./...
-	docker run --rm -t -v $(PWD):/app -w /app golangci/golangci-lint:v1.64.8 bash -c 'golangci-lint run -v --timeout 3m'
+	docker run --rm -t -v $(PWD):/app -w /app golangci/golangci-lint:v2.10.1 bash -c 'golangci-lint run -v --timeout 3m'
 
 check-callback:
 	docker run --rm -t -v $(PWD)/callback:/callback -w /callback crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/python:3.12-slim-isort7.0.0 isort --check-only --diff --color .
 	docker run --rm -t -v $(PWD)/callback:/callback -w /callback pyfound/black:25.11.0 black -t py312 --check --diff --color .
 
 doc:
-	docker run --name golang-swag --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.24.6-bookworm-swag1.16.6 bash -c 'make doc-swag'
+	docker run --name golang-swag --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.24.13-bookworm-swag1.16.6 bash -c 'make doc-swag'
 
 doc-swag:
-	# swag version v1.16.4
+	# swag version v1.16.6
 	# v1
 	swag fmt  -g guest.go -d internal/bff-service/server/http/handler/v1
 	swag init -g guest.go -d internal/bff-service/server/http/handler/v1 -o docs/v1 --md docs --pd
@@ -129,7 +129,7 @@ init:
 	go mod vendor
 
 pb:
-	docker run --name golang-grpc --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.24.6-bookworm-protoc29.4-gengo1.34.1-gengrpc1.5.1-gengw2.20.0-genapi2.20.0 bash -c 'make grpc-protoc'
+	docker run --name golang-grpc --privileged=true --rm -v $(PWD):/app -w /app crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/golang:1.24.13-bookworm-protoc29.4-gengo1.34.1-gengrpc1.5.1-gengw2.20.0-genapi2.20.0 bash -c 'make grpc-protoc'
 
 # --- mysql ---
 run-mysql:

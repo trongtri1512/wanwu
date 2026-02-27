@@ -141,7 +141,7 @@ func syncAsrFormData(ctx context.Context, provider, apiKey, url string, req map[
 	if err != nil {
 		return nil, fmt.Errorf("request %v %v sync_asr err: %v", url, provider, err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	configVal, ok := req["config"]
 	if !ok {

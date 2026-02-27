@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	assistant_service "github.com/UnicomAI/wanwu/api/proto/assistant-service"
-	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/config"
@@ -50,7 +49,7 @@ func GetPromptTemplateList(ctx *gin.Context, category, name string) (*response.L
 		if name != "" && !strings.Contains(promptCfg.Name, name) {
 			continue
 		}
-		if !(category == "" || category == "all") && !strings.Contains(promptCfg.Category, category) {
+		if category != "" && category != "all" && !strings.Contains(promptCfg.Category, category) {
 			continue
 		}
 		promptTemplateList = append(promptTemplateList, buildPromptTempDetail(*promptCfg))
@@ -79,7 +78,7 @@ func GetPromptOptimize(ctx *gin.Context, userID, orgID string, req request.Promp
 	}
 
 	// 构建请求信息
-	var stream bool = true
+	var stream = true
 	reqInfo := &mp_common.LLMReq{
 		Model: modelInfo.Model,
 		Messages: []mp_common.OpenAIReqMsg{
@@ -102,19 +101,19 @@ func GetPromptOptimize(ctx *gin.Context, userID, orgID string, req request.Promp
 	}
 	iLLM, ok := llm.(mp.ILLM)
 	if !ok {
-		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: invalid provider", modelInfo.ModelId)))
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: invalid provider", modelInfo.ModelId)))
 		return
 	}
 
 	// chat completions
 	llmReq, err := iLLM.NewReq(reqInfo)
 	if err != nil {
-		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions NewReq err: %v", modelInfo.ModelId, err)))
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("model %v chat completions NewReq err: %v", modelInfo.ModelId, err)))
 		return
 	}
 	_, sseCh, err := iLLM.ChatCompletions(ctx.Request.Context(), llmReq)
 	if err != nil {
-		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: %v", modelInfo.ModelId, err)))
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("model %v chat completions err: %v", modelInfo.ModelId, err)))
 		return
 	}
 
@@ -124,12 +123,12 @@ func GetPromptOptimize(ctx *gin.Context, userID, orgID string, req request.Promp
 	ctx.Header("Connection", "keep-alive")
 	ctx.Header("Content-Type", "text/event-stream; charset=utf-8")
 	var data *mp_common.LLMResp
-	var inThink bool = false // 是否在思考标签内
+	var inThink = false // 是否在思考标签内
 
 	for sseResp := range sseCh {
 		data, ok = sseResp.ConvertResp()
 		var dataStr string
-		var shouldSend bool = true // 标记是否应该发送此响应
+		var shouldSend = true // 标记是否应该发送此响应
 
 		if ok && data != nil {
 			currentResponse := "" // 记录当前流式增量内容
@@ -197,9 +196,10 @@ func GetPromptOptimize(ctx *gin.Context, userID, orgID string, req request.Promp
 					Usage:    &data.Usage,
 				}
 				if len(data.Choices) > 0 {
-					if data.Choices[0].FinishReason == "" {
+					switch data.Choices[0].FinishReason {
+					case "":
 						streamData.Finish = 0 // 继续生成
-					} else if data.Choices[0].FinishReason == "stop" {
+					case "stop":
 						streamData.Finish = 1 // 结束标志
 					}
 				}
@@ -221,7 +221,7 @@ func GetPromptOptimize(ctx *gin.Context, userID, orgID string, req request.Promp
 	}
 
 	if len(answer) == 0 {
-		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, "answer is empty"))
+		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "answer is empty"))
 		return
 	}
 

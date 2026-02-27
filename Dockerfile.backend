@@ -1,7 +1,7 @@
 ARG WANWU_ARCH
 
 # --- 第一阶段：构建阶段 ---
-FROM --platform=linux/$WANWU_ARCH golang:1.24.6-bookworm AS builder
+FROM --platform=linux/$WANWU_ARCH golang:1.24.13-bookworm AS builder
 ARG WANWU_ARCH
 WORKDIR /app
 COPY . .

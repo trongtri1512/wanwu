@@ -14,5 +14,5 @@ func GenUUID() string {
 
 // GenApiUUID ww-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 func GenApiUUID() string {
-	return fmt.Sprintf("ww-%s", strings.Replace(uuid.New().String(), "-", "", -1))
+	return fmt.Sprintf("ww-%s", strings.ReplaceAll(uuid.New().String(), "-", ""))
 }

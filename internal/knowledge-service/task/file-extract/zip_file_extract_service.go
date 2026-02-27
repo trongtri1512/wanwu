@@ -38,7 +38,7 @@ func (t ZipFileExtractServiceService) ExtractFile(ctx context.Context, localFile
 		}
 	}()
 
-	for _, f := range fileReader.Reader.File {
+	for _, f := range fileReader.File {
 		var decodeFileName string
 		if f.Flags == 0 { //本地编码，默认GBK，转换成UTF-8
 			i := bytes.NewReader([]byte(f.Name))

@@ -14,20 +14,16 @@ func Exist[T ~int | ~int32 | ~uint32 | ~int64 | ~string](arr []T, n T) bool {
 	return false
 }
 
-// IsAlphanumeric 特殊字符校验
 func IsAlphanumeric(input string) bool {
 	for _, r := range input {
-		if !(unicode.Is(unicode.Han, r) || // Chinese character
-			unicode.IsLetter(r) || // English letter
-			unicode.IsDigit(r) || // Digit
-			r == ' ') { // Space
-			if r == ':' || r == '"' || r == '\'' { // Check for specific unwanted characters
+		if r == ':' || r == '"' || r == '\'' || unicode.IsUpper(r) {
+			return false
+		}
+		if !unicode.Is(unicode.Han, r) && !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != ' ' {
+			if strings.ContainsAny(string(r), "~#@$%^&*()<>,.{}[]、|/？?;'!！=+") {
 				return false
 			}
 		}
-		if unicode.IsUpper(r) {
-			return false
-		}
 	}
-	return !strings.ContainsAny(input, "~#@$%^&*()<>,.{}[]、|/？?;'!！=+")
+	return true
 }

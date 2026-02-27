@@ -12,7 +12,7 @@ import (
 func DirToBytes(dir string) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	zipWriter := zip.NewWriter(buf)
-	defer zipWriter.Close()
+	defer func() { _ = zipWriter.Close() }()
 
 	// 检查路径是否存在
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -60,7 +60,7 @@ func DirToBytes(dir string) ([]byte, error) {
 				return err
 			}
 			_, err = io.Copy(writer, file)
-			file.Close()
+			defer func() { _ = file.Close() }()
 			if err != nil {
 				return err
 			}

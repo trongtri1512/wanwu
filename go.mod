@@ -1,6 +1,6 @@
 module github.com/UnicomAI/wanwu
 
-go 1.24.0
+go 1.24.13
 
 replace github.com/getkin/kin-openapi => github.com/getkin/kin-openapi v0.118.0
 
@@ -35,7 +35,7 @@ require (
 	github.com/redis/go-redis/v9 v9.8.0
 	github.com/samber/lo v1.51.0
 	github.com/spf13/viper v1.20.1
-	github.com/swaggo/swag v1.16.4
+	github.com/swaggo/swag v1.16.6
 	github.com/xuri/excelize/v2 v2.8.1
 	github.com/yuin/goldmark v1.4.13
 	go.uber.org/zap v1.27.0
@@ -67,6 +67,7 @@ require (
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
 )
 
 require (
@@ -77,8 +78,8 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
-	github.com/bytedance/sonic v1.14.1 // indirect
-	github.com/bytedance/sonic/loader v0.3.0 // indirect
+	github.com/bytedance/sonic v1.15.0 // indirect
+	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/casbin/casbin/v2 v2.89.0 // indirect
 	github.com/casbin/gorm-adapter/v3 v3.24.0 // indirect
 	github.com/casbin/govaluate v1.1.0 // indirect

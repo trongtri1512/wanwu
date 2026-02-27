@@ -17,8 +17,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/server/grpc/knowledge"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/service"
 	"github.com/UnicomAI/wanwu/pkg/log"
-	util2 "github.com/UnicomAI/wanwu/pkg/util"
-	wanwu_util "github.com/UnicomAI/wanwu/pkg/util"
+	pkgUtil "github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/samber/lo"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -59,14 +58,15 @@ func (s *Service) GetQAImportTip(ctx context.Context, req *knowledgebase_qa_serv
 	}
 	if len(taskList) > 0 {
 		task := taskList[0]
-		if task.Status == model.KnowledgeQAPairImportFail {
+		switch task.Status {
+		case model.KnowledgeQAPairImportFail:
 			return &knowledgebase_qa_service.QAImportTipResp{
 				KnowledgeId:   req.KnowledgeId,
 				KnowledgeName: knowledge.Name,
 				Message:       "\n" + task.ErrorMsg,
 				UploadStatus:  model.KnowledgeQAPairImportFail,
 			}, nil
-		} else if task.Status == model.KnowledgeQAPairImportSuccess {
+		case model.KnowledgeQAPairImportSuccess:
 			return &knowledgebase_qa_service.QAImportTipResp{
 				KnowledgeId:   req.KnowledgeId,
 				KnowledgeName: knowledge.Name,
@@ -152,14 +152,14 @@ func (s *Service) CreateQAPair(ctx context.Context, req *knowledgebase_qa_servic
 	//2.检查问题MD5
 	question := strings.Trim(req.Question, " ")
 	answer := strings.Trim(req.Answer, " ")
-	questionMD5 := wanwu_util.MD5([]byte(question))
+	questionMD5 := pkgUtil.MD5([]byte(question))
 	err = orm.CheckKnowledgeQAPairQuestion(ctx, "", req.KnowledgeId, questionMD5)
 	if err != nil {
 		log.Errorf("check qa pair question md5 fail %v", err)
 		return nil, util.ErrCode(errs.Code_KnowledgeDuplicateQAPirQuestion)
 	}
 	// 3.新建问答对
-	qaPairId := wanwu_util.NewID()
+	qaPairId := pkgUtil.NewID()
 	qaPairs, ragParams := buildCreateQAPairParams(knowledgeBase, question, answer, questionMD5, qaPairId, req.UserId, req.OrgId)
 	err = orm.CreateKnowledgeQAPairAndCount(ctx, req.KnowledgeId, qaPairs, ragParams)
 	if err != nil {
@@ -187,7 +187,7 @@ func (s *Service) UpdateQAPair(ctx context.Context, req *knowledgebase_qa_servic
 	//3.校验问答对
 	question := strings.Trim(req.Question, " ")
 	answer := strings.Trim(req.Answer, " ")
-	questionMD5 := wanwu_util.MD5([]byte(question))
+	questionMD5 := pkgUtil.MD5([]byte(question))
 	if qaPair.Question == question && qaPair.Answer == answer {
 		return nil, nil
 	}
@@ -498,7 +498,7 @@ func buildQAPairImportTask(req *knowledgebase_qa_service.ImportQAPairReq) (*mode
 		return nil, err
 	}
 	return &model.KnowledgeQAPairImportTask{
-		ImportId:    wanwu_util.NewID(),
+		ImportId:    pkgUtil.NewID(),
 		KnowledgeId: req.KnowledgeId,
 		CreatedAt:   time.Now().UnixMilli(),
 		UpdatedAt:   time.Now().UnixMilli(),
@@ -512,7 +512,7 @@ func buildQAPairImportTask(req *knowledgebase_qa_service.ImportQAPairReq) (*mode
 // buildExportTask 构造导出任务
 func buildQAPairExportTask(req *knowledgebase_qa_service.ExportQAPairReq) (*model.KnowledgeExportTask, error) {
 	return &model.KnowledgeExportTask{
-		ExportId:    wanwu_util.NewID(),
+		ExportId:    pkgUtil.NewID(),
 		KnowledgeId: req.KnowledgeId,
 		CreatedAt:   time.Now().UnixMilli(),
 		UpdatedAt:   time.Now().UnixMilli(),
@@ -536,7 +536,7 @@ func buildQAPairListResp(list []*model.KnowledgeQAPair, knowledge *model.Knowled
 				Status:       int32(item.Status),
 				Switch:       item.Switch,
 				ErrorMsg:     item.ErrorMsg,
-				UploadTime:   util2.Time2Str(item.CreatedAt),
+				UploadTime:   pkgUtil.Time2Str(item.CreatedAt),
 				UserId:       item.UserId,
 				MetaDataList: buildMetaList(metaMap, item.QAPairId),
 			})
@@ -631,7 +631,7 @@ func buildQAPairInfo(item *model.KnowledgeQAPair) *knowledgebase_qa_service.QAPa
 		KnowledgeId: item.KnowledgeId,
 		Question:    item.Question,
 		Answer:      item.Answer,
-		UploadTime:  util2.Time2Str(item.CreatedAt),
+		UploadTime:  pkgUtil.Time2Str(item.CreatedAt),
 		Status:      int32(item.Status),
 		ErrorMsg:    item.ErrorMsg,
 		Switch:      item.Switch,

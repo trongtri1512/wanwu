@@ -78,7 +78,7 @@ func toToolSquareDetail(ctx *gin.Context, toolSquare *mcp_service.SquareToolDeta
 		Schema: toolSquare.Schema,
 	}
 	for _, tool := range toolSquare.BuiltInTools.Tools {
-		ret.ToolSquareActions.Tools = append(ret.ToolSquareActions.Tools, toToolAction(tool))
+		ret.Tools = append(ret.Tools, toToolAction(tool))
 	}
 	return ret
 }

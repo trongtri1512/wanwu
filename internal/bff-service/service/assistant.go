@@ -476,9 +476,10 @@ func assistantMCPConvert(ctx *gin.Context, assistantMCPInfos []*assistant_servic
 	// 提取MCP ID列表
 	var MCPCustomIds, MCPServerIds []string
 	for _, m := range assistantMCPInfos {
-		if m.McpType == constant.MCPTypeMCP {
+		switch m.McpType {
+		case constant.MCPTypeMCP:
 			MCPCustomIds = append(MCPCustomIds, m.McpId)
-		} else if m.McpType == constant.MCPTypeMCPServer {
+		case constant.MCPTypeMCPServer:
 			MCPServerIds = append(MCPServerIds, m.McpId)
 		}
 	}

@@ -24,7 +24,7 @@ func FileUrlConvertBase64(ctx *gin.Context, req *request.FileUrlConvertBase64Req
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_http_get", err.Error())
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode != http.StatusOK {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_file_http_get", fmt.Sprintf("StatusCode: %d", resp.StatusCode))
 	}
@@ -49,7 +49,7 @@ func UploadFileToWorkflow(ctx *gin.Context, req *request.WorkflowUploadFileReq) 
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		return nil, err

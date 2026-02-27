@@ -34,7 +34,7 @@ func (s *Service) GetSquareMCPList(ctx context.Context, req *mcp_service.GetSqua
 		if req.Name != "" && !strings.Contains(mcpCfg.Name, req.Name) {
 			continue
 		}
-		if !(req.Category == "" || req.Category == "all") && !strings.Contains(mcpCfg.Category, req.Category) {
+		if req.Category != "" && req.Category != "all" && !strings.Contains(mcpCfg.Category, req.Category) {
 			continue
 		}
 		resMcpSquareServers = append(resMcpSquareServers, buildSquareMCPInfo(*mcpCfg))

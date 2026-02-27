@@ -48,7 +48,7 @@ func OpenAPIWorkflowFileUpload(ctx *gin.Context) (string, error) {
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_file_upload", fmt.Sprintf("open file err: %v", err))
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		return "", grpc_util.ErrorStatusWithKey(errs.Code_BFFGeneral, "bff_workflow_file_upload", fmt.Sprintf("io read all file err: %v", err))

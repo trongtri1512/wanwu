@@ -23,8 +23,7 @@ func BuildDocReqStatusList(reqStatusList []int32) []int {
 	var statusList []int
 	for _, v := range reqStatusList {
 		switch v {
-		case -1: //-1 查全部
-			break
+		case -1:
 		case 1:
 			statusList = append(statusList, []int{1, 10}...)
 		case 3:
@@ -42,8 +41,7 @@ func BuildDocReqGraphStatusList(reqGraphStatusList []int32) []int {
 	var graphStatusList []int
 	for _, v := range reqGraphStatusList {
 		switch v {
-		case -1: //-1 查全部
-			break
+		case -1:
 		case 0:
 			graphStatusList = append(graphStatusList, []int{0}...)
 		case 1:
