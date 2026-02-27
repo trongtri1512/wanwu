@@ -36,6 +36,5 @@ func jwtOAuthAccessAuth(ctx *gin.Context, token string) {
 	}
 
 	ctx.Set(gin_util.USER_ID, claims.UserID)
-	ctx.Set(gin_util.CLAIMS, claims)
 	ctx.Next()
 }

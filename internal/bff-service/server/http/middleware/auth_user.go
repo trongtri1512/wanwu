@@ -74,7 +74,12 @@ func CheckUserPerm(ctx *gin.Context) {
 		return
 	}
 	// orgID
-	orgID := getOrgID(ctx)
+	orgID, err := getOrgID(ctx)
+	if err != nil {
+		gin_util.ResponseErrCodeKeyWithStatus(ctx, httpStatus, err_code.Code_BFFAuth, "", err.Error())
+		ctx.Abort()
+		return
+	}
 	// tags
 	tags, ok := route.GetTags(ctx.FullPath(), ctx.Request.Method)
 	if !ok {
@@ -104,14 +109,29 @@ func CheckUserPerm(ctx *gin.Context) {
 
 func getUserID(ctx *gin.Context) (string, error) {
 	claims, ok := ctx.Get(gin_util.CLAIMS)
-	if !ok {
-		return "", errors.New("jwt claims empty")
+	if ok {
+		if customClaims, ok := claims.(*jwt_util.CustomClaims); ok {
+			if userID := customClaims.UserID; userID != "" {
+				return userID, nil
+			}
+		}
 	}
-	return claims.(*jwt_util.CustomClaims).UserID, nil
+
+	if userID := ctx.GetString(gin_util.USER_ID); userID != "" {
+		return userID, nil
+	}
+
+	return "", errors.New("user id empty")
 }
 
-func getOrgID(ctx *gin.Context) string {
-	return ctx.GetHeader(gin_util.X_ORG_ID)
+func getOrgID(ctx *gin.Context) (string, error) {
+	if orgID := ctx.GetHeader(gin_util.X_ORG_ID); orgID != "" {
+		return orgID, nil
+	}
+	if orgID := ctx.GetString(gin_util.X_ORG_ID); orgID != "" {
+		return orgID, nil
+	}
+	return "", errors.New("org id empty")
 }
 
 func getGenTokenTS(ctx *gin.Context) (string, error) {

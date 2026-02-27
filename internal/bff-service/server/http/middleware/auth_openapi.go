@@ -9,7 +9,6 @@ import (
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
-	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
 )
@@ -67,39 +66,6 @@ func AuthAppKeyByQuery(appType string) func(*gin.Context) {
 		ctx.Set(gin_util.APP_ID, appKey.AppId)
 	}
 
-}
-
-// AuthOpenAPIKnowledge 校验知识库权限
-func AuthOpenAPIKnowledge(fieldName string, permissionType int32) func(ctx *gin.Context) {
-	return func(ctx *gin.Context) {
-		defer util.PrintPanicStack()
-
-		// 1. 获取知识库ID
-		knowledgeId := getFieldValue(ctx, fieldName)
-		if len(knowledgeId) == 0 {
-			gin_util.ResponseDetail(ctx, http.StatusBadRequest, codes.Code(err_code.Code_BFFAuth), nil, "knowledgeId is required")
-			ctx.Abort()
-			return
-		}
-
-		// 2. 获取用户和机构信息
-		userID, orgID := ctx.GetString(gin_util.USER_ID), ctx.GetString(gin_util.X_ORG_ID)
-		if len(userID) == 0 || len(orgID) == 0 {
-			gin_util.ResponseDetail(ctx, http.StatusBadRequest, codes.Code(err_code.Code_BFFAuth), nil, "USER-ID or X-Org-Id is required")
-			ctx.Abort()
-			return
-		}
-
-		// 3. 校验用户对知识库的权限
-		if err := service.CheckKnowledgeUserPermission(ctx, userID, orgID, knowledgeId, permissionType); err != nil {
-			gin_util.ResponseErrWithStatus(ctx, http.StatusBadRequest, err)
-			ctx.Abort()
-			return
-		}
-
-		// 4. 权限验证通过，继续后续处理
-		ctx.Next()
-	}
 }
 
 // --- internal ---
