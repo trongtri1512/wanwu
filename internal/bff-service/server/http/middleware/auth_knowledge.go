@@ -142,9 +142,9 @@ func knowledgeGrantUser(ctx *gin.Context, knowledgeId string, permissionType int
 	}
 
 	// orgID
-	orgID := getOrgID(ctx)
-	if len(orgID) == 0 {
-		return errors.New("X-Org-Id is empty")
+	orgID, err := getOrgID(ctx)
+	if err != nil {
+		return err
 	}
 
 	// check user knowledge permission

@@ -77,7 +77,7 @@ func AuthModel(fields []string) func(ctx *gin.Context) {
 			return
 		}
 
-		orgID := getOrgID(ctx)
+		orgID, _ := getOrgID(ctx)
 		if orgID == "" {
 			gin_util.ResponseErrCodeKeyWithStatus(ctx, http.StatusBadRequest, err_code.Code_BFFAuth, "", "auth model orgID not found")
 			ctx.Abort()
