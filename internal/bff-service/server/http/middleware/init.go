@@ -55,7 +55,7 @@ func Init() {
 	mid.NewSub("app", "应用开发", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 
 	// app.rag
-	mid.Sub("app").NewSub("rag", "文本问答", route.PermNeedCheck, true, true)
+	mid.Sub("app").NewSub("rag", "知识问答", route.PermNeedCheck, true, true)
 
 	// app.workflow
 	mid.Sub("app").NewSub("workflow", "工作流", route.PermNeedCheck, true, true)
