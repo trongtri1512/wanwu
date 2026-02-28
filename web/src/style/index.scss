@@ -367,3 +367,11 @@ pre::-webkit-scrollbar {
 .right-page-content-body {
   height: calc(100vh - 32px)!important;
 }
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  white-space: nowrap; 
+  word-break: break-all;
+  display: block;
+}

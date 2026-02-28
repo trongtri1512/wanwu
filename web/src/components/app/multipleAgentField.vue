@@ -16,7 +16,14 @@
     <div class="content">
       <div class="list single-row" v-if="multiAgentList.length">
         <div v-for="(item, index) in multiAgentList" :key="index" class="item">
-          <div style="display: flex; flex-direction: row; align-items: center">
+          <div
+            style="
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              overflow: hidden;
+            "
+          >
             <div class="img">
               <img
                 :src="avatarSrc(item.avatar.path)"
@@ -24,8 +31,8 @@
               />
             </div>
             <div class="info">
-              <span class="name">{{ item.name }}</span>
-              <span class="desc">{{ item.desc }}</span>
+              <span class="name ellipsis">{{ item.name }}</span>
+              <span class="desc ellipsis">{{ item.desc }}</span>
             </div>
           </div>
           <div class="bt">
@@ -270,9 +277,7 @@ export default {
           flex: 1;
           color: #333;
           font-size: 14px;
-          white-space: nowrap;
           overflow: hidden;
-          text-overflow: ellipsis;
           margin-right: 12px;
           display: flex;
           flex-direction: column;
