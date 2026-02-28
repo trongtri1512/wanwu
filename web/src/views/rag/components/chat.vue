@@ -17,6 +17,7 @@
             class="component"
             :chatType="'rag'"
             :sessionStatus="sessionStatus"
+            :supportClear="false"
             @clearHistory="clearHistory"
             @refresh="refresh"
             @queryCopy="queryCopy"
@@ -40,8 +41,11 @@
             source="perfectReminder"
             :fileTypeArr="fileTypeArr"
             :type="'ragChat'"
+            :hasHistory="hasHistory"
             @preSend="preSend"
             @setSessionStatus="setSessionStatus"
+            @clearHistory="clearHistory"
+            @inputHeightChange="handleInputHeightChange"
           />
         </div>
       </div>
@@ -81,6 +85,9 @@ export default {
     ...mapGetters('app', ['sessionStatus']),
     ...mapGetters('menu', ['basicInfo']),
     ...mapGetters('user', ['commonInfo']),
+    hasHistory() {
+      return !this.echo;
+    },
   },
   data() {
     return {
@@ -183,6 +190,11 @@ export default {
     },
     reminderClick(n) {
       this.$refs['editable'].setPrompt(n.prompt);
+    },
+    // 处理输入框高度变化
+    handleInputHeightChange(height) {
+      this.$refs['session-com'] &&
+        this.$refs['session-com'].setHistoryBoxHeight(height);
     },
   },
 };

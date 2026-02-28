@@ -438,14 +438,6 @@ export default {
       // this.$refs['session-com'].pushHistory(params)
       sessionCom.pushHistory(params);
 
-      // 初始化流处理器
-      const processor = new StreamProcessor({
-        lastIndex,
-        md,
-        parseSub,
-        convertLatexSyntax,
-      });
-
       this._print = new Print({
         onPrintEnd: () => {
           this.onMainPrintEnd && this.onMainPrintEnd();
@@ -485,8 +477,9 @@ export default {
         };
       }
 
-      this._subConversionsMap = new Map();
-      this._subConversionProcessors = new Map();
+      this._subConversionsMap = new Map(); // 子会话数据Map
+      this._subConversionProcessors = new Map(); // 每个 order 的子处理器
+      this._mainProcessors = new Map(); // 每个 order 的主处理器
 
       this.ctrlAbort = new AbortController();
       this.eventSource = new fetchEventSource(this.origin + this.sseApi, {
@@ -544,10 +537,12 @@ export default {
               showScrollBtn: null,
               citations: [],
               subConversions: [], // 初始化子会话列表
+              messageSequence: [], // 初始化消息序列，用于平铺渲染
+              _lastOrder: -1, // 内部追踪最后一次的 order
             };
 
             if (data.code === 0) {
-              // eventType: 1 表示子会话消息
+              // 处理子会话消息 (eventType === 0)
               if (data.eventType === 1 && data.eventData) {
                 const { id, name, status, timeCost, profile } = data.eventData;
                 let subConversion = this._subConversionsMap.get(id);
@@ -603,34 +598,65 @@ export default {
                   subConversion.citationsTagList = renderResult.citations || [];
                 }
 
+                // 更新消息序列
+                let sequence =
+                  sessionCom.getSessionData()['history'][lastIndex]
+                    .messageSequence || [];
+                if (data.order !== undefined && data.order !== null) {
+                  let currentSubItem = sequence.find(
+                    item =>
+                      item.type === 'sub' &&
+                      item.id === id &&
+                      item.order === data.order,
+                  );
+                  if (!currentSubItem) {
+                    currentSubItem = {
+                      type: 'sub',
+                      id: id,
+                      order: data.order,
+                    };
+                    sequence.push(currentSubItem);
+                  }
+                }
+
+                // 构造 fillData
                 // 获取最新的子会话列表
                 const subConversionsList = Array.from(
                   this._subConversionsMap.values(),
                 );
 
-                // 构造 fillData，获取当前主智能体的已渲染内容,保持主智能体的当前状态
-                const renderResult = processor.getRenderResult();
-
                 let fillData = {
                   ...commonData,
-                  ...renderResult,
                   finish:
                     this._currentMainFinish !== undefined
                       ? this._currentMainFinish
                       : 0,
                   subConversions: subConversionsList,
+                  messageSequence: sequence,
                 };
                 sessionCom.replaceLastData(lastIndex, fillData);
-
                 // 如果子智能体结束或失败，可能需要滚动到底部
                 if (status === 3 || status === 4) {
                   this.$nextTick(() => sessionCom.scrollBottom());
                 }
               } else {
                 // 主智能体消息 (eventType === 0 或 undefined)
-
                 // 更新当前主智能体 finish 状态
                 this._currentMainFinish = data.finish;
+
+                // 根据 order 获取或创建对应的 processor
+                const currentOrder = data.order !== undefined ? data.order : 0;
+                let mainProcessor = this._mainProcessors.get(currentOrder);
+
+                if (!mainProcessor) {
+                  mainProcessor = new StreamProcessor({
+                    lastIndex,
+                    md,
+                    parseSub,
+                    convertLatexSyntax,
+                  });
+                  this._mainProcessors.set(currentOrder, mainProcessor);
+                }
 
                 //finish 0：进行中  1：关闭   2:敏感词关闭
                 let _sentence = data.response;
@@ -642,15 +668,43 @@ export default {
                   commonData,
                   (worldObj, search_list) => {
                     this.setStoreSessionStatus(0);
-                    processor.updateSearchList(search_list);
-                    processor.append(worldObj.world);
+                    mainProcessor.updateSearchList(search_list);
+                    mainProcessor.append(worldObj.world);
 
-                    const renderResult = processor.getRenderResult();
+                    const renderResult = mainProcessor.getRenderResult();
+
+                    // 更新消息序列
+                    let sequence =
+                      sessionCom.getSessionData()['history'][lastIndex]
+                        .messageSequence || [];
+
+                    if (data.order !== undefined && data.order !== null) {
+                      let currentMainItem = sequence.find(
+                        item =>
+                          item.type === 'main' && item.order === data.order,
+                      );
+
+                      if (!currentMainItem) {
+                        currentMainItem = {
+                          type: 'main',
+                          order: data.order,
+                          renderedContent: '',
+                          stableChunks: [],
+                          activeResponse: '',
+                        };
+                        sequence.push(currentMainItem);
+                      }
+
+                      currentMainItem.renderedContent = renderResult.response;
+                      currentMainItem.stableChunks = renderResult.stableChunks;
+                      currentMainItem.activeResponse =
+                        renderResult.activeResponse;
+                    }
 
                     // 获取最新的子会话列表
-                    const subConversionsList = this._subConversionsMap
-                      ? Array.from(this._subConversionsMap.values())
-                      : [];
+                    const subConversionsList = Array.from(
+                      this._subConversionsMap.values(),
+                    );
 
                     let fillData = {
                       ...commonData,
@@ -664,8 +718,8 @@ export default {
                             }))
                           : [],
                       subConversions: subConversionsList,
+                      messageSequence: sequence,
                     };
-
                     sessionCom.replaceLastData(lastIndex, fillData);
                     if (worldObj.finish !== 0) {
                       if (worldObj.finish === 4) {
@@ -673,6 +727,7 @@ export default {
                           ...commonData,
                           response: i18n.t('yuanjing.sensitiveTips'),
                           subConversions: subConversionsList,
+                          messageSequence: sequence,
                         };
                         // this.$refs['session-com'].replaceLastData(lastIndex, fillData)
                         sessionCom.replaceLastData(lastIndex, fillData);

@@ -159,7 +159,6 @@ export default {
         display: flex;
         width: 100%;
         height: 58px;
-        border-bottom: 1px solid #ddd;
         padding-bottom: 7px;
 
         .svg-icon {

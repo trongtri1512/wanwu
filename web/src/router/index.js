@@ -84,15 +84,9 @@ const constantRoutes = [
         meta: { perm: [PERMS.PERMISSION] },
       },
       {
-        path: '/statistics',
-        component: resolve =>
-          require(['@/views/permission/statistics'], resolve),
-        meta: { perm: [PERMS.STATISTIC] },
-      },
-      {
-        path: '/oauth',
-        component: resolve => require(['@/views/permission/oauth'], resolve),
-        meta: { perm: [PERMS.OAUTH] },
+        path: '/operation',
+        component: resolve => require(['@/views/operation'], resolve),
+        meta: { perm: [PERMS.OPERATION] },
       },
       {
         path: '/docCenter/pages/:id(.*)*',

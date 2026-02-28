@@ -224,7 +224,7 @@
           tokens
         </el-form-item>
         <el-form-item
-          v-if="provider.key !== ollama"
+          v-if="provider.key !== ollama && !showAppAndAccessKey()"
           :label="$t('modelAccess.table.apiKey')"
           prop="apiKey"
         >
@@ -236,6 +236,22 @@
             "
           ></el-input>
         </el-form-item>
+        <div v-if="showAppAndAccessKey()">
+          <el-form-item label="APP Key" prop="appKey">
+            <el-input
+              type="password"
+              v-model="createForm.appKey"
+              :placeholder="$t('common.hint.appKey')"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="Access Key" prop="accessKey">
+            <el-input
+              type="password"
+              v-model="createForm.accessKey"
+              :placeholder="$t('common.hint.accessKey')"
+            ></el-input>
+          </el-form-item>
+        </div>
         <el-form-item
           :label="$t('modelAccess.table.inferUrl')"
           prop="endpointUrl"
@@ -305,6 +321,7 @@ import {
   SUPPORT_FILE_TYPE_OBJ,
   IMAGE,
   VIDEO,
+  HUOSHAN,
 } from '../constants';
 import LinkIcon from '@/components/linkIcon.vue';
 
@@ -348,6 +365,8 @@ export default {
         displayName: '',
         endpointUrl: '',
         apiKey: '',
+        appKey: '',
+        accessKey: '',
         modelType: LLM,
         modelDesc: '',
         contextSize: 8000,
@@ -374,6 +393,20 @@ export default {
           },
           // { min: 2, max: 50, message: this.$t('common.hint.modelNameLimit'), trigger: 'blur'},
           // { pattern: /^(?!_)[a-zA-Z0-9-_.\u4e00-\u9fa5]+$/, message: this.$t('common.hint.modelName'), trigger: "blur"}
+        ],
+        appKey: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
+        ],
+        accessKey: [
+          {
+            required: true,
+            message: this.$t('common.input.placeholder'),
+            trigger: 'blur',
+          },
         ],
         contextSize: [
           {
@@ -438,14 +471,10 @@ export default {
   },
   watch: {
     'createForm.modelType': {
-      handler(newVal) {
+      handler() {
+        this.$refs.createForm.clearValidate();
         if (!this.isEdit) {
-          const defaultUrl =
-            this.typeObj.inferUrl[newVal] ||
-            this.typeObj.inferUrl[this.provider.key];
-          if (defaultUrl && !this.createForm.endpointUrl) {
-            this.createForm.endpointUrl = defaultUrl;
-          }
+          this.setDefaultInferUrl();
         }
       },
       immediate: false,
@@ -453,12 +482,7 @@ export default {
     'provider.key': {
       handler(newVal) {
         if (!this.isEdit && newVal) {
-          const defaultUrl =
-            this.typeObj.inferUrl[this.createForm.modelType] ||
-            this.typeObj.inferUrl[newVal];
-          if (defaultUrl && !this.createForm.endpointUrl) {
-            this.createForm.endpointUrl = defaultUrl;
-          }
+          this.setDefaultInferUrl();
         }
       },
       immediate: false,
@@ -470,6 +494,9 @@ export default {
       return [MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING].includes(
         this.createForm.modelType,
       );
+    },
+    showAppAndAccessKey() {
+      return this.provider.key === HUOSHAN && this.createForm.modelType === ASR;
     },
     showVision() {
       return (
@@ -520,6 +547,15 @@ export default {
         this.createForm[key] = data ? data[key] || '' : '';
       }
     },
+    setDefaultInferUrl() {
+      const defaultUrl =
+        this.typeObj.inferUrl[
+          `${this.createForm.modelType}_${this.provider.key}`
+        ] || this.typeObj.inferUrl[this.provider.key];
+      if (defaultUrl) {
+        this.createForm.endpointUrl = defaultUrl;
+      }
+    },
     openDialog(title, row) {
       this.provider = { key: title, name: PROVIDER_OBJ[title] };
       const currentProvider =
@@ -531,12 +567,7 @@ export default {
 
       // 自动填入推理URL默认值
       if (!row) {
-        const defaultUrl =
-          this.typeObj.inferUrl[this.createForm.modelType] ||
-          this.typeObj.inferUrl[title];
-        if (defaultUrl) {
-          this.createForm.endpointUrl = defaultUrl;
-        }
+        this.setDefaultInferUrl();
       }
 
       this.dialogVisible = true;
@@ -572,6 +603,8 @@ export default {
         if (valid) {
           const {
             apiKey,
+            appKey,
+            accessKey,
             endpointUrl,
             functionCalling,
             modelType,
@@ -588,19 +621,23 @@ export default {
             ...this.createForm,
             provider: this.provider.key || '',
             config: {
-              apiKey,
               endpointUrl,
+              ...(this.provider.key !== OLLAMA &&
+                !this.showAppAndAccessKey() && { apiKey }),
               ...(modelType === LLM && { functionCalling, maxTokens }),
               ...(this.showVision() && { visionSupport }),
               ...(this.showContextSize() && { contextSize }),
               ...(this.showMaxAudioLimit() && { maxAsrFileSize }),
               ...(this.showMaxPicLimit() && { maxImageSize }),
+              ...(this.showAppAndAccessKey() && { appKey, accessKey }),
               /*...(this.showMaxVideoLimit() && { maxVideoClipSize }),
               ...(this.isMultiModal() && { supportFileTypes, maxTextLength }),*/
             },
           };
           const deleteKeys = [
             'apiKey',
+            'appKey',
+            'accessKey',
             'endpointUrl',
             'functionCalling',
             'visionSupport',

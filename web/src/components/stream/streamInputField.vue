@@ -1,6 +1,25 @@
 <!--问答输入框-->
 <template>
-  <div class="rl">
+  <div class="rl chat-input-wrapper">
+    <div v-if="visibleClearHistory" class="chat-input-wrapper-left">
+      <el-tooltip
+        class="item"
+        effect="dark"
+        :content="$t('app.clearChat')"
+        placement="top"
+      >
+        <el-button
+          circle
+          class="chat-clear-btn"
+          :disabled="!hasHistory"
+          @click="handleClearHistory"
+        >
+          <svg class="chat-clear-icon">
+            <use xlink:href="#icon-chatClear" />
+          </svg>
+        </el-button>
+      </el-tooltip>
+    </div>
     <div class="editable-box">
       <!-- image file -->
       <div v-if="fileType === 'image/*'" class="echo-img-box">
@@ -56,40 +75,55 @@
           'pointer-events': fileLoading || disableClick ? 'none' : 'auto',
         }"
       >
-        <div class="editable-wp-left rl">
-          <!-- 文件上传按钮 -->
-          <img
-            class="upload-icon"
-            :src="require('@/assets/imgs/uploadIcon.png')"
-            @click="preUpload"
-            v-if="
-              type !== 'webChat' && !(type === 'ragChat' && maxPicNum === 0)
-            "
-          />
-        </div>
-        <div class="editable-wp-right rl" draggable="true">
-          <div
-            class="aibase-textarea editable--input"
-            ref="editor"
-            @input="getPrompt"
-            @blur="onBlur"
-            @keydown="textareaKeydown($event)"
-            @dragenter.prevent
-            @dragover.prevent
-            @drop.prevent.stop="handleDrop"
-            contenteditable="true"
-          ></div>
-          <span
-            class="editable--placeholder"
-            v-if="!promptValue || !promptValue.trim()"
-          >
-            {{ placeholder }}
-          </span>
-          <i class="el-icon-close editable--close" @click.stop="clearInput"></i>
+        <div
+          class="editable-wp-right rl"
+          :class="{ 'multi-line-layout': isMultiLine }"
+          draggable="true"
+        >
+          <div class="input-and-clear-box">
+            <div
+              class="aibase-textarea editable--input"
+              ref="editor"
+              @input="getPrompt"
+              @blur="onBlur"
+              @keydown="textareaKeydown($event)"
+              @dragenter.prevent
+              @dragover.prevent
+              @drop.prevent.stop="handleDrop"
+              contenteditable="true"
+            ></div>
+            <span
+              class="editable--placeholder"
+              v-if="!promptValue || !promptValue.trim()"
+            >
+              {{ placeholder }}
+            </span>
+            <i
+              class="el-icon-close editable--close"
+              @click.stop="clearInput"
+            ></i>
+          </div>
           <div class="edtable--wrap">
-            <el-button type="primary" class="editable--send" @click="preSend">
-              <span>{{ $t('agent.send') }}</span>
-              <img :src="require('@/assets/imgs/sendIcon.png')" />
+            <el-button
+              v-if="
+                type !== 'webChat' && !(type === 'ragChat' && maxPicNum === 0)
+              "
+              class="chat-upload-btn"
+              icon="el-icon-circle-plus-outline"
+              circle
+              plain
+              @click="preUpload"
+            ></el-button>
+            <el-divider
+              v-if="
+                type !== 'webChat' && !(type === 'ragChat' && maxPicNum === 0)
+              "
+              direction="vertical"
+            ></el-divider>
+            <el-button class="editable-send-btn" circle plain @click="preSend">
+              <svg class="editable-send-icon">
+                <use xlink:href="#icon-chatSend" />
+              </svg>
             </el-button>
           </div>
         </div>
@@ -147,6 +181,7 @@ import {
   getPromptTemplateList,
   getPromptBuiltInList,
 } from '@/api/promptTemplate';
+
 export default {
   props: {
     source: { type: String },
@@ -160,6 +195,8 @@ export default {
     type: { type: String },
     disableClick: { type: Boolean, default: false },
     supportReminder: { type: Boolean, default: false },
+    hasHistory: { type: Boolean, default: false },
+    visibleClearHistory: { type: Boolean, default: true },
   },
   mixins: [commonMixin, uploadChunk],
   components: { streamUploadField },
@@ -194,6 +231,9 @@ export default {
         '#738cbd',
       ],
       randomReminderList: [], //随机8个提示词
+      _resizeObserver: null, // 输入框尺寸变化监听器
+      isMultiLine: false,
+      breakLength: 0, //记录触发换行时的字符长度
     };
   },
   watch: {
@@ -218,6 +258,40 @@ export default {
     if (this.supportReminder) {
       this.originPromptList = [];
       this.getReminderList();
+    }
+    // 监听输入框尺寸变化，用以改变输入区单行/多行布局切换
+    this.$nextTick(() => {
+      if (this.$refs.editor) {
+        // 初始单行基准高度
+        const rect = this.$refs.editor.getBoundingClientRect();
+        this._singleLineHeight = rect.height;
+
+        this._resizeObserver = new ResizeObserver(([entry]) => {
+          const height = entry.target.getBoundingClientRect().height;
+          const currentLength = (this.promptValue || '').trim().length;
+          // 通知父组件输入框高度变化
+          this.$emit('inputHeightChange', height);
+
+          if (
+            !this.isMultiLine &&
+            height > this._singleLineHeight &&
+            currentLength !== 0
+          ) {
+            this.isMultiLine = true;
+            this.breakLength = currentLength;
+          } else if (this.isMultiLine && currentLength < this.breakLength) {
+            // 当内容长度回退到触发点以下时，尝试恢复单行布局
+            this.isMultiLine = false;
+          }
+        });
+        this._resizeObserver.observe(this.$refs.editor);
+      }
+    });
+  },
+  beforeDestroy() {
+    // 清理观察器，防止内存泄漏
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
     }
   },
   methods: {
@@ -368,6 +442,7 @@ export default {
     clearInput() {
       this.$refs.editor.innerHTML = '';
       this.promptValue = '';
+      this.isMultiLine = false;
     },
     onBlur() {
       //勿删，定义此方法用于获取焦点
@@ -466,6 +541,9 @@ export default {
         ...item,
         random: parseInt(Math.random(13) * 10),
       }));
+    },
+    handleClearHistory() {
+      this.$emit('clearHistory');
     },
   },
 };
@@ -600,7 +678,24 @@ export default {
     }
   }
   .editable-wp-right {
+    display: flex;
+    flex-direction: row;
     flex: 1;
+    padding: 4px 10px !important;
+    align-items: center;
+    gap: 4px;
+
+    &.multi-line-layout {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .input-and-clear-box {
+    display: flex;
+    flex: 1;
+    align-items: flex-end;
+    position: relative;
   }
   ::v-deep .light-input {
     border: 1px solid deepskyblue;
@@ -612,22 +707,40 @@ export default {
   }
 }
 .aibase-textarea {
-  padding: 10px 35px 35px 0;
+  min-height: 22px !important;
+  height: auto !important;
+  padding: 0px 10px 0 0;
+  flex: 1;
+  word-break: break-all;
 }
+
 .editable--placeholder {
-  left: 0 !important;
+  left: 0px !important;
+  top: 0px !important;
+  line-height: 22px;
 }
+
+.editable--close {
+  position: static !important;
+  z-index: 20;
+  margin: 0 0 2px 5px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #dbdada;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
 .edtable--wrap {
-  width: 100%;
-  padding-bottom: 10px;
   height: 35px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  z-index: 999;
+  flex-shrink: 0;
+
+  .multi-line-layout & {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 .model-box {
   padding: 10px 0;
@@ -686,6 +799,66 @@ export default {
     bottom: 10px;
     cursor: pointer;
     color: #62a1fb;
+  }
+}
+
+.chat-input-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-input-wrapper-left {
+  margin-right: 20px;
+}
+
+.chat-clear-btn {
+  padding: 8px;
+  font-size: 14px;
+  border-radius: 99px;
+  line-height: 0;
+  border-color: rgba(68, 83, 130, 0.25);
+  color: rgba(15, 21, 40, 0.82);
+  &:hover {
+    background-color: rgba(68, 83, 130, 0.05);
+    border-color: rgba(68, 83, 130, 0.5);
+    color: rgba(15, 21, 40, 0.82);
+  }
+  .chat-clear-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+}
+
+.chat-upload-btn {
+  padding: 8px;
+  color: rgba(15, 21, 40, 0.82);
+  border: none;
+  &:hover {
+    background-color: rgba(87, 104, 161, 0.08) !important;
+    color: rgba(15, 21, 40, 0.82);
+  }
+  i {
+    font-size: 18px;
+  }
+}
+
+.editable-send-btn {
+  padding: 8px;
+  border: none;
+  color: rgb(81, 71, 255);
+  line-height: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  &:hover {
+    background-color: rgba(87, 104, 161, 0.08) !important;
+  }
+  .editable-send-icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
   }
 }
 </style>

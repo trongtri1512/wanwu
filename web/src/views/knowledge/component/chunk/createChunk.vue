@@ -52,12 +52,11 @@
             },
           ]"
         >
-          <el-input
+          <uploadImgMd
             :placeholder="$t('knowledgeManage.create.chunkContentPlaceholder')"
             v-model="ruleForm.content"
-            type="textarea"
-            :rows="4"
-          ></el-input>
+            :knowledgeId="this.ruleForm.knowledgeId"
+          ></uploadImgMd>
         </el-form-item>
         <el-form-item
           :label="$t('knowledgeManage.create.chunkKeywords')"
@@ -116,6 +115,7 @@
 </template>
 <script>
 import fileUpload from '@/components/fileUpload';
+import uploadImgMd from '@/components/uploadImgMd.vue';
 import { USER_API } from '@/utils/requestConstants';
 import {
   createSegment,
@@ -124,7 +124,7 @@ import {
 } from '@/api/knowledge';
 
 export default {
-  components: { fileUpload },
+  components: { fileUpload, uploadImgMd },
   props: {
     parentId: {
       type: String,
@@ -142,6 +142,7 @@ export default {
       ruleForm: {
         content: '',
         docId: '',
+        knowledgeId: '',
         labels: [],
         fileUploadId: '',
       },
@@ -170,10 +171,11 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
-    showDialog(docId, isChildChunk = false) {
+    showDialog(docId, knowledgeId, isChildChunk = false) {
       this.dialogVisible = true;
       this.isChildChunk = isChildChunk;
       this.ruleForm.docId = docId;
+      this.ruleForm.knowledgeId = knowledgeId;
       this.clearForm();
     },
     showInput() {

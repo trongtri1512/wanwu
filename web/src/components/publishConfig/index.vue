@@ -1,5 +1,5 @@
 <template>
-  <div class="weburl-container">
+  <div class="weburl-container page-wrapper right-page-content-body">
     <div class="weburl-title">
       <span class="el-icon-arrow-left goback" @click="goback"></span>
       <span class="weburl-title-text">
@@ -148,6 +148,12 @@ export default {
         color: #666;
         padding-top: 10px;
       }
+    }
+  }
+  ::v-deep .explore-container {
+    .page-wrapper {
+      min-height: 0 !important;
+      padding-left: 0;
     }
   }
 }

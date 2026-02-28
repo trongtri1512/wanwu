@@ -1237,6 +1237,8 @@ export default {
       this.fileList = [];
     },
     submitInfo() {
+      if (this.ruleForm.docSegment.segmentType === '1')
+        this.ruleForm.docSegment.segmentMethod = '0';
       const { segmentMethod, segmentType, splitter, subSplitter } =
         this.ruleForm.docSegment;
       this.$refs.ruleForm.validate(valid => {

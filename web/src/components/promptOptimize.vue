@@ -18,6 +18,7 @@
             :loading-text="$t('tempSquare.loadingText')"
             :loading="modelLoading"
             :filterable="true"
+            style="width: 400px; margin-right: 10px"
           />
           <el-button
             :disabled="!(prompt && modelId)"

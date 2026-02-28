@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrapper">
+  <div>
     <div class="table-wrap list-common wrap-fullheight">
       <div class="table-box">
         <search-input
@@ -273,7 +273,6 @@ export default {
 
 <style lang="scss" scoped>
 .table-box {
-  padding: 20px;
   text-align: right;
 
   .add-btn {

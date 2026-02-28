@@ -232,7 +232,6 @@ export default {
                 .card-title {
                   display: flex;
                   width: 100%;
-                  border-bottom: 1px solid #ddd;
                   padding-bottom: 7px;
                   .svg-icon {
                     width: 50px;

@@ -18,6 +18,7 @@
             :chatType="'agent'"
             :sessionStatus="sessionStatus"
             :recommendConfig="recommendConfig"
+            :supportClear="false"
             @clearHistory="clearHistory"
             @refresh="refresh"
             @queryCopy="queryCopy"
@@ -49,8 +50,11 @@
             source="perfectReminder"
             :fileTypeArr="fileTypeArr"
             :type="type"
+            :hasHistory="hasHistory"
             @preSend="preSend"
             @setSessionStatus="setSessionStatus"
+            @clearHistory="handleClearHistory"
+            @inputHeightChange="handleInputHeightChange"
           />
           <!-- 版权信息 -->
           <div v-if="appUrlInfo" class="appUrlInfo">
@@ -93,11 +97,13 @@ import {
   delOpenurlConversation,
   openurlConversation,
   OpenurlConverHistory,
+  getRecommendQuestionUrl,
+  getConversationDraftHistory,
+  delConversationDraft,
 } from '@/api/agent';
 import sseMethod from '@/mixins/sseMethod';
 import { md } from '@/mixins/markdown-it';
 import { mapGetters, mapState } from 'vuex';
-import { getRecommendQuestionUrl } from '@/api/agent';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 
 export default {
@@ -135,6 +141,9 @@ export default {
     ...mapGetters('menu', ['basicInfo']),
     ...mapGetters('user', ['commonInfo']),
     ...mapState('user', ['userInfo']),
+    hasHistory() {
+      return !this.echo;
+    },
   },
   data() {
     return {
@@ -203,51 +212,8 @@ export default {
       }
 
       if (res.code === 0) {
-        let history = res.data.list
-          ? res.data.list.map((n, index) => {
-              return {
-                ...n,
-                query: n.prompt,
-                finish: 1, //兼容流式问答
-                response: md.render(
-                  parseSub(convertLatexSyntax(n.response), index),
-                ),
-                oriResponse: n.response,
-                searchList: n.searchList || [],
-                fileList: n.requestFiles,
-                gen_file_url_list: n.responseFileUrls || [],
-                subConversions: n.subConversationList
-                  ? n.subConversationList.map(m => {
-                      const citationsTagList = (
-                        m.response.match(/\【([0-9]{0,2})\^\】/g) || []
-                      ).map(item =>
-                        Number(item.match(/\【([0-9]{0,2})\^\】/)[1]),
-                      );
-                      return {
-                        ...m,
-                        citationsTagList,
-                        searchList:
-                          typeof m.searchList === 'string'
-                            ? JSON.parse(m.searchList || '[]')
-                            : m.searchList || [],
-                        response: md.render(
-                          parseSubConversation(
-                            convertLatexSyntax(m.response),
-                            index,
-                            m.searchList,
-                            m.id,
-                          ),
-                        ),
-                      };
-                    })
-                  : [],
-                isOpen: true,
-                toolText: this.$t('agent.tooled'),
-                thinkText: this.$t('agent.thinked'),
-                showScrollBtn: null,
-              };
-            })
-          : [];
+        let history = this.convertHistoryData(res.data.list);
+
         this.$refs['session-com'].replaceHistory(history);
       }
     },
@@ -603,6 +569,140 @@ export default {
         },
       });
     },
+    // 转换智能体历史记录数据
+    convertHistoryData(data) {
+      return data
+        ? data.map((n, index) => {
+            const sequence = [];
+            let fullResponse = '';
+
+            // 处理主智能体片段 (responseList)
+            if (n.responseList && n.responseList.length) {
+              n.responseList.forEach(item => {
+                fullResponse += item.response || '';
+
+                sequence.push({
+                  type: 'main',
+                  order: item.order,
+                  renderedContent: md.render(
+                    parseSub(convertLatexSyntax(item.response), index),
+                  ),
+                });
+              });
+            } else if (n.response) {
+              // 处理非分段片段
+              fullResponse = n.response;
+            }
+
+            // 处理子会话片段 (subConversationList)
+            const subConversions = n.subConversationList
+              ? n.subConversationList.map(m => {
+                  const citationsTagList = (
+                    (m.response || '').match(/\【([0-9]{0,2})\^\】/g) || []
+                  ).map(item => Number(item.match(/\【([0-9]{0,2})\^\】/)[1]));
+
+                  const processedSub = {
+                    ...m,
+                    citationsTagList,
+                    searchList:
+                      typeof m.searchList === 'string'
+                        ? JSON.parse(m.searchList || '[]')
+                        : m.searchList || [],
+                    response: md.render(
+                      parseSubConversation(
+                        convertLatexSyntax(m.response || ''),
+                        index,
+                        m.searchList,
+                        m.id,
+                      ),
+                    ),
+                  };
+
+                  sequence.push({
+                    type: 'sub',
+                    id: m.id,
+                    order: m.order,
+                  });
+
+                  return processedSub;
+                })
+              : [];
+
+            // 根据 order 排序
+            sequence.sort((a, b) => (a.order || 0) - (b.order || 0));
+            const r = {
+              ...n,
+              query: n.prompt,
+              finish: 1, //兼容流式问答
+              response: md.render(
+                parseSub(convertLatexSyntax(fullResponse), index),
+              ),
+              oriResponse: fullResponse,
+              searchList: n.searchList || [],
+              fileList: n.requestFiles,
+              gen_file_url_list: n.responseFileUrls || [],
+              subConversions: subConversions,
+              messageSequence: sequence,
+              isOpen: true,
+              toolText: this.$t('agent.tooled'),
+              thinkText: this.$t('agent.thinked'),
+              showScrollBtn: null,
+            };
+            return r;
+          })
+        : [];
+    },
+    // 获取草稿页会话历史
+    async _getConversationDraftHistory() {
+      this.echo = false;
+      this.$refs['session-com'].doLoading();
+      try {
+        const res = await getConversationDraftHistory({
+          assistantId: this.editForm.assistantId,
+          pageSize: 30,
+          pageNo: 1,
+        });
+
+        if (res.code === 0) {
+          let history = this.convertHistoryData(res.data.list);
+          if (!history.length) {
+            this.echo = true;
+          }
+          this.$refs['session-com'].replaceHistory(history);
+        }
+      } catch (error) {
+        this.$refs['session-com'].stopLoading();
+        this.echo = true;
+      }
+    },
+    // 清空会话
+    async handleClearHistory() {
+      const history = this.$refs['session-com'].session_data.history;
+      if (!history || !history.length) return;
+      if (this.chatType === 'test') {
+        const res = await delConversationDraft({
+          assistantId: this.editForm.assistantId,
+        });
+        if (res.code === 0) {
+          this.clearHistory();
+        }
+      } else {
+        this.clearHistory();
+      }
+    },
+    // 处理输入框高度变化
+    handleInputHeightChange(height) {
+      this.$refs['session-com'] &&
+        this.$refs['session-com'].setHistoryBoxHeight(height);
+    },
+  },
+  mounted() {
+    // 获取草稿页会话历史(延迟请求避免阻塞其他接口)
+    if (this.chatType === 'test') {
+      setTimeout(() => {
+        this._getConversationDraftHistory();
+      }, 1000);
+    }
   },
   beforeDestroy() {
     if (this.recommendTimer) {

@@ -80,6 +80,7 @@
                           scope.row.knowledgeBaseNames &&
                           scope.row.knowledgeBaseNames.length > 3
                         "
+                        popper-class="custom-tooltip"
                       >
                         <div slot="content">
                           <el-tag
@@ -443,17 +444,5 @@ export default {
 }
 </style>
 <style lang="scss">
-.custom-tooltip.is-light {
-  border-color: #eee; /* 设置边框颜色 */
-  background-color: #fff; /* 设置背景颜色 */
-  color: #666; /* 设置文字颜色 */
-}
-
-.custom-tooltip.el-tooltip__popper[x-placement^='top'] .popper__arrow::after {
-  border-top-color: #fff !important;
-}
-
-.custom-tooltip.el-tooltip__popper.is-light[x-placement^='top'] .popper__arrow {
-  border-top-color: #ccc !important;
-}
+@import '@/style/customTooltip.scss';
 </style>

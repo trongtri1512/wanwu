@@ -44,6 +44,14 @@ export default {
   methods: {
     uploadOnChange(file) {
       if (file) {
+        if (file.size / 1024 / 1024 > this.maxSize) {
+          this.$message.error(
+            this.$t('knowledgeManage.multiKnowledgeDatabase.imageSizeLimit', {
+              maxSize: this.maxSize,
+            }),
+          );
+          return;
+        }
         this.hideUpload = true;
         const formData = new FormData();
         const config = { headers: { 'Content-Type': 'multipart/form-data' } };

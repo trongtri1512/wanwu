@@ -122,26 +122,6 @@ export const menuList = [
     ],
   },
   {
-    name: i18n.t('menu.operationManage'),
-    index: 'operationManage',
-    icon: 'operationManage',
-    perm: [PERMS.OPERATION],
-    children: [
-      {
-        name: i18n.t('menu.statistics'),
-        index: 'operationManage-statistics',
-        path: '/statistics',
-        perm: PERMS.STATISTIC,
-      },
-      {
-        name: i18n.t('menu.oauth'),
-        index: 'operationManage-oauth',
-        path: '/oauth',
-        perm: PERMS.OAUTH,
-      },
-    ],
-  },
-  {
     name: i18n.t('menu.apiKey'),
     index: 'apiKey',
     icon: 'apiKey',

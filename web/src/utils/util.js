@@ -7,7 +7,7 @@ import { basePath } from '@/utils/config';
 
 export function guid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = (Math.random() * 16) | 0,
+    let r = (Math.random() * 16) | 0,
       v = c == 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
@@ -44,7 +44,13 @@ export const fetchCurrentPathIndex = (path, list) => {
   const findIndex = list => {
     for (let i in list) {
       let item = list[i];
-      const formatPath = url => url + '/';
+      const formatPath = url => {
+        // 对于 文本问答/工作流/智能体 前面带了 /appSpace 特殊路由的处理
+        if (url.includes('/appSpace/')) {
+          return url.slice(9) + '/';
+        }
+        return url + '/';
+      };
       if (item.path && formatPath(path).includes(formatPath(item.path))) {
         index = item.index;
       } else {
@@ -443,11 +449,21 @@ export function formatFileSize(bytes, decimals = 2) {
   );
 }
 
-// 只解析md图片
-export function parseImagesOnly(markdownText) {
+export function Md2Img(markdownText, escapeHtml = true) {
   // 匹配 Markdown 图片语法的正则表达式
   // ![](image.jpg) 或 ![alt](image.jpg) 或 ![alt](image.jpg "title")
   const imageRegex = /!\[(.*?)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)/g;
+  // 匹配 Markdown 换行符的正则表达式
+  const newlineRegex = /(\r\n|\r|\n)/g;
+
+  // 转义HTML特殊字符
+  if (escapeHtml)
+    markdownText = markdownText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
 
   let lastIndex = 0;
   let result = '';
@@ -470,6 +486,44 @@ export function parseImagesOnly(markdownText) {
 
   // 添加剩余的文本内容
   result += markdownText.substring(lastIndex);
+
+  // 将换行符转换为<br>标签
+  result = result.replace(newlineRegex, '<br>');
+
+  return result;
+}
+
+export function Img2Md(htmlString, escapeHtml = true) {
+  if (['<div><br></div>', '<br>'].includes(htmlString)) return '';
+  // 匹配 img 标签的正则表达式
+  const imgRegex = /<img\s+[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/gi;
+
+  // 替换 img 标签为 Markdown 格式
+  let result = htmlString.replace(imgRegex, (match, src) => {
+    // 提取 alt 属性（如果有）
+    const altMatch = match.match(/alt\s*=\s*["']([^"']*)["']/i);
+    const alt = altMatch ? altMatch[1] : '';
+    return `![${alt}](${src})`;
+  });
+
+  result = result
+    // 处理空行
+    .replace(/<div><br><\/div>/gi, '\n')
+    // 处理块级元素的换行 - 仅在块级元素前添加换行符，后截替换为空
+    .replace(/<(div|p|h[1-6]|li|blockquote)\b[^>]*>(.*?)<\/\1>/gi, '\n$2')
+    // 处理自闭合的br标签
+    .replace(/<br\s*\/?>/gi, '\n')
+    // 删除所有其他HTML标签，只保留纯文本内容和换行符
+    .replace(/<[^>]*>/g, '');
+
+  // 恢复HTML特殊字符
+  if (escapeHtml)
+    result = result
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&amp;/g, '&');
 
   return result;
 }

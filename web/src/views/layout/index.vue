@@ -291,6 +291,12 @@ export default {
             tipContent: this.$t('menu.settingTip'),
             perm: PERMS.PERMISSION,
           },
+          {
+            name: this.$t('menu.operationManage'),
+            path: '/operation',
+            img: require('@/assets/imgs/operationManage.svg'),
+            perm: PERMS.OPERATION,
+          },
         ],
         [
           {
