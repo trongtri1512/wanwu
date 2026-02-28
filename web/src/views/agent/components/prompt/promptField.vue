@@ -94,6 +94,7 @@
             @refresh="refresh"
             :type="type"
             :defaultUrl="editForm && editForm.avatar && editForm.avatar.path"
+            :supportClear="false"
           />
         </div>
       </div>
@@ -293,10 +294,16 @@ export default {
 }
 
 .compare-bottom-content .session,
+.compare-bottom-content {
+  height: 100%;
+  overflow: hidden;
+}
+
 .compare-bottom-content .center-session {
   height: 100%;
-  overflow: hidden; // ✅ 防止内容溢出
+  padding-bottom: 10px;
 }
+
 .drawer-info {
   height: 100%;
   display: flex;

@@ -19,7 +19,7 @@
       v-loading="loading"
       ref="timeScroll"
       @click="handleGlobalClick"
-      :style="{ height: historyBoxHeight }"
+      :style="{ 'max-height': historyBoxHeight }"
     >
       <div v-for="(n, i) in session_data.history" :key="`${i}sdhs`">
         <!--问题-->
@@ -1437,6 +1437,8 @@ export default {
   word-break: break-all;
   height: 100%;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   .session-item {
     min-height: 80px;
     display: flex;
@@ -1705,6 +1707,8 @@ export default {
   }
 
   .history-box {
+    height: calc(100% - 46px);
+    flex: 1;
     overflow-y: auto !important;
     padding: 20px;
   }
