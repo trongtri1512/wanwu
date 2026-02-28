@@ -94,7 +94,6 @@
             @refresh="refresh"
             :type="type"
             :defaultUrl="editForm && editForm.avatar && editForm.avatar.path"
-            :supportClear="false"
           />
         </div>
       </div>

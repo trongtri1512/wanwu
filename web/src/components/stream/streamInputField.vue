@@ -1,7 +1,7 @@
 <!--问答输入框-->
 <template>
   <div class="rl chat-input-wrapper">
-    <div class="chat-input-wrapper-left">
+    <div v-if="visibleClearHistory" class="chat-input-wrapper-left">
       <el-tooltip
         class="item"
         effect="dark"
@@ -196,6 +196,7 @@ export default {
     disableClick: { type: Boolean, default: false },
     supportReminder: { type: Boolean, default: false },
     hasHistory: { type: Boolean, default: false },
+    visibleClearHistory: { type: Boolean, default: true },
   },
   mixins: [commonMixin, uploadChunk],
   components: { streamUploadField },

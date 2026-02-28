@@ -38,6 +38,8 @@
         <streamInputField
           ref="editable"
           source="promptCompare"
+          :visibleClearHistory="false"
+          :hasHistory="false"
           :fileTypeArr="fileTypeArr"
           type="compare"
           @preSend="handlePromptSubmit"

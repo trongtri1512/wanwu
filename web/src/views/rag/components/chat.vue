@@ -41,6 +41,7 @@
             source="perfectReminder"
             :fileTypeArr="fileTypeArr"
             :type="'ragChat'"
+            :hasHistory="hasHistory"
             @preSend="preSend"
             @setSessionStatus="setSessionStatus"
             @clearHistory="clearHistory"
@@ -84,6 +85,9 @@ export default {
     ...mapGetters('app', ['sessionStatus']),
     ...mapGetters('menu', ['basicInfo']),
     ...mapGetters('user', ['commonInfo']),
+    hasHistory() {
+      return !this.echo;
+    },
   },
   data() {
     return {
