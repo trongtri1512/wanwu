@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -38,17 +39,17 @@ func (k *KnowledgeRetriever) Retrieve(ctx context.Context, reqContext *request.A
 	//defer func() {
 	//	sendMessage(reqContext.Generator, "知识库检索完成...")
 	//}()
-	//fileList := reqContext.AgentChatReq.UploadFile
-	//if len(fileList) > 0 {
-	//	file := fileList[0]
-	//	switch filepath.Ext(file) {
-	//	case ".jpg", ".png", ".jpeg":
-	//		req.KnowledgeParams.AttachmentFiles = append(req.KnowledgeParams.AttachmentFiles, &request.RagKnowledgeAttachment{
-	//			FileType: "image",
-	//			FileUrl:  file,
-	//		})
-	//	}
-	//}
+	fileList := reqContext.AgentChatReq.UploadFile
+	if len(fileList) > 0 {
+		file := fileList[0]
+		switch filepath.Ext(file) {
+		case ".jpg", ".png", ".jpeg":
+			req.KnowledgeParams.AttachmentFiles = append(req.KnowledgeParams.AttachmentFiles, &request.RagKnowledgeAttachment{
+				FileType: "image",
+				FileUrl:  file,
+			})
+		}
+	}
 	hit, _ := ragKnowledgeHit(ctx, req.KnowledgeParams)
 	if hit == nil {
 		return "", nil

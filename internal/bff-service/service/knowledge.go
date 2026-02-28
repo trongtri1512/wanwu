@@ -211,10 +211,6 @@ func DeleteKnowledge(ctx *gin.Context, userId, orgId string, r *request.DeleteKn
 // KnowledgeHit 知识库命中
 func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHitReq) (*response.KnowledgeHitResp, error) {
 	matchParams := r.KnowledgeMatchParams
-	err := checkRerank(ctx, userId, orgId, r)
-	if err != nil {
-		return nil, err
-	}
 	resp, err := knowledgeBase.KnowledgeHit(ctx.Request.Context(), &knowledgebase_service.KnowledgeHitReq{
 		Question:      r.Question,
 		UserId:        userId,
@@ -240,32 +236,38 @@ func KnowledgeHit(ctx *gin.Context, userId, orgId string, r *request.KnowledgeHi
 	return buildKnowledgeHitResp(resp), nil
 }
 
-func checkRerank(ctx *gin.Context, userId string, orgId string, r *request.KnowledgeHitReq) error {
-	rerankModel := &response.ModelInfo{}
-	var err error
+func checkRerank(ctx *gin.Context, rerankModelId, question string, hasImage bool) error {
 	// 获取rerank模型信息
-	if r.KnowledgeMatchParams.RerankModelId != "" {
-		rerankModel, err = GetModel(ctx, userId, orgId, &request.GetModelRequest{
-			BaseModelRequest: request.BaseModelRequest{ModelId: r.KnowledgeMatchParams.RerankModelId}})
+	var rerankModel *model_service.ModelInfo
+	var err error
+	// 纯图片搜索必选多模态rerank
+	if question == "" && rerankModelId == "" {
+		return errors.New("只输入图片必须选择多模态reranker")
+	}
+	if rerankModelId != "" {
+		rerankModel, err = model.GetModel(ctx, &model_service.GetModelReq{ModelId: rerankModelId})
 		if err != nil {
 			return err
 		}
-	}
-	// 纯图片搜索必选多模态rerank
-	if r.Question == "" {
-		if rerankModel.ModelType != mp.ModelTypeMultiRerank {
-			return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "只输入图片必须选择多模态reranker")
+		if rerankModel == nil {
+			return errors.New("所选reranker模型无法解析")
 		}
-	}
-	// 包含图片搜索 - 若用户选了多模态rerank - 需查看模型是否支持图片搜索
-	if len(r.DocInfo) > 0 {
-		if rerankModel.Provider == mp.ModelTypeMultiRerank {
-			modelConfig, ok := rerankModel.Config.(*mp_jina.MultiModalRerank)
-			if !ok || modelConfig == nil {
-				return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "所选多模态reranker模型无法解析")
+		// 纯图片搜索必选多模态rerank
+		if question == "" {
+			if rerankModel.ModelType != mp.ModelTypeMultiRerank {
+				return errors.New("只输入图片必须选择多模态reranker")
 			}
-			if !modelConfig.SupportImageInQuery {
-				return grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "所选多模态reranker模型不支持输入图片")
+		}
+		// 包含图片搜索 - 若用户选了多模态rerank - 需查看模型是否支持图片搜索
+		if hasImage {
+			if rerankModel.ModelType == mp.ModelTypeMultiRerank {
+				cfg := mp_jina.MultiModalRerank{}
+				if err := json.Unmarshal([]byte(rerankModel.ProviderConfig), &cfg); err != nil {
+					return errors.New("所选多模态reranker模型无法解析")
+				}
+				if !cfg.SupportImageInQuery {
+					return errors.New("所选多模态reranker模型不支持输入图片")
+				}
 			}
 		}
 	}

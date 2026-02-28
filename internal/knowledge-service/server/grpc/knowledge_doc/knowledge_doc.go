@@ -1070,10 +1070,8 @@ func buildSegmentListResp(importTask *model.KnowledgeImportTask, doc *model.Know
 		log.Errorf("SegmentConfig process error %s", err.Error())
 		return nil, err
 	}
-	var analyzer = &model.DocAnalyzer{}
-	err = json.Unmarshal([]byte(importTask.DocAnalyzer), analyzer)
+	analyzerList, err := replaceAnalyzerByFileType(importTask, doc)
 	if err != nil {
-		log.Errorf("DocAnalyzer process error %s", err.Error())
 		return nil, err
 	}
 	segmentConfigMap := buildSegmentConfigMap([]*model.KnowledgeImportTask{importTask})
@@ -1089,9 +1087,58 @@ func buildSegmentListResp(importTask *model.KnowledgeImportTask, doc *model.Know
 		MetaDataList:        buildMetaList(metaDataList),
 		SegmentImportStatus: buildSegmentImportStatus(segmentImportTask),
 		SegmentMethod:       buildSegmentMethod(doc, segmentConfigMap),
-		DocAnalyzer:         analyzer.AnalyzerList,
+		DocAnalyzer:         analyzerList,
 	}
 	return resp, nil
+}
+
+// replaceAnalyzerByFileType 根据不同文件类型，替换文件解析方式
+func replaceAnalyzerByFileType(importTask *model.KnowledgeImportTask, doc *model.KnowledgeDoc) ([]string, error) {
+	var analyzer = &model.DocAnalyzer{}
+	err := json.Unmarshal([]byte(importTask.DocAnalyzer), analyzer)
+	if err != nil {
+		log.Errorf("DocAnalyzer process error %s", err.Error())
+		return nil, err
+	}
+
+	// 获取可用文件后缀
+	cfg := config.GetConfig().UsageLimit
+	audioMap := sliceToMap(strings.Split(cfg.AudioTypes, ";"))
+	docMap := sliceToMap(strings.Split(cfg.DocTypes, ";"))
+	imageMap := sliceToMap(strings.Split(cfg.ImageTypes, ";"))
+	videoMap := sliceToMap(strings.Split(cfg.VideoTypes, ";"))
+
+	fileType := strings.TrimPrefix(doc.FileType, ".")
+
+	// 文档类型直接返回原始解析方式
+	if docMap[fileType] {
+		return analyzer.AnalyzerList, nil
+	}
+
+	analyzerList := make([]string, 0)
+	if videoMap[fileType] {
+		analyzerList = append(analyzerList, filterAnalyzer(analyzer.AnalyzerList, "asr", "multimodal")...)
+	}
+	if audioMap[fileType] {
+		analyzerList = append(analyzerList, filterAnalyzer(analyzer.AnalyzerList, "asr")...)
+	}
+	if imageMap[fileType] {
+		analyzerList = append(analyzerList, filterAnalyzer(analyzer.AnalyzerList, "multimodal")...)
+	}
+
+	return analyzerList, nil
+}
+
+// filterAnalyzer 从 analyzerList 中过滤出 allowed 中的解析方式
+func filterAnalyzer(analyzerList []string, allowed ...string) []string {
+	allowedMap := sliceToMap(allowed)
+	var result []string
+	for _, item := range analyzerList {
+		if allowedMap[item] {
+			result = append(result, item)
+		}
+	}
+	return result
 }
 
 func buildChildSegmentListResp(resp *service.ChildContentListResp) (*knowledgebase_doc_service.GetDocChildSegmentListResp, error) {

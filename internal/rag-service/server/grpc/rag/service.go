@@ -55,7 +55,7 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 	if err != nil {
 		return err
 	}
-	knowledgeIds, qaIds, knowledgeIDToName, enableVison := splitKnowledgeIdList(knowledgeInfoList)
+	knowledgeIds, qaIds, knowledgeIDToName := splitKnowledgeIdList(knowledgeInfoList)
 	//3.构造rag流式问答消息
 	return message_builder.BuildMessage(ctx, &message_builder.RagContext{
 		MessageId:         util.NewID(),
@@ -64,7 +64,6 @@ func (s *Service) ChatRag(req *rag_service.ChatRagReq, stream grpc.ServerStreami
 		KnowledgeIDToName: knowledgeIDToName,
 		KnowledgeIds:      knowledgeIds,
 		QAIds:             qaIds,
-		EnableVision:      enableVison,
 	}, stream)
 }
 
@@ -489,7 +488,7 @@ func buildKnowledgeIdList(rag *model.RagInfo) ([]string, error) {
 }
 
 // 拆分知识库列表
-func splitKnowledgeIdList(knowledgeList *knowledgebase_service.KnowledgeDetailSelectListResp) (knowledgeIds []string, qaIds []string, knowledgeIDToName map[string]string, enableVision bool) {
+func splitKnowledgeIdList(knowledgeList *knowledgebase_service.KnowledgeDetailSelectListResp) (knowledgeIds []string, qaIds []string, knowledgeIDToName map[string]string) {
 	knowledgeIDToName = make(map[string]string)
 	for _, info := range knowledgeList.List {
 		if info.Category == QACategory {
@@ -499,9 +498,6 @@ func splitKnowledgeIdList(knowledgeList *knowledgebase_service.KnowledgeDetailSe
 		}
 		if _, exists := knowledgeIDToName[info.KnowledgeId]; !exists {
 			knowledgeIDToName[info.KnowledgeId] = info.RagName
-		}
-		if info.Category == 2 {
-			enableVision = true
 		}
 	}
 	return

@@ -105,7 +105,7 @@ type WeightParams struct {
 
 type RagKnowledgeHitResp struct {
 	Code    int               `json:"code"`
-	Message string            `json:"message"`
+	Message string            `json:"msg"`
 	Data    *KnowledgeHitData `json:"data"`
 }
 
@@ -286,6 +286,7 @@ func RagKnowledgeHit(ctx context.Context, knowledgeHitParams *KnowledgeHitParams
 		LogLevel:   http_client.LogAll,
 	})
 	if err != nil {
+		log.Errorf("ragHit err %v", err)
 		return nil, err
 	}
 	var resp RagKnowledgeHitResp
@@ -294,7 +295,8 @@ func RagKnowledgeHit(ctx context.Context, knowledgeHitParams *KnowledgeHitParams
 		return nil, err
 	}
 	if resp.Code != successCode {
-		return nil, errors.New(resp.Message)
+		errMsg := strings.TrimPrefix(resp.Message, "命中测试失败，请稍后重试：")
+		return nil, errors.New(errMsg)
 	}
 	return &resp, nil
 }

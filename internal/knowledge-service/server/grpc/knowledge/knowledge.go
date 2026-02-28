@@ -15,6 +15,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/db"
 	"github.com/UnicomAI/wanwu/internal/knowledge-service/pkg/util"
 	knowledge_service "github.com/UnicomAI/wanwu/internal/knowledge-service/service"
+	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	wanwu_util "github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/samber/lo"
@@ -195,7 +196,7 @@ func (s *Service) KnowledgeHit(ctx context.Context, req *knowledgebase_service.K
 	hitResp, err := knowledge_service.RagKnowledgeHit(ctx, ragHitParams)
 	if err != nil {
 		log.Errorf("RagKnowledgeHit error %s", err)
-		return nil, util.ErrCode(errs.Code_KnowledgeBaseHitFailed)
+		return nil, grpc_util.ErrorStatus(errs.Code_KnowledgeBaseHitFailed, err.Error())
 	}
 	return buildKnowledgeBaseHitResp(hitResp), nil
 }

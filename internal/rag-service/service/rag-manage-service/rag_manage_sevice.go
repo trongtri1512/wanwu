@@ -57,7 +57,6 @@ type RagChatParams struct {
 	MetaFilter           bool                  `json:"metadata_filtering"`            // 元数据过滤开关
 	MetaFilterConditions []*MetadataFilterItem `json:"metadata_filtering_conditions"` // 元数据过滤条件
 	UseGraph             bool                  `json:"use_graph"`                     // 是否启动知识图谱查询
-	EnableVision         bool                  `json:"enable_vision"`                 // 召回结果是否包含多模态
 	AttachmentList       []*AttachmentInfo     `json:"attachment_files"`              // 上传的文件
 }
 
@@ -160,7 +159,7 @@ func buildHttpParams(userId string, req *RagChatParams) (*http_client.HttpReques
 }
 
 // BuildChatConsultParams 构造rag 会话参数
-func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, knowledgeIDToName map[string]string, knowledgeIds []string, enableVision bool) (*RagChatParams, error) {
+func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, knowledgeIDToName map[string]string, knowledgeIds []string) (*RagChatParams, error) {
 	// 知识库参数
 	ragChatParams := &RagChatParams{}
 	knowledgeConfig := rag.KnowledgeBaseConfig
@@ -220,7 +219,6 @@ func BuildChatConsultParams(req *rag_service.ChatRagReq, rag *model.RagInfo, kno
 	ragChatParams.MetaFilterConditions = metaParams
 	ragChatParams.History = buildHistory(req.History)
 	ragChatParams.UseGraph = knowledgeConfig.UseGraph
-	ragChatParams.EnableVision = enableVision
 	ragChatParams.AttachmentList = buildAttachmentList(req.FileInfoList)
 	log.Infof("ragparams = %+v", http_client.Convert2LogString(ragChatParams))
 	return ragChatParams, nil

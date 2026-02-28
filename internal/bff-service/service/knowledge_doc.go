@@ -446,7 +446,7 @@ func buildDocSegmentResp(docSegmentListResp *knowledgebase_doc_service.DocSegmen
 
 func buildDocAnalyzerText(docAnalyzer []string) []string {
 	if len(docAnalyzer) == 0 {
-		return make([]string, 0)
+		return []string{"无"}
 	}
 	return lo.Map(docAnalyzer, func(item string, index int) string {
 		return docAnalyzerMap[item]

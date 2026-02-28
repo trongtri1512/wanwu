@@ -150,6 +150,7 @@ usage-limit:
   audio-types: "mp3;wav;aac;m4a"
   video-types: "avi;mp4;mov;wmv"
   image-types: "png;jpg;jpeg"
+  doc-types:  "pdf;docx;pptx;doc;wps;ofd;xlsx;xls;csv;txt;html;md"
   max-number-of-files-in-compressed: -1
   max-file-size: 209715200
   txt-size-limit: 209715200

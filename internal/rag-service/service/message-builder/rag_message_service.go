@@ -33,7 +33,6 @@ type RagContext struct {
 	KnowledgeIDToName map[string]string
 	KnowledgeIds      []string
 	QAIds             []string
-	EnableVision      bool
 }
 
 type RagEvent struct {

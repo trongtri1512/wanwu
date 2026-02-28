@@ -289,6 +289,12 @@ func localKnowledgeHit(ctx *gin.Context, req *request.RagSearchKnowledgeBaseReq,
 			return
 		}
 		ragSearchContext.HasLocal = true
+		// 增加多模态知识库的校验
+		err := checkRerank(ctx, req.RerankModelId, req.Question, len(req.AttachmentFiles) > 0)
+		if err != nil {
+			ragSearchContext.LocalHitErr = err
+			return
+		}
 		hit, err := RagLocalKnowledgeHit(ctx, buildLocalHitParams(req, knowledgeList))
 		if err != nil {
 			ragSearchContext.LocalHitErr = err
