@@ -539,7 +539,7 @@ export default {
       width: 208px;
       background: #fff;
       border-right: 1px solid #d8d8d8;
-      transition: width 0.25s linear;
+      transition: width 0.25s linear !important;
       .left-header-container {
         position: absolute;
         top: 0;
