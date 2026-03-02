@@ -44,8 +44,11 @@
           :key="item.id"
           class="action-item"
         >
-          <div class="name">
-            <span @click="handleKnowledgeLink(item.category, item.id)">
+          <div
+            class="name"
+            @click="handleKnowledgeLink(item.category, item.id)"
+          >
+            <span>
               {{ item.name }}
             </span>
           </div>
