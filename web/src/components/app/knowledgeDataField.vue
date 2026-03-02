@@ -225,7 +225,11 @@ export default {
       const routeData = this.$router.resolve({
         name: targetRouterName,
       });
-      window.open(routeData.location.name, '_blank');
+      const fullUrl = `${routeData.href}${routeData.location.name}`.replace(
+        /\/+/g,
+        '/',
+      );
+      window.open(fullUrl, '_blank');
     },
   },
 };
