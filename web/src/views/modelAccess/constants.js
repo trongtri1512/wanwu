@@ -133,7 +133,7 @@ export const TYPE_OBJ = {
     [`${GUI}_${YUAN_JING}`]: 'https://maas-api.ai-yuanjing.com/openapi/v1',
     [`${PDF_PARSER}_${YUAN_JING}`]:
       'https://maas-api.ai-yuanjing.com/openapi/v1',
-    [YUAN_JING]: 'https://maas.ai-yuanjing.com/openapi/compatible-mode/v1',
+    [YUAN_JING]: 'https://maas-api.ai-yuanjing.com/openapi/compatible-mode/v1',
     [OPENAI_API]: 'https://api.siliconflow.cn/v1',
     [OLLAMA]: 'https://192.168.21.100:11434/v1',
     [QWEN]: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
