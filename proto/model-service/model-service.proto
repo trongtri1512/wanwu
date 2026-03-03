@@ -93,7 +93,8 @@ message ListModelsReq{
     string userId = 4;
     string orgId = 5;
     string displayName = 6;     // 模型显示名称
-    string scopeType = 7;       // 模型作用域类型
+    string filterScope = 7;     // 模型作用域类型
+    string scopeType = 8;       // 模型公开范围(1-私有 2-公开 3-组织)
 }
 
 message ModelStatusReq {

@@ -151,6 +151,7 @@ func (c *Client) ListModels(ctx context.Context, tab *model_client.ModelImported
 	db := sqlopt.SQLOptions(
 		sqlopt.WithUserOrgOrPublicScope(tab.UserID, tab.OrgID),
 		sqlopt.WithProvider(tab.Provider),
+		sqlopt.WithScopeType(tab.ScopeType),
 		sqlopt.WithModelType(tab.ModelType),
 		sqlopt.LikeDisplayNameOrModel(tab.DisplayName),
 	).Apply(c.db.WithContext(ctx))

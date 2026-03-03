@@ -6,6 +6,7 @@ import (
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
 	"github.com/UnicomAI/wanwu/internal/model-service/client/model"
+	"github.com/UnicomAI/wanwu/internal/model-service/client/orm/sqlopt"
 	"github.com/UnicomAI/wanwu/internal/model-service/config"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -27,6 +28,7 @@ func (s *Service) ImportModel(ctx context.Context, req *model_service.ModelInfo)
 			UserID: req.UserId,
 		},
 		ModelDesc: req.ModelDesc,
+		ScopeType: util.MustU32(req.ScopeType),
 	}); err != nil {
 		return nil, errStatus(errs.Code_ModelImportedModel, err)
 	}
@@ -122,6 +124,7 @@ func (s *Service) ListModels(ctx context.Context, req *model_service.ListModelsR
 		ModelType:   req.ModelType,
 		IsActive:    req.IsActive,
 		DisplayName: req.DisplayName,
+		ScopeType:   util.MustU32(req.ScopeType),
 		PublicModel: model.PublicModel{
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
@@ -130,25 +133,28 @@ func (s *Service) ListModels(ctx context.Context, req *model_service.ListModelsR
 	if err != nil {
 		return nil, errStatus(errs.Code_ModelListModels, err)
 	}
-	// 筛选公有模型/个人模型
+	// 筛选公有模型/我的模型
 	modelsInfoFiltered := make([]*model.ModelImported, 0, len(modelInfos))
-	targetScopes := make(map[string]struct{})
-	switch req.ScopeType {
-	case config.ScopeTypeStr_PRIVATE:
-		targetScopes[config.ModelScopeTypePrivate] = struct{}{}
+
+	switch req.FilterScope {
 	case config.ScopeTypeStr_PUBLIC:
-		targetScopes[config.ModelScopeTypePublic] = struct{}{}
-		targetScopes[config.ModelScopeTypeOrg] = struct{}{}
+		for _, modelInfo := range modelInfos {
+			scopeTypeInt := int(modelInfo.ScopeType)
+			if scopeTypeInt == sqlopt.ModelScopeTypePublic ||
+				(scopeTypeInt == sqlopt.ModelScopeTypeOrg && modelInfo.UserID != req.UserId) {
+				modelsInfoFiltered = append(modelsInfoFiltered, modelInfo)
+			}
+		}
+	case config.ScopeTypeStr_PRIVATE:
+		for _, modelInfo := range modelInfos {
+			scopeTypeInt := int(modelInfo.ScopeType)
+			if scopeTypeInt == sqlopt.ModelScopeTypePrivate ||
+				(scopeTypeInt == sqlopt.ModelScopeTypeOrg && modelInfo.UserID == req.UserId) {
+				modelsInfoFiltered = append(modelsInfoFiltered, modelInfo)
+			}
+		}
 	default:
 		modelsInfoFiltered = modelInfos
-		return toModelInfos(modelsInfoFiltered), nil
-	}
-
-	for _, modelInfo := range modelInfos {
-		scopeTypeStr := util.Int2Str(modelInfo.ScopeType)
-		if _, ok := targetScopes[scopeTypeStr]; ok {
-			modelsInfoFiltered = append(modelsInfoFiltered, modelInfo)
-		}
 	}
 
 	return toModelInfos(modelsInfoFiltered), nil
