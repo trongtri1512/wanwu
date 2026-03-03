@@ -91,16 +91,17 @@ func GetModel(ctx *gin.Context) {
 // ListModels
 //
 //	@Tags		model
-//	@Summary	导入模型列表
+//	@Summary		导入模型列表
 //	@Description
-//	@Security	JWT
-//	@Accept		json
-//	@Produce	json
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
 //	@Param		modelType	query		string	false	"模型类型"	Enums(llm,embedding,rerank)
 //	@Param		provider	query		string	false	"模型供应商"
 //	@Param		displayName	query		string	false	"模型显示名称"
 //	@Param		isActive	query		string	false	"启用状态（true: 启用）"
-//	@Param		scopeType	query		string	false	"模型作用域类型"
+//	@Param		filterScope	query		string	false	"模型作用域类型: public,private"
+//	@Param		scopeType	query		string	false	"模型公开范围: 1,2,3"
 //	@Success	200			{object}	response.Response{data=response.ListResult{list=response.ModelInfo}}
 //	@Router		/model/list [get]
 func ListModels(ctx *gin.Context) {

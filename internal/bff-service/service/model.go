@@ -94,6 +94,7 @@ func ListModels(ctx *gin.Context, userId, orgId string, req *request.ListModelsR
 		IsActive:    req.IsActive,
 		UserId:      userId,
 		OrgId:       orgId,
+		FilterScope: req.FilterScope,
 		ScopeType:   req.ScopeType,
 	})
 	if err != nil {

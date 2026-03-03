@@ -99,6 +99,15 @@ func WithModelType(modelType string) SQLOption {
 	})
 }
 
+func WithScopeType(scopeType uint32) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if scopeType != 0 {
+			return db.Where("scope_type = ?", scopeType)
+		}
+		return db
+	})
+}
+
 func WithModelTypes(modelTypes []string) SQLOption {
 	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
 		return db.Where("model_type IN ?", modelTypes)
