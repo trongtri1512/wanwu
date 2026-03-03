@@ -642,6 +642,7 @@ services:
       REDIS_PASSWORD: ${WANWU_REDIS_PASSWORD}
       URL_RAG_DOC_PARSER: http://rag-wanwu:8681/rag/doc_parser
       URL_MINIO_DOWNLOAD: ${WANWU_WEB_BASE_URL}/minio/download/api
+      WANWU_CALLBACK_URL_TO_BASE64: http://bff-service:6668/callback/v1/file/url/base64  
       GUNICORN_WORKERS: 2
       GUNICORN_TIMEOUT: 600
       GUNICORN_THREADS: 4

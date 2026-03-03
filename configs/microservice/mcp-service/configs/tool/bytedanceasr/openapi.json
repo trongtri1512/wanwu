@@ -1,0 +1,162 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "字节跳动 ASR 语音识别",
+    "description": "基于字节跳动火山引擎的语音识别服务，将音频转换为文字",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/bytedance-asr/flash": {
+      "post": {
+        "summary": "字节跳动 ASR 语音识别",
+        "operationId": "bytedance_asr",
+        "deprecated": false,
+        "description": "使用字节跳动火山引擎进行语音识别，resource_id固定为volc.bigasr.auc_turbo。支持URL和base64格式的音频输入",
+        "tags": ["callback"],
+        "parameters": [
+          {
+            "name": "X-Api-App-Key",
+            "in": "header",
+            "description": "API App Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Api-Access-Key",
+            "in": "header",
+            "description": "API Access Key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "audio": {
+                    "type": "string",
+                    "description": "音频文件URL或base64数据"
+                  }
+                },
+                "required": ["audio"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "识别成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByteDanceASRResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ByteDanceASRResponse": {
+        "type": "object",
+        "properties": {
+          "audio_info": {
+            "type": "object",
+            "description": "音频信息",
+            "properties": {
+              "duration": {
+                "type": "integer",
+                "description": "音频时长（毫秒）"
+              }
+            }
+          },
+          "result": {
+            "type": "object",
+            "description": "识别结果",
+            "properties": {
+              "text": {
+                "type": "string",
+                "description": "识别文本"
+              },
+              "additions": {
+                "type": "object",
+                "description": "附加信息",
+                "properties": {
+                  "duration": {
+                    "type": "string",
+                    "description": "音频时长（毫秒）"
+                  }
+                }
+              },
+              "utterances": {
+                "type": "array",
+                "description": "分句列表",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "start_time": {
+                      "type": "integer",
+                      "description": "开始时间（毫秒）"
+                    },
+                    "end_time": {
+                      "type": "integer",
+                      "description": "结束时间（毫秒）"
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "句子文本"
+                    },
+                    "words": {
+                      "type": "array",
+                      "description": "词语列表",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "start_time": {
+                            "type": "integer",
+                            "description": "开始时间（毫秒）"
+                          },
+                          "end_time": {
+                            "type": "integer",
+                            "description": "结束时间（毫秒）"
+                          },
+                          "text": {
+                            "type": "string",
+                            "description": "词语文本"
+                          },
+                          "confidence": {
+                            "type": "number",
+                            "description": "置信度"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [
+    {
+      "url": "http://callback-wanwu:8669/v1",
+      "description": "Callback服务URL"
+    }
+  ]
+}
