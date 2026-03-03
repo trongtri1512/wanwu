@@ -472,6 +472,7 @@ export default {
     menuClick(item) {
       if (item.redirect) {
         item.redirect();
+        this.changeMenuIndex(item.index);
       } else {
         if (item.path) this.$router.push({ path: item.path });
       }

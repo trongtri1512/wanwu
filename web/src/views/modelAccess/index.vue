@@ -58,6 +58,7 @@
             :placeholder="$t('modelAccess.table.scopeType')"
             class="modelAccess-select no-border-select"
             style="margin-left: 15px"
+            clearable
             @change="searchData()"
           >
             <el-option
