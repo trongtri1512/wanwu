@@ -1,0 +1,50 @@
+FROM crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/wanwulite/wga-sandbox-base:1.0.0.152-opencode1.1.65
+
+USER root
+
+# ----------------------
+# npm 安装（若有）
+#
+# ----------------------
+# RUN npm i -g ${your_npm_package}
+
+# openapi-to-skills
+# 克隆源码、安装依赖、构建、全局链接
+RUN git clone https://github.com/colagold/openapi-to-skills.git /tmp/openapi-to-skills && \
+    cd /tmp/openapi-to-skills && \
+    npm install && \
+    npm run build && \
+    npm pack && \
+    npm install -g openapi-to-skills-*.tgz && \
+    cd ~ && \
+    rm -rf /tmp/openapi-to-skills
+
+# 若不需要 AIO 里的服务，可进行删除，例如 Code Server
+## 删除 Code Server 进程和路由
+# RUN rm -rf /opt/gem/supervisord/supervisord.code_server.conf
+## 删除 Code Server 路由
+# RUN rm -rf /opt/gem/nginx/code_server.conf
+
+# 删除 Browser 服务
+RUN rm -f /opt/gem/supervisord/browser.conf
+
+# 删除 Code Server
+RUN rm -f /opt/gem/supervisord/supervisord.code_server.conf
+# 删除 Code Server nginx 配置
+RUN rm -f /opt/gem/nginx/nginx.code_server.conf
+
+# 删除 Jupyter
+RUN rm -f /opt/gem/supervisord/supervisord.jupyter.conf
+# 删除 Jupyter nginx 配置
+RUN rm -f /opt/gem/nginx/nginx.jupyter_lab.conf
+
+# 删除 Python Server（删除后无法访问8080端口）
+# RUN rm -f /opt/gem/supervisord/supervisord.python_srv.conf
+# 删除 Python Server nginx 配置
+# RUN rm -f /opt/gem/nginx/nginx.python_srv.conf
+
+# 删除 MCP（删除后无法访问8080端口）
+# RUN rm -f /opt/gem/supervisord/supervisord.mcp.conf
+# RUN rm -f /opt/gem/supervisord/supervisord.mcp_hub.conf
+# 删除 MCP nginx 配置
+# RUN rm -f /opt/gem/nginx/nginx.mcp_hub.conf

@@ -26,6 +26,7 @@ go.work
 .history
 .log
 .env
+*_test.go
 bin/amd64/*
 bin/arm64/*
 cache

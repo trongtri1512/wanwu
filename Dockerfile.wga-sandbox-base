@@ -1,0 +1,54 @@
+FROM enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:1.0.0.152
+
+# 该Dockerfile参考：
+# https://sandbox.agent-infra.com/zh/blog/announcing-0
+
+# 镜像会以 -e USER=root 启动，因此这里指定root，后续都以此setup
+USER root
+
+# ----------------------
+# 安装额外系统依赖（若有）
+# installed path: /usr/bin/*
+# ----------------------
+# RUN set -eux; \
+#     apt-get update; \
+#     apt-get install -y --no-install-recommends \
+#         ${your_system_dep} \
+#         --no-install-recommends; \
+#     # clean up
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*;
+
+# opencode 安装
+RUN curl -fsSL https://opencode.ai/install | bash -s -- --version 1.1.65
+ENV PATH="/root/.opencode/bin:${PATH}"
+
+# ----------------------
+# npm 安装（若有）
+#
+# ----------------------
+# RUN npm i -g ${your_npm_package}
+
+# ----------------------
+# python pip 安装（若有）
+# installed path: /usr/local/bin/*
+# ----------------------
+# RUN pip install ${your_python_package}
+
+# 添加自定义 Server 服务
+# COPY ./supervisord.agent_server.conf /opt/tiger/run/supervisord/agent_server.conf
+# 绑定 Nginx 路由
+# COPY ./nginx.agent_server.conf /opt/gem/nginx/nginx.agent_server.conf
+
+# opencode serve 服务配置
+RUN printf '[program:opencode]\n\
+command=opencode serve --port 4096 --hostname 0.0.0.0 --print-logs\n\
+autorestart=true\n\
+priority=800\n\
+user=root\n\
+stdout_logfile=%%(ENV_LOG_DIR)s/opencode.log\n\
+stdout_logfile_maxbytes=10MB\n\
+stdout_logfile_backups=5\n\
+redirect_stderr=true\n' > /opt/gem/supervisord/opencode.conf
+
+RUN mkdir -p /home/root/workspace
