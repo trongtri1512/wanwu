@@ -28,30 +28,6 @@
             <img class="logo" :src="userAvatarSrc" />
             <div class="answer-content">
               <div class="answer-content-query">
-                <el-popover
-                  placement="bottom-start"
-                  trigger="hover"
-                  :visible-arrow="false"
-                  popper-class="query-copy-popover"
-                  content=""
-                >
-                  <p
-                    class="query-copy"
-                    @click="queryCopy(n.query)"
-                    style="cursor: pointer"
-                  >
-                    <i class="el-icon-s-order"></i>
-                    &nbsp;
-                    {{ $t('agent.copyToInput') }}
-                  </p>
-                  <span
-                    slot="reference"
-                    class="answer-text"
-                    style="display: inline-block; margin-top: 5px"
-                  >
-                    {{ n.query }}
-                  </span>
-                </el-popover>
                 <div class="echo-doc-box" v-if="hasFiles(n)">
                   <el-button
                     v-show="canScroll(i, n.showScrollBtn)"
@@ -61,6 +37,7 @@
                     class="scroll-btn left"
                     size="mini"
                     type="primary"
+                    style="z-index: 10"
                   ></el-button>
                   <div class="imgList" :ref="`imgList-${i}`">
                     <div
@@ -68,10 +45,12 @@
                       :key="`${j}sdsl`"
                       class="docInfo-img-container"
                     >
-                      <img
+                      <el-image
                         v-if="hasImgs(n, file)"
                         :src="file.fileUrl"
                         class="docIcon imgIcon"
+                        :preview-src-list="[file.fileUrl]"
+                        fit="cover"
                       />
                       <div v-else class="docInfo-container">
                         <img
@@ -102,6 +81,30 @@
                     type="primary"
                   ></el-button>
                 </div>
+                <el-popover
+                  placement="bottom-start"
+                  trigger="hover"
+                  :visible-arrow="false"
+                  popper-class="query-copy-popover"
+                  content=""
+                >
+                  <p
+                    class="query-copy"
+                    @click="queryCopy(n.query)"
+                    style="cursor: pointer"
+                  >
+                    <i class="el-icon-s-order"></i>
+                    &nbsp;
+                    {{ $t('agent.copyToInput') }}
+                  </p>
+                  <span
+                    slot="reference"
+                    class="answer-text"
+                    style="display: inline-block; margin-top: 5px"
+                  >
+                    {{ n.query }}
+                  </span>
+                </el-popover>
               </div>
             </div>
           </div>
@@ -1477,7 +1480,7 @@ export default {
           margin-top: -8px;
         }
         .echo-doc-box {
-          margin-top: 10px;
+          margin-bottom: 10px;
           width: 100%;
           max-width: 100%;
           display: flex;
@@ -1515,7 +1518,39 @@ export default {
           }
           .docInfo-img-container {
             flex-shrink: 0; /* 防止图片被压缩 */
-            width: auto; /* 或固定宽度 */
+            // 单张图片
+            &:first-child:last-child {
+              width: 100%;
+              ::v-deep .el-image {
+                width: auto !important;
+                height: auto !important;
+                max-width: 100%;
+                display: block;
+                float: right;
+                border-radius: 6px;
+
+                .el-image__inner {
+                  width: 100% !important;
+                  height: 100% !important;
+                }
+              }
+            }
+            // 多张图片
+            &:not(:first-child:last-child) {
+              width: auto;
+              ::v-deep .el-image {
+                width: 70px !important;
+                height: 70px !important;
+                display: block;
+                border-radius: 6px;
+
+                .el-image__inner {
+                  width: 100% !important;
+                  height: 100% !important;
+                  object-position: left top;
+                }
+              }
+            }
             p {
               text-align: center;
               color: $color;
@@ -1525,12 +1560,6 @@ export default {
           .docIcon {
             width: 30px;
             height: 30px;
-          }
-          .imgIcon {
-            width: auto !important;
-            height: 70px !important;
-            display: block;
-            border-radius: 6px;
           }
           .docInfo {
             margin-left: 5px;
