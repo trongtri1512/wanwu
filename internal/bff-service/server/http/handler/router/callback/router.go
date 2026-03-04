@@ -41,4 +41,7 @@ func Register(callbackAPI *gin.RouterGroup) {
 	mid.Sub("callback").Reg(callbackAPI, "/rag/knowledge/stream/search", http.MethodPost, callback.KnowledgeStreamSearch, "根据知识库id 和当前用户id 获取有权限的知识库列表信息")
 	// rag bff proxy
 	mid.Sub("callback").Reg(callbackAPI, "/rag/search-QA-base", http.MethodPost, callback.SearchQABase, "查询问答库列表（命中测试）")
+	// wga sandbox
+	mid.Sub("callback").Reg(callbackAPI, "/wga/sandbox/run", http.MethodPost, callback.WgaSandboxRun, "WGA沙箱运行")
+	mid.Sub("callback").Reg(callbackAPI, "/wga/sandbox/cleanup", http.MethodPost, callback.WgaSandboxCleanup, "WGA沙箱清理")
 }

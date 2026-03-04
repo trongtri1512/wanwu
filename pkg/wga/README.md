@@ -466,7 +466,7 @@ ctx := context.Background()
 wga.Init(ctx, "/path/to/config.yaml")
 
 // 执行
-iter, _ := wga.Run(ctx, "agent-id", "任务描述",
+runSession, iter, _ := wga.Run(ctx, "agent-id", "任务描述",
     wga.WithModelConfig(wga_option.ModelConfig{
         Model:       "glm-4",
         ApiKey:      "sk-xxx",

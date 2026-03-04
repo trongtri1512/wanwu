@@ -532,7 +532,7 @@ func (r *Runner) trackUserMessageID(data string) {
 // convertEvent 转换 SSE 事件为 JSON 格式输出。
 // 过滤条件：
 //   - 目录和 sessionID 匹配
-//   - 事件类型为 message.part.updated
+//   - 处理 session.error 和 message.part.updated 类型
 //   - 过滤用户消息的事件
 func (r *Runner) convertEvent(data string) string {
 	var event sseEvent
@@ -542,6 +542,11 @@ func (r *Runner) convertEvent(data string) string {
 
 	if event.Directory != r.sb.WorkDir() {
 		return ""
+	}
+
+	// 优先处理 session.error
+	if event.Payload.Type == "session.error" {
+		return r.convertErrorEvent(&event)
 	}
 
 	if event.Payload.Type != "message.part.updated" {
@@ -651,6 +656,23 @@ func (r *Runner) convertToolEvent(part *sseEventPart) string {
 	event.Part, _ = json.Marshal(toolP)
 
 	data, _ := json.Marshal(event)
+	return string(data)
+}
+
+// convertErrorEvent 转换错误事件。
+func (r *Runner) convertErrorEvent(event *sseEvent) string {
+	errInfo := event.Payload.Properties.Error
+	evt := OpencodeEvent{
+		Type:      OpencodeEventTypeError,
+		Timestamp: time.Now().UnixMilli(),
+		SessionID: r.sessionID,
+	}
+	errorP := errorPart{}
+	errorP.Error.Name = errInfo.Name
+	errorP.Error.Data.Message = errInfo.Data.Message
+	evt.Part, _ = json.Marshal(errorP)
+
+	data, _ := json.Marshal(evt)
 	return string(data)
 }
 

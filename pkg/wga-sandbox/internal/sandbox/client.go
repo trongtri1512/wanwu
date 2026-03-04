@@ -307,7 +307,7 @@ func (c *client) execWithOutput(ctx context.Context, cmd, workDir string, output
 		return err
 	}
 
-	ticker := time.NewTicker(100 * time.Millisecond)
+	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
 	var lastOutput string

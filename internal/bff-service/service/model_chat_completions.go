@@ -92,6 +92,10 @@ func ModelChatCompletions(ctx *gin.Context, modelID string, req *mp_common.LLMRe
 			if len(data.Choices) > 0 && data.Choices[0].Delta != nil {
 				answer = answer + data.Choices[0].Delta.Content
 				delta := data.Choices[0].Delta
+				// 修复空 role 问题：部分模型在 thinking 模式下返回空 role
+				if delta.Role == "" {
+					delta.Role = mp_common.MsgRoleAssistant
+				}
 				if firstFlag && !endFlag && delta.ReasoningContent != nil {
 					delta.Content = delta.Content + *delta.ReasoningContent
 				}

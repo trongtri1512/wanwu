@@ -43,7 +43,7 @@ runner.Runner
 ```go
 ctx := context.Background()
 
-outputCh, _ := wga_sandbox.Run(ctx,
+runSession, outputCh, _ := wga_sandbox.Run(ctx,
     // 模型配置（必须）
     wga_sandbox_option.WithModelConfig(wga_sandbox_option.ModelConfig{
         Provider:     "yuanjing",
@@ -85,7 +85,7 @@ for line := range outputCh {
 ```go
 import ag_ui_util "github.com/UnicomAI/wanwu/pkg/ag-ui-util"
 
-outputCh, _ := wga_sandbox.Run(ctx,
+runSession, outputCh, _ := wga_sandbox.Run(ctx,
     wga_sandbox_option.WithModelConfig(modelConfig),
     wga_sandbox_option.WithSandbox(wga_sandbox_option.SandboxReuse("localhost")),
     wga_sandbox_option.WithCurrentTask("任务描述"),

@@ -26,7 +26,7 @@ func newOpencodeConverter() *opencodeConverter {
 			wga_sandbox.OpencodeEventTypeAgent:      parseAgentPart,
 			wga_sandbox.OpencodeEventTypePatch:      parsePatchPart,
 			wga_sandbox.OpencodeEventTypeRetry:      parseRetryPart,
-			"error":                                 parseErrorPart,
+			wga_sandbox.OpencodeEventTypeError:      parseErrorPart,
 		},
 	}
 }
@@ -152,18 +152,9 @@ func parseRetryPart(part json.RawMessage) (messageContent, error) {
 	return messageContent{content: "[retry] " + p.ID}, nil
 }
 
-type opencodeErrorPart struct {
-	Error struct {
-		Name string `json:"name"`
-		Data struct {
-			Message string `json:"message"`
-		} `json:"data"`
-	} `json:"error"`
-}
-
 func parseErrorPart(part json.RawMessage) (messageContent, error) {
-	var p opencodeErrorPart
-	if err := json.Unmarshal(part, &p); err != nil {
+	p, err := wga_sandbox.ParseOpencodeErrorPart(part)
+	if err != nil {
 		return messageContent{}, err
 	}
 	msg := "[error] " + p.Error.Name

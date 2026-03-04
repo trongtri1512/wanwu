@@ -24,6 +24,7 @@ const (
 	OpencodeEventTypeRetry      OpencodeEventType = opencode.OpencodeEventTypeRetry
 	OpencodeEventTypeSubtask    OpencodeEventType = opencode.OpencodeEventTypeSubtask
 	OpencodeEventTypeCompaction OpencodeEventType = opencode.OpencodeEventTypeCompaction
+	OpencodeEventTypeError      OpencodeEventType = opencode.OpencodeEventTypeError
 )
 
 // OpencodeEvent opencode 事件结构。
@@ -122,6 +123,15 @@ func ParseOpencodePartPatchPart(data []byte) (*sdk.PartPatchPart, error) {
 // ParseOpencodePartRetryPart 解析重试类型事件内容。
 func ParseOpencodePartRetryPart(data []byte) (*sdk.PartRetryPart, error) {
 	var part sdk.PartRetryPart
+	if err := json.Unmarshal(data, &part); err != nil {
+		return nil, err
+	}
+	return &part, nil
+}
+
+// ParseOpencodeErrorPart 解析错误类型事件内容。
+func ParseOpencodeErrorPart(data []byte) (*opencode.ErrorPart, error) {
+	var part opencode.ErrorPart
 	if err := json.Unmarshal(data, &part); err != nil {
 		return nil, err
 	}

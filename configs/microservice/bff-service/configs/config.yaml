@@ -58,9 +58,6 @@ i18n:
       name: English
   defaultLang: zh
 
-assistant-template:
-  configPath: configs/microservice/bff-service/configs/assistant_template_config.yaml
-
 custom-info:
   default_mode: light
   modes:
@@ -173,11 +170,8 @@ doc-center:
     - key: workflow-1059
       val: 3.应用开发/工作流/组件/JSON反序列化节点.md
 
-models:
-  - model_id: "Asr"
-    model_type: "asr"
-    provider: "YuanJing"
-    endpoint: "https://maas-api.ai-yuanjing.com/openapi/synchronous/asr/audio/file/transfer/unicom/sync/file/asr"
+assistant-template:
+  configPath: configs/microservice/bff-service/configs/assistant_template_config.yaml
 
 workflow-template:
   server_mode: local
@@ -193,6 +187,7 @@ prompt-template:
 
 skills-template:
   configPath: configs/microservice/bff-service/configs/skills_template_config.yaml
+
 # --- middleware ---
 
 minio:
@@ -358,3 +353,9 @@ workflow:
         label: "输入及输出设置"
       default_val:
         default_val: "0"
+
+wga-sandbox:
+  sandbox:
+    type: reuse
+    host: wga-sandbox-wanwu
+    image-name: ""

@@ -50,24 +50,24 @@ func CheckOptions(_ context.Context, id string, opts ...option.Option) (*wga_opt
 	return options.CheckCondition(agentCfg)
 }
 
-// Run 执行智能体任务，返回事件迭代器。
-func Run(ctx context.Context, id, query string, opts ...option.Option) (*adk.AsyncIterator[*adk.AgentEvent], error) {
+// Run 执行智能体任务，返回会话标识和事件迭代器。
+func Run(ctx context.Context, id, query string, opts ...option.Option) (wga_option.RunSession, *adk.AsyncIterator[*adk.AgentEvent], error) {
 	agentCfg, err := getAgent(id)
 	if err != nil {
-		return nil, err
+		return wga_option.RunSession{}, nil, err
 	}
 	var options option.Options
 	if err := options.Apply(opts...); err != nil {
-		return nil, err
+		return wga_option.RunSession{}, nil, err
 	}
 	agent, err := factory.NewAgent(ctx, agentCfg, query, options)
 	if err != nil {
-		return nil, err
+		return wga_option.RunSession{}, nil, err
 	}
 	input := &adk.AgentInput{
 		Messages: []adk.Message{schema.UserMessage(query)},
 	}
-	return agent.Run(ctx, input), nil
+	return options.RunSession, agent.Run(ctx, input), nil
 }
 
 func getAgent(id string) (*config.Agent, error) {

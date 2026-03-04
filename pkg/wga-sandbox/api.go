@@ -22,15 +22,15 @@ type jsonErrorEvent struct {
 }
 
 // Run 在沙箱容器中执行智能体任务。
-func Run(ctx context.Context, opts ...wga_sandbox_option.Option) (<-chan string, error) {
+func Run(ctx context.Context, opts ...wga_sandbox_option.Option) (wga_sandbox_option.RunSession, <-chan string, error) {
 	var opt wga_sandbox_option.RunOption
 	if err := opt.Apply(opts...); err != nil {
-		return nil, fmt.Errorf("apply options failed: %w", err)
+		return wga_sandbox_option.RunSession{}, nil, fmt.Errorf("apply options failed: %w", err)
 	}
 
 	runID := opt.RunSession.RunID
 	if err := manager.Create(ctx, runID, opt.Sandbox); err != nil {
-		return nil, fmt.Errorf("create sandbox failed: %w", err)
+		return wga_sandbox_option.RunSession{}, nil, fmt.Errorf("create sandbox failed: %w", err)
 	}
 
 	logPrefix := fmt.Sprintf("[wga-sandbox][%s]", runID)
@@ -57,7 +57,7 @@ func Run(ctx context.Context, opts ...wga_sandbox_option.Option) (<-chan string,
 
 	sb, err := manager.Get(runID)
 	if err != nil {
-		return nil, fmt.Errorf("get sandbox failed: %w", err)
+		return wga_sandbox_option.RunSession{}, nil, fmt.Errorf("get sandbox failed: %w", err)
 	}
 	r := createRunner(opt.RunnerType, sb, req)
 
@@ -104,7 +104,7 @@ func Run(ctx context.Context, opts ...wga_sandbox_option.Option) (<-chan string,
 		}
 	}()
 
-	return outputCh, nil
+	return opt.RunSession, outputCh, nil
 }
 
 // Cleanup 清理指定 runID 的沙箱环境（用于 SkipCleanup=true 场景）。

@@ -51,7 +51,7 @@ func (a *sandboxAgent) Run(ctx context.Context, _ *adk.AgentInput, _ ...adk.Agen
 
 		sandboxOpts := a.buildSandboxOpts(a.query)
 
-		outputCh, err := wga_sandbox.Run(ctx, sandboxOpts...)
+		_, outputCh, err := wga_sandbox.Run(ctx, sandboxOpts...)
 		if err != nil {
 			log.Errorf("%s failed to run sandbox: %v", logPrefix, err)
 			generator.Send(&adk.AgentEvent{Err: err})

@@ -1,5 +1,84 @@
 basePath: /callback/v1
 definitions:
+  mp.AppModelParams:
+    properties:
+      providerDeepSeek:
+        $ref: '#/definitions/mp.AppModelParamsDeepSeek'
+      providerHuoshan:
+        $ref: '#/definitions/mp.AppModelParamsHuoShan'
+      providerInfini:
+        $ref: '#/definitions/mp.AppModelParamsInfini'
+      providerOllama:
+        $ref: '#/definitions/mp.AppModelParamsOllama'
+      providerOpenAICompatible:
+        allOf:
+        - $ref: '#/definitions/mp.AppModelParamsOpenAICompatible'
+        description: OpenAI-API-compatible模型配置
+      providerQianFan:
+        $ref: '#/definitions/mp.AppModelParamsQianFan'
+      providerQwen:
+        $ref: '#/definitions/mp.AppModelParamsQwen'
+      providerYuanjing:
+        allOf:
+        - $ref: '#/definitions/mp.AppModelParamsYuanjing'
+        description: YuanJing模型配置
+    type: object
+  mp.AppModelParamsDeepSeek:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsHuoShan:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsInfini:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsOllama:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsOpenAICompatible:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsQianFan:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsQwen:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
+  mp.AppModelParamsYuanjing:
+    properties:
+      llm:
+        allOf:
+        - $ref: '#/definitions/mp_common.LLMParams'
+        description: 大语言模型配置
+    type: object
   mp.ProviderModelByDeepSeek:
     properties:
       llm:
@@ -221,6 +300,39 @@ definitions:
     - content
     - message
     - usage
+    type: object
+  mp_common.LLMParams:
+    properties:
+      frequencyPenalty:
+        description: 频率惩罚
+        type: number
+      frequencyPenaltyEnable:
+        description: 频率惩罚(开关)
+        type: boolean
+      maxTokens:
+        description: 最大标记
+        type: integer
+      maxTokensEnable:
+        description: 最大标记(开关)
+        type: boolean
+      presencePenalty:
+        description: 存在惩罚
+        type: number
+      presencePenaltyEnable:
+        description: 存在惩罚(开关)
+        type: boolean
+      temperature:
+        description: 温度
+        type: number
+      temperatureEnable:
+        description: 温度(开关)
+        type: boolean
+      topP:
+        description: Top P
+        type: number
+      topPEnable:
+        description: Top P(开关)
+        type: boolean
     type: object
   mp_common.LLMReq:
     properties:
@@ -1353,6 +1465,30 @@ definitions:
         description: Title is a human-readable title for the tool, useful for UI display
         type: string
     type: object
+  request.AppModelConfig:
+    properties:
+      config:
+        description: 模型配置
+      displayName:
+        description: 模型展示名称(请求非必填)
+        type: string
+      examples:
+        allOf:
+        - $ref: '#/definitions/mp.AppModelParams'
+        description: 仅用于swagger展示；模型对应供应商中的对应llm、embedding或rerank结构是config实际的参数
+      model:
+        description: 模型名称
+        type: string
+      modelId:
+        description: 模型ID
+        type: string
+      modelType:
+        description: 模型类型(llm/embedding/rerank)
+        type: string
+      provider:
+        description: 模型供应商
+        type: string
+    type: object
   request.Avatar:
     properties:
       key:
@@ -1571,7 +1707,7 @@ definitions:
         description: 是否启动知识图谱查询
         type: boolean
       enable_vision:
-        description: 召回结果是否包含多模态文件
+        description: 召回结果是否包含多模态文件(只在callback层做最后的赋值)
         type: boolean
       knowledge_base_info:
         additionalProperties:
@@ -1685,6 +1821,67 @@ definitions:
       vector_weight:
         description: 语义权重
         type: number
+    type: object
+  request.WgaSandboxCleanupReq:
+    properties:
+      runId:
+        type: string
+    required:
+    - runId
+    type: object
+  request.WgaSandboxMessage:
+    properties:
+      content:
+        type: string
+      role:
+        type: string
+    required:
+    - content
+    - role
+    type: object
+  request.WgaSandboxRunReq:
+    properties:
+      agentName:
+        type: string
+      currentTask:
+        type: string
+      enableThinking:
+        type: boolean
+      inputDir:
+        type: string
+      instruction:
+        type: string
+      messages:
+        items:
+          $ref: '#/definitions/request.WgaSandboxMessage'
+        type: array
+      model:
+        $ref: '#/definitions/request.AppModelConfig'
+      outputDir:
+        type: string
+      overallTask:
+        type: string
+      runId:
+        type: string
+      skills:
+        items:
+          $ref: '#/definitions/request.WgaSandboxSkill'
+        type: array
+      skipCleanup:
+        type: boolean
+      threadId:
+        type: string
+      tools:
+        items:
+          $ref: '#/definitions/request.WgaSandboxTool'
+        type: array
+    required:
+    - currentTask
+    - model
+    type: object
+  request.WgaSandboxSkill:
+    type: object
+  request.WgaSandboxTool:
     type: object
   request.WorkflowUploadFileByBase64Req:
     properties:
@@ -2141,6 +2338,50 @@ paths:
       summary: 获取MCP Server详情
       tags:
       - mcp.server
+  /callback/wga/sandbox/cleanup:
+    post:
+      consumes:
+      - application/json
+      description: 清理沙箱资源
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WgaSandboxCleanupReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: WGA沙箱清理
+      tags:
+      - wga-sandbox
+  /callback/wga/sandbox/run:
+    post:
+      consumes:
+      - application/json
+      description: 在沙箱容器中执行智能体任务，SSE流式返回结果
+      parameters:
+      - description: 请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.WgaSandboxRunReq'
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: SSE流式返回
+          schema:
+            type: string
+      summary: WGA沙箱运行
+      tags:
+      - wga-sandbox
   /chatflow/list:
     get:
       consumes:

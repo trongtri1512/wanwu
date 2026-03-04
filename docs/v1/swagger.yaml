@@ -4434,6 +4434,10 @@ definitions:
         type: array
       response:
         type: string
+      responseList:
+        items:
+          $ref: '#/definitions/response.ConversationResponse'
+        type: array
       searchList: {}
       subConversationList:
         items:
@@ -4453,6 +4457,13 @@ definitions:
       createdAt:
         type: string
       title:
+        type: string
+    type: object
+  response.ConversationResponse:
+    properties:
+      order:
+        type: integer
+      response:
         type: string
     type: object
   response.CozeConnectorInfo:
@@ -6688,6 +6699,8 @@ definitions:
       name:
         description: 事件名称
         type: string
+      order:
+        type: integer
       parentId:
         description: 事件挂载id
         type: string
@@ -12892,7 +12905,11 @@ paths:
         in: query
         name: isActive
         type: string
-      - description: 模型作用域类型
+      - description: '模型作用域类型: public,private'
+        in: query
+        name: filterScope
+        type: string
+      - description: '模型公开范围: 1,2,3'
         in: query
         name: scopeType
         type: string

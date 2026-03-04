@@ -585,6 +585,10 @@ definitions:
         type: array
       response:
         type: string
+      responseList:
+        items:
+          $ref: '#/definitions/response.ConversationResponse'
+        type: array
       searchList: {}
       subConversationList:
         items:
@@ -604,6 +608,13 @@ definitions:
       createdAt:
         type: string
       title:
+        type: string
+    type: object
+  response.ConversationResponse:
+    properties:
+      order:
+        type: integer
+      response:
         type: string
     type: object
   response.ListResult:
@@ -650,6 +661,8 @@ definitions:
       name:
         description: 事件名称
         type: string
+      order:
+        type: integer
       parentId:
         description: 事件挂载id
         type: string

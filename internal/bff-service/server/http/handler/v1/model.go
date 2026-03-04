@@ -91,11 +91,11 @@ func GetModel(ctx *gin.Context) {
 // ListModels
 //
 //	@Tags		model
-//	@Summary		导入模型列表
+//	@Summary	导入模型列表
 //	@Description
-//	@Security		JWT
-//	@Accept			json
-//	@Produce		json
+//	@Security	JWT
+//	@Accept		json
+//	@Produce	json
 //	@Param		modelType	query		string	false	"模型类型"	Enums(llm,embedding,rerank)
 //	@Param		provider	query		string	false	"模型供应商"
 //	@Param		displayName	query		string	false	"模型显示名称"

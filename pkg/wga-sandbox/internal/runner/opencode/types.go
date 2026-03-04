@@ -23,6 +23,7 @@ const (
 	OpencodeEventTypeRetry      OpencodeEventType = "retry"
 	OpencodeEventTypeSubtask    OpencodeEventType = "subtask"
 	OpencodeEventTypeCompaction OpencodeEventType = "compaction"
+	OpencodeEventTypeError      OpencodeEventType = "error"
 )
 
 // OpencodeEvent 输出事件结构。
@@ -65,6 +66,19 @@ type toolState struct {
 	Error  string      `json:"error,omitempty"`
 }
 
+// errorPart 错误部分。
+type errorPart struct {
+	Error struct {
+		Name string `json:"name"`
+		Data struct {
+			Message string `json:"message"`
+		} `json:"data"`
+	} `json:"error"`
+}
+
+// ErrorPart 错误部分（导出）。
+type ErrorPart = errorPart
+
 // ============================================================================
 // SSE 事件类型（内部使用）
 // ============================================================================
@@ -87,6 +101,16 @@ type sseEventProps struct {
 	Part      sseEventPart   `json:"part"`
 	Delta     string         `json:"delta"`
 	Status    sseEventStatus `json:"status"`
+	Error     sseEventError  `json:"error"`
+}
+
+// sseEventError SSE 错误事件属性。
+type sseEventError struct {
+	Name string `json:"name"`
+	Data struct {
+		Message    string `json:"message"`
+		StatusCode int    `json:"statusCode,omitempty"`
+	} `json:"data"`
 }
 
 // sseEventPart SSE 事件部分。

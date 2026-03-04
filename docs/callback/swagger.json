@@ -243,6 +243,74 @@
                 }
             }
         },
+        "/callback/wga/sandbox/cleanup": {
+            "post": {
+                "description": "清理沙箱资源",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wga-sandbox"
+                ],
+                "summary": "WGA沙箱清理",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WgaSandboxCleanupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/callback/wga/sandbox/run": {
+            "post": {
+                "description": "在沙箱容器中执行智能体任务，SSE流式返回结果",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "wga-sandbox"
+                ],
+                "summary": "WGA沙箱运行",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.WgaSandboxRunReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "SSE流式返回",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/chatflow/list": {
             "get": {
                 "description": "根据userId和spaceId获取Chatflow",
@@ -1073,6 +1141,149 @@
         }
     },
     "definitions": {
+        "mp.AppModelParams": {
+            "type": "object",
+            "properties": {
+                "providerDeepSeek": {
+                    "$ref": "#/definitions/mp.AppModelParamsDeepSeek"
+                },
+                "providerHuoshan": {
+                    "$ref": "#/definitions/mp.AppModelParamsHuoShan"
+                },
+                "providerInfini": {
+                    "$ref": "#/definitions/mp.AppModelParamsInfini"
+                },
+                "providerOllama": {
+                    "$ref": "#/definitions/mp.AppModelParamsOllama"
+                },
+                "providerOpenAICompatible": {
+                    "description": "OpenAI-API-compatible模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp.AppModelParamsOpenAICompatible"
+                        }
+                    ]
+                },
+                "providerQianFan": {
+                    "$ref": "#/definitions/mp.AppModelParamsQianFan"
+                },
+                "providerQwen": {
+                    "$ref": "#/definitions/mp.AppModelParamsQwen"
+                },
+                "providerYuanjing": {
+                    "description": "YuanJing模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp.AppModelParamsYuanjing"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsDeepSeek": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsHuoShan": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsInfini": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsOllama": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsOpenAICompatible": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsQianFan": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsQwen": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
+        "mp.AppModelParamsYuanjing": {
+            "type": "object",
+            "properties": {
+                "llm": {
+                    "description": "大语言模型配置",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp_common.LLMParams"
+                        }
+                    ]
+                }
+            }
+        },
         "mp.ProviderModelByDeepSeek": {
             "type": "object",
             "properties": {
@@ -1401,6 +1612,51 @@
                 },
                 "usage": {
                     "$ref": "#/definitions/mp_common.Usage"
+                }
+            }
+        },
+        "mp_common.LLMParams": {
+            "type": "object",
+            "properties": {
+                "frequencyPenalty": {
+                    "description": "频率惩罚",
+                    "type": "number"
+                },
+                "frequencyPenaltyEnable": {
+                    "description": "频率惩罚(开关)",
+                    "type": "boolean"
+                },
+                "maxTokens": {
+                    "description": "最大标记",
+                    "type": "integer"
+                },
+                "maxTokensEnable": {
+                    "description": "最大标记(开关)",
+                    "type": "boolean"
+                },
+                "presencePenalty": {
+                    "description": "存在惩罚",
+                    "type": "number"
+                },
+                "presencePenaltyEnable": {
+                    "description": "存在惩罚(开关)",
+                    "type": "boolean"
+                },
+                "temperature": {
+                    "description": "温度",
+                    "type": "number"
+                },
+                "temperatureEnable": {
+                    "description": "温度(开关)",
+                    "type": "boolean"
+                },
+                "topP": {
+                    "description": "Top P",
+                    "type": "number"
+                },
+                "topPEnable": {
+                    "description": "Top P(开关)",
+                    "type": "boolean"
                 }
             }
         },
@@ -3047,6 +3303,42 @@
                 }
             }
         },
+        "request.AppModelConfig": {
+            "type": "object",
+            "properties": {
+                "config": {
+                    "description": "模型配置"
+                },
+                "displayName": {
+                    "description": "模型展示名称(请求非必填)",
+                    "type": "string"
+                },
+                "examples": {
+                    "description": "仅用于swagger展示；模型对应供应商中的对应llm、embedding或rerank结构是config实际的参数",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/mp.AppModelParams"
+                        }
+                    ]
+                },
+                "model": {
+                    "description": "模型名称",
+                    "type": "string"
+                },
+                "modelId": {
+                    "description": "模型ID",
+                    "type": "string"
+                },
+                "modelType": {
+                    "description": "模型类型(llm/embedding/rerank)",
+                    "type": "string"
+                },
+                "provider": {
+                    "description": "模型供应商",
+                    "type": "string"
+                }
+            }
+        },
         "request.Avatar": {
             "type": "object",
             "properties": {
@@ -3372,7 +3664,7 @@
                     "type": "boolean"
                 },
                 "enable_vision": {
-                    "description": "召回结果是否包含多模态文件",
+                    "description": "召回结果是否包含多模态文件(只在callback层做最后的赋值)",
                     "type": "boolean"
                 },
                 "knowledgeIdList": {
@@ -3537,6 +3829,98 @@
                     "type": "number"
                 }
             }
+        },
+        "request.WgaSandboxCleanupReq": {
+            "type": "object",
+            "required": [
+                "runId"
+            ],
+            "properties": {
+                "runId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.WgaSandboxMessage": {
+            "type": "object",
+            "required": [
+                "content",
+                "role"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.WgaSandboxRunReq": {
+            "type": "object",
+            "required": [
+                "currentTask",
+                "model"
+            ],
+            "properties": {
+                "agentName": {
+                    "type": "string"
+                },
+                "currentTask": {
+                    "type": "string"
+                },
+                "enableThinking": {
+                    "type": "boolean"
+                },
+                "inputDir": {
+                    "type": "string"
+                },
+                "instruction": {
+                    "type": "string"
+                },
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.WgaSandboxMessage"
+                    }
+                },
+                "model": {
+                    "$ref": "#/definitions/request.AppModelConfig"
+                },
+                "outputDir": {
+                    "type": "string"
+                },
+                "overallTask": {
+                    "type": "string"
+                },
+                "runId": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.WgaSandboxSkill"
+                    }
+                },
+                "skipCleanup": {
+                    "type": "boolean"
+                },
+                "threadId": {
+                    "type": "string"
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/request.WgaSandboxTool"
+                    }
+                }
+            }
+        },
+        "request.WgaSandboxSkill": {
+            "type": "object"
+        },
+        "request.WgaSandboxTool": {
+            "type": "object"
         },
         "request.WorkflowUploadFileByBase64Req": {
             "type": "object",

@@ -23,10 +23,10 @@ type Config struct {
 	OAuth             OAuthConfig                `json:"oauth" mapstructure:"oauth"`
 	Decrypt           DecryptPasswd              `json:"decrypt-passwd" mapstructure:"decrypt-passwd"`
 	I18n              i18n.Config                `json:"i18n" mapstructure:"i18n"`
-	AssistantTemplate AssistantTemplateConfig    `json:"assistant-template" mapstructure:"assistant-template"`
 	CustomInfo        CustomInfoConfig           `json:"custom-info" mapstructure:"custom-info"`
 	DocCenter         DocCenterConfig            `json:"doc-center" mapstructure:"doc-center"`
 	DefaultIcon       DefaultIconConfig          `json:"default-icon" mapstructure:"default-icon"`
+	AssistantTemplate AssistantTemplateConfig    `json:"assistant-template" mapstructure:"assistant-template"`
 	WorkflowTemplate  WorkflowTemplatePathConfig `json:"workflow-template" mapstructure:"workflow-template"`
 	PromptTemplate    PromptTemplatePathConfig   `json:"prompt-template" mapstructure:"prompt-template"`
 	SkillsTemplate    SkillsTemplatePathConfig   `json:"skills-template" mapstructure:"skills-template"`
@@ -49,14 +49,7 @@ type Config struct {
 	RagKnowledgeConfig  RagKnowledgeConfig    `json:"rag-knowledge" mapstructure:"rag-knowledge"`
 	DifyKnowledgeConfig DifyKnowledgeConfig   `json:"dify-knowledge" mapstructure:"dify-knowledge"`
 	Workflow            WorkflowServiceConfig `json:"workflow" mapstructure:"workflow"`
-	Models              []*ModelConfig        `json:"models" mapstructure:"models"`
-}
-
-type ModelConfig struct {
-	ModelId   string `json:"model_id" mapstructure:"model_id"`
-	Provider  string `json:"provider" mapstructure:"provider"`
-	ModelType string `json:"model_type" mapstructure:"model_type"`
-	Endpoint  string `json:"endpoint" mapstructure:"endpoint"`
+	WgaSandbox          WgaSandboxConfig      `json:"wga-sandbox" mapstructure:"wga-sandbox"`
 }
 
 type ServerConfig struct {
@@ -124,6 +117,16 @@ type RagKnowledgeConfig struct {
 type DifyKnowledgeConfig struct {
 	SearchKnowledgeBaseUri string `json:"search-knowledge-base-uri" mapstructure:"search-knowledge-base-uri"`
 	SearchKnowTimeout      int    `json:"search-know-timeout" mapstructure:"search-know-timeout"`
+}
+
+type WgaSandboxConfig struct {
+	Sandbox WgaSandboxSandboxConfig `json:"sandbox" mapstructure:"sandbox"`
+}
+
+type WgaSandboxSandboxConfig struct {
+	Type      string `json:"type" mapstructure:"type"`
+	Host      string `json:"host" mapstructure:"host"`
+	ImageName string `json:"image-name" mapstructure:"image-name"`
 }
 
 type WorkflowTemplatePathConfig struct {
@@ -220,11 +223,6 @@ type WorkflowModelParamDefaultVal struct {
 	Balance    string `json:"balance" mapstructure:"balance"`
 	Creative   string `json:"creative" mapstructure:"creative"`
 	DefaultVal string `json:"default_val" mapstructure:"default_val"`
-}
-
-type UriConfig struct {
-	Port string `json:"port" mapstructure:"port"`
-	Uri  string `json:"uri" mapstructure:"uri"`
 }
 
 type AssistantTemplateConfig struct {
@@ -340,19 +338,6 @@ func Cfg() *Config {
 	return _c
 }
 
-// GetDocs 返回 docs 的深拷贝
-func (d *DocCenterConfig) GetDocs() map[string]string {
-	if d.docs == nil {
-		return nil
-	}
-	// 深拷贝
-	result := make(map[string]string, len(d.docs))
-	for k, v := range d.docs {
-		result[k] = v
-	}
-	return result
-}
-
 func (c *Config) WorkflowTemp(templateId string) (WorkflowTemplateConfig, bool) {
 	for _, wtf := range c.WorkflowTemplates {
 		if wtf.TemplateId == templateId {
@@ -380,10 +365,15 @@ func (c *Config) AgentSkill(skillId string) (SkillsConfig, bool) {
 	return SkillsConfig{}, false
 }
 
-func (c *Config) GetModelsMap() map[string]*ModelConfig {
-	modelsMap := make(map[string]*ModelConfig)
-	for _, m := range c.Models {
-		modelsMap[m.ModelId] = m
+// GetDocs 返回 docs 的深拷贝
+func (d *DocCenterConfig) GetDocs() map[string]string {
+	if d.docs == nil {
+		return nil
 	}
-	return modelsMap
+	// 深拷贝
+	result := make(map[string]string, len(d.docs))
+	for k, v := range d.docs {
+		result[k] = v
+	}
+	return result
 }

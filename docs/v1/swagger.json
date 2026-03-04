@@ -9756,7 +9756,13 @@
                     },
                     {
                         "type": "string",
-                        "description": "模型作用域类型",
+                        "description": "模型作用域类型: public,private",
+                        "name": "filterScope",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "模型公开范围: 1,2,3",
                         "name": "scopeType",
                         "in": "query"
                     }
@@ -20611,6 +20617,12 @@
                 "response": {
                     "type": "string"
                 },
+                "responseList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ConversationResponse"
+                    }
+                },
                 "searchList": {},
                 "subConversationList": {
                     "type": "array",
@@ -20639,6 +20651,17 @@
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ConversationResponse": {
+            "type": "object",
+            "properties": {
+                "order": {
+                    "type": "integer"
+                },
+                "response": {
                     "type": "string"
                 }
             }
@@ -23986,6 +24009,9 @@
                 "name": {
                     "description": "事件名称",
                     "type": "string"
+                },
+                "order": {
+                    "type": "integer"
                 },
                 "parentId": {
                     "description": "事件挂载id",

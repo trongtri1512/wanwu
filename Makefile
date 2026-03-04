@@ -93,15 +93,19 @@ doc-swag:
 	# v1
 	swag fmt  -g guest.go -d internal/bff-service/server/http/handler/v1
 	swag init -g guest.go -d internal/bff-service/server/http/handler/v1 -o docs/v1 --md docs --pd
+	@echo '//nolint' | cat - docs/v1/docs.go > tmp && mv tmp docs/v1/docs.go
 	# openapi
 	swag fmt  -g openapi.go -d internal/bff-service/server/http/handler/openapi
 	swag init -g openapi.go -d internal/bff-service/server/http/handler/openapi -o docs/openapi --pd
+	@echo '//nolint' | cat - docs/openapi/docs.go > tmp && mv tmp docs/openapi/docs.go
 	# callback
 	swag fmt  -g callback.go -d internal/bff-service/server/http/handler/callback
 	swag init -g callback.go -d internal/bff-service/server/http/handler/callback -o docs/callback --pd
+	@echo '//nolint' | cat - docs/callback/docs.go > tmp && mv tmp docs/callback/docs.go
 	# openurl
 	swag fmt  -g openurl.go -d internal/bff-service/server/http/handler/openurl
 	swag init -g openurl.go -d internal/bff-service/server/http/handler/openurl -o docs/openurl --pd
+	@echo '//nolint' | cat - docs/openurl/docs.go > tmp && mv tmp docs/openurl/docs.go
 
 docker-image-backend:
 	docker build -f Dockerfile.backend --build-arg WANWU_ARCH=${WANWU_ARCH} -t wanwulite/wanwu-backend:${WANWU_VERSION}-$(shell git rev-parse --short HEAD)-${WANWU_ARCH} .
