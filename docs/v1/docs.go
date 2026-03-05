@@ -315,6 +315,204 @@ const docTemplate = `{
                 }
             }
         },
+        "/agent/skill/custom": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "创建自定义skill",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource.skill"
+                ],
+                "summary": "创建自定义skill",
+                "parameters": [
+                    {
+                        "description": "自定义skill信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCustomSkillReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CustomSkillIDResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "删除自定义skill",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource.skill"
+                ],
+                "summary": "删除自定义skill",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "skill ID",
+                        "name": "skillId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/agent/skill/custom/detail": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取自定义skill详情",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource.skill"
+                ],
+                "summary": "获取自定义skill详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "skill ID",
+                        "name": "skillId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.CustomSkillDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/agent/skill/custom/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取自定义skill列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource.skill"
+                ],
+                "summary": "获取自定义skill列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "skill名称",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.ListResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.CustomSkillDetail"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/agent/skill/detail": {
             "get": {
                 "security": [
@@ -330,7 +528,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "guest"
+                    "resource.skill"
                 ],
                 "summary": "获取skill模板详情",
                 "parameters": [
@@ -354,7 +552,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/response.AgentSkillDetail"
+                                            "$ref": "#/definitions/response.SkillDetail"
                                         }
                                     }
                                 }
@@ -379,7 +577,7 @@ const docTemplate = `{
                     "application/octet-stream"
                 ],
                 "tags": [
-                    "guest"
+                    "resource.skill"
                 ],
                 "summary": "下载skill模板",
                 "parameters": [
@@ -416,7 +614,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "guest"
+                    "resource.skill"
                 ],
                 "summary": "获取skill模板列表",
                 "parameters": [
@@ -449,7 +647,7 @@ const docTemplate = `{
                                                         "list": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/response.AgentSkillDetail"
+                                                                "$ref": "#/definitions/response.SkillDetail"
                                                             }
                                                         }
                                                     }
@@ -9882,6 +10080,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "format": "int32",
                         "description": "模型体验对话ID",
                         "name": "modelExperienceId",
                         "in": "query",
@@ -16697,6 +16896,36 @@ const docTemplate = `{
                 }
             }
         },
+        "request.CreateCustomSkillReq": {
+            "type": "object",
+            "required": [
+                "author",
+                "zipUrl"
+            ],
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "avatar": {
+                    "$ref": "#/definitions/request.Avatar"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "saveId": {
+                    "type": "string"
+                },
+                "sourceType": {
+                    "type": "string"
+                },
+                "zipUrl": {
+                    "type": "string"
+                }
+            }
+        },
         "request.CreateDocChildSegmentReq": {
             "type": "object",
             "required": [
@@ -20191,39 +20420,6 @@ const docTemplate = `{
                 }
             }
         },
-        "response.AgentSkillDetail": {
-            "type": "object",
-            "properties": {
-                "author": {
-                    "description": "作者",
-                    "type": "string"
-                },
-                "avatar": {
-                    "description": "模板头像",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/request.Avatar"
-                        }
-                    ]
-                },
-                "desc": {
-                    "description": "模板描述",
-                    "type": "string"
-                },
-                "name": {
-                    "description": "模板名称",
-                    "type": "string"
-                },
-                "skillId": {
-                    "description": "模板ID",
-                    "type": "string"
-                },
-                "skillMarkdown": {
-                    "description": "模板markdown预览",
-                    "type": "string"
-                }
-            }
-        },
         "response.AnalysisDocUrlResp": {
             "type": "object",
             "properties": {
@@ -21645,6 +21841,50 @@ const docTemplate = `{
                             "$ref": "#/definitions/response.CustomEmail"
                         }
                     ]
+                }
+            }
+        },
+        "response.CustomSkillDetail": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "description": "作者",
+                    "type": "string"
+                },
+                "avatar": {
+                    "description": "模板头像",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "desc": {
+                    "description": "模板描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "模板名称",
+                    "type": "string"
+                },
+                "skillId": {
+                    "description": "模板ID",
+                    "type": "string"
+                },
+                "skillMarkdown": {
+                    "description": "模板markdown预览",
+                    "type": "string"
+                },
+                "zipUrl": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.CustomSkillIDResp": {
+            "type": "object",
+            "properties": {
+                "skillId": {
+                    "type": "string"
                 }
             }
         },
@@ -24427,6 +24667,39 @@ const docTemplate = `{
                 },
                 "title": {
                     "description": "会话标题",
+                    "type": "string"
+                }
+            }
+        },
+        "response.SkillDetail": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "description": "作者",
+                    "type": "string"
+                },
+                "avatar": {
+                    "description": "模板头像",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
+                "desc": {
+                    "description": "模板描述",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "模板名称",
+                    "type": "string"
+                },
+                "skillId": {
+                    "description": "模板ID",
+                    "type": "string"
+                },
+                "skillMarkdown": {
+                    "description": "模板markdown预览",
                     "type": "string"
                 }
             }

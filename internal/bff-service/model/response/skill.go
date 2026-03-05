@@ -2,7 +2,7 @@ package response
 
 import "github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 
-type AgentSkillDetail struct {
+type SkillDetail struct {
 	SkillId       string         `json:"skillId"`       // 模板ID
 	Name          string         `json:"name"`          // 模板名称
 	Avatar        request.Avatar `json:"avatar"`        // 模板头像

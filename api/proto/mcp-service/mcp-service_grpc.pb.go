@@ -52,6 +52,11 @@ const (
 	MCPService_GetToolByIdList_FullMethodName                 = "/mcp_service.MCPService/GetToolByIdList"
 	MCPService_GetToolDetailByIdList_FullMethodName           = "/mcp_service.MCPService/GetToolDetailByIdList"
 	MCPService_GetMCPByMCPIdList_FullMethodName               = "/mcp_service.MCPService/GetMCPByMCPIdList"
+	MCPService_CustomSkillCreate_FullMethodName               = "/mcp_service.MCPService/CustomSkillCreate"
+	MCPService_CustomSkillDelete_FullMethodName               = "/mcp_service.MCPService/CustomSkillDelete"
+	MCPService_CustomSkillGet_FullMethodName                  = "/mcp_service.MCPService/CustomSkillGet"
+	MCPService_CustomSkillGetList_FullMethodName              = "/mcp_service.MCPService/CustomSkillGetList"
+	MCPService_CustomSkillGetBySaveIds_FullMethodName         = "/mcp_service.MCPService/CustomSkillGetBySaveIds"
 )
 
 // MCPServiceClient is the client API for MCPService service.
@@ -98,6 +103,12 @@ type MCPServiceClient interface {
 	GetToolDetailByIdList(ctx context.Context, in *GetToolByToolIdListReq, opts ...grpc.CallOption) (*GetToolDetailByToolIdListResp, error)
 	// --- mcp mcpserver tool ---
 	GetMCPByMCPIdList(ctx context.Context, in *GetMCPByMCPIdListReq, opts ...grpc.CallOption) (*GetMCPByMCPIdListResp, error)
+	// --- custom skill ---
+	CustomSkillCreate(ctx context.Context, in *CustomSkillCreateReq, opts ...grpc.CallOption) (*CustomSkillCreateResp, error)
+	CustomSkillDelete(ctx context.Context, in *CustomSkillDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CustomSkillGet(ctx context.Context, in *CustomSkillGetReq, opts ...grpc.CallOption) (*CustomSkill, error)
+	CustomSkillGetList(ctx context.Context, in *CustomSkillGetListReq, opts ...grpc.CallOption) (*CustomSkillGetListResp, error)
+	CustomSkillGetBySaveIds(ctx context.Context, in *CustomSkillGetBySaveIdsReq, opts ...grpc.CallOption) (*CustomSkillSaveIdsResp, error)
 }
 
 type mCPServiceClient struct {
@@ -428,6 +439,56 @@ func (c *mCPServiceClient) GetMCPByMCPIdList(ctx context.Context, in *GetMCPByMC
 	return out, nil
 }
 
+func (c *mCPServiceClient) CustomSkillCreate(ctx context.Context, in *CustomSkillCreateReq, opts ...grpc.CallOption) (*CustomSkillCreateResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomSkillCreateResp)
+	err := c.cc.Invoke(ctx, MCPService_CustomSkillCreate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mCPServiceClient) CustomSkillDelete(ctx context.Context, in *CustomSkillDeleteReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, MCPService_CustomSkillDelete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mCPServiceClient) CustomSkillGet(ctx context.Context, in *CustomSkillGetReq, opts ...grpc.CallOption) (*CustomSkill, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomSkill)
+	err := c.cc.Invoke(ctx, MCPService_CustomSkillGet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mCPServiceClient) CustomSkillGetList(ctx context.Context, in *CustomSkillGetListReq, opts ...grpc.CallOption) (*CustomSkillGetListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomSkillGetListResp)
+	err := c.cc.Invoke(ctx, MCPService_CustomSkillGetList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mCPServiceClient) CustomSkillGetBySaveIds(ctx context.Context, in *CustomSkillGetBySaveIdsReq, opts ...grpc.CallOption) (*CustomSkillSaveIdsResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustomSkillSaveIdsResp)
+	err := c.cc.Invoke(ctx, MCPService_CustomSkillGetBySaveIds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MCPServiceServer is the server API for MCPService service.
 // All implementations must embed UnimplementedMCPServiceServer
 // for forward compatibility.
@@ -472,6 +533,12 @@ type MCPServiceServer interface {
 	GetToolDetailByIdList(context.Context, *GetToolByToolIdListReq) (*GetToolDetailByToolIdListResp, error)
 	// --- mcp mcpserver tool ---
 	GetMCPByMCPIdList(context.Context, *GetMCPByMCPIdListReq) (*GetMCPByMCPIdListResp, error)
+	// --- custom skill ---
+	CustomSkillCreate(context.Context, *CustomSkillCreateReq) (*CustomSkillCreateResp, error)
+	CustomSkillDelete(context.Context, *CustomSkillDeleteReq) (*emptypb.Empty, error)
+	CustomSkillGet(context.Context, *CustomSkillGetReq) (*CustomSkill, error)
+	CustomSkillGetList(context.Context, *CustomSkillGetListReq) (*CustomSkillGetListResp, error)
+	CustomSkillGetBySaveIds(context.Context, *CustomSkillGetBySaveIdsReq) (*CustomSkillSaveIdsResp, error)
 	mustEmbedUnimplementedMCPServiceServer()
 }
 
@@ -577,6 +644,21 @@ func (UnimplementedMCPServiceServer) GetToolDetailByIdList(context.Context, *Get
 }
 func (UnimplementedMCPServiceServer) GetMCPByMCPIdList(context.Context, *GetMCPByMCPIdListReq) (*GetMCPByMCPIdListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMCPByMCPIdList not implemented")
+}
+func (UnimplementedMCPServiceServer) CustomSkillCreate(context.Context, *CustomSkillCreateReq) (*CustomSkillCreateResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomSkillCreate not implemented")
+}
+func (UnimplementedMCPServiceServer) CustomSkillDelete(context.Context, *CustomSkillDeleteReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomSkillDelete not implemented")
+}
+func (UnimplementedMCPServiceServer) CustomSkillGet(context.Context, *CustomSkillGetReq) (*CustomSkill, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomSkillGet not implemented")
+}
+func (UnimplementedMCPServiceServer) CustomSkillGetList(context.Context, *CustomSkillGetListReq) (*CustomSkillGetListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomSkillGetList not implemented")
+}
+func (UnimplementedMCPServiceServer) CustomSkillGetBySaveIds(context.Context, *CustomSkillGetBySaveIdsReq) (*CustomSkillSaveIdsResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CustomSkillGetBySaveIds not implemented")
 }
 func (UnimplementedMCPServiceServer) mustEmbedUnimplementedMCPServiceServer() {}
 func (UnimplementedMCPServiceServer) testEmbeddedByValue()                    {}
@@ -1175,6 +1257,96 @@ func _MCPService_GetMCPByMCPIdList_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MCPService_CustomSkillCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomSkillCreateReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MCPServiceServer).CustomSkillCreate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MCPService_CustomSkillCreate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MCPServiceServer).CustomSkillCreate(ctx, req.(*CustomSkillCreateReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MCPService_CustomSkillDelete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomSkillDeleteReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MCPServiceServer).CustomSkillDelete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MCPService_CustomSkillDelete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MCPServiceServer).CustomSkillDelete(ctx, req.(*CustomSkillDeleteReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MCPService_CustomSkillGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomSkillGetReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MCPServiceServer).CustomSkillGet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MCPService_CustomSkillGet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MCPServiceServer).CustomSkillGet(ctx, req.(*CustomSkillGetReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MCPService_CustomSkillGetList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomSkillGetListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MCPServiceServer).CustomSkillGetList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MCPService_CustomSkillGetList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MCPServiceServer).CustomSkillGetList(ctx, req.(*CustomSkillGetListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MCPService_CustomSkillGetBySaveIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustomSkillGetBySaveIdsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MCPServiceServer).CustomSkillGetBySaveIds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MCPService_CustomSkillGetBySaveIds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MCPServiceServer).CustomSkillGetBySaveIds(ctx, req.(*CustomSkillGetBySaveIdsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MCPService_ServiceDesc is the grpc.ServiceDesc for MCPService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1309,6 +1481,26 @@ var MCPService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMCPByMCPIdList",
 			Handler:    _MCPService_GetMCPByMCPIdList_Handler,
+		},
+		{
+			MethodName: "CustomSkillCreate",
+			Handler:    _MCPService_CustomSkillCreate_Handler,
+		},
+		{
+			MethodName: "CustomSkillDelete",
+			Handler:    _MCPService_CustomSkillDelete_Handler,
+		},
+		{
+			MethodName: "CustomSkillGet",
+			Handler:    _MCPService_CustomSkillGet_Handler,
+		},
+		{
+			MethodName: "CustomSkillGetList",
+			Handler:    _MCPService_CustomSkillGetList_Handler,
+		},
+		{
+			MethodName: "CustomSkillGetBySaveIds",
+			Handler:    _MCPService_CustomSkillGetBySaveIds_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

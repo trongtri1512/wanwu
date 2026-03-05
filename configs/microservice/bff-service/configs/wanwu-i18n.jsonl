@@ -355,6 +355,12 @@
 {"code":310024,"key":"mcp_update_builtin_tool_err","langs":{"zh":"更新内置工具异常:%v"}}
 {"code":310024,"key":"mcp_create_duplicate_builtin_tool","langs":{"zh":"创建内置工具异常: 已存在同名"}}
 {"code":310024,"key":"mcp_create_builtin_tool_err","langs":{"zh":"创建内置工具异常: %v"}}
+{"code":310025,"key":"mcp_custom_skill_create","langs":{"zh":"创建自定义skill异常: %v"}}
+{"code":310025,"key":"mcp_custom_skill_delete","langs":{"zh":"删除自定义skill异常: %v"}}
+{"code":310025,"key":"mcp_custom_skill_not_found","langs":{"zh":"自定义skill(%v)不存在"}}
+{"code":310025,"key":"mcp_custom_skill_get","langs":{"zh":"自定义skill(%v)获取异常"}}
+{"code":310025,"key":"mcp_custom_skill_list","langs":{"zh":"自定义skill列表获取异常"}}
+{"code":310025,"key":"mcp_custom_skill_get_by_message_ids","langs":{"zh":"生成自定义skill获取消息失败"}}
 {"code":150001,"key":"rag_role_err","langs":{"zh":"角色权限错误：%v"}}
 {"code":150002,"key":"rag_info_not_exist","langs":{"zh":"文本问答信息不存在：%v"}}
 {"code":150003,"key":"rag_delete_err","langs":{"zh":"删除文本问答错误：%v"}}
@@ -499,6 +505,14 @@
 {"code":300013,"key":"api_key_list","langs":{"zh":"获取ApiKey列表错误:%v"}}
 {"code":300013,"key":"api_key_update_status","langs":{"zh":"更新ApiKey状态错误:%v"}}
 {"code":300013,"key":"api_key_get_by_key","langs":{"zh":"获取ApiKey信息错误:%v"}}
+{"code":0,"key":"app_statistic_api_calls","langs":{"zh":"模型调用次数统计表"}}
+{"code":0,"key":"app_statistic_call_count_total","langs":{"zh":"模型调用总数"}}
+{"code":0,"key":"app_statistic_call_success","langs":{"zh":"模型调用成功数"}}
+{"code":0,"key":"app_statistic_call_failure","langs":{"zh":"模型调用失败数"}}
+{"code":0,"key":"app_statistic_tokens_usage","langs":{"zh":"模型调用Token统计表"}}
+{"code":0,"key":"app_statistic_total_tokens","langs":{"zh":"模型调用总Token"}}
+{"code":0,"key":"app_statistic_completion_tokens","langs":{"zh":"模型调用输出Token"}}
+{"code":0,"key":"app_statistic_prompt_tokens","langs":{"zh":"模型调用输入Token"}}
 {"code":320001,"key":"ope_system_custom_query","langs":{"zh":"查询自定义配置(%v)错误: %v"}}
 {"code":320001,"key":"ope_system_custom_create","langs":{"zh":"创建自定义配置(%v)错误: %v"}}
 {"code":320001,"key":"ope_system_custom_update","langs":{"zh":"更新自定义配置(%v)错误: %v"}}

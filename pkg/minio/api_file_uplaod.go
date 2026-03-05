@@ -47,8 +47,8 @@ func FileUpload() *client {
 	return _minioFileUpload
 }
 
-func UploadFileCommon(ctx context.Context, reader io.Reader, fileType string, objectSize int64, isExpired bool) (string, int64, error) {
-	if isExpired {
+func UploadFileCommon(ctx context.Context, reader io.Reader, fileType string, objectSize int64, isPermanent bool) (string, int64, error) {
+	if isPermanent {
 		return UploadFileCommonWithNotExpire(ctx, reader, fileType, objectSize)
 	}
 	return UploadFileCommonWithExpire(ctx, reader, fileType, objectSize)

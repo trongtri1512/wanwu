@@ -282,16 +282,17 @@ type CustomAbout struct {
 }
 
 type DefaultIconConfig struct {
-	UserIcon      string `json:"user" mapstructure:"user"`
-	RagIcon       string `json:"rag" mapstructure:"rag"`
-	AgentIcon     string `json:"agent" mapstructure:"agent"`
-	WorkflowIcon  string `json:"workflow" mapstructure:"workflow"`
-	ChatflowIcon  string `json:"chatflow" mapstructure:"chatflow"`
-	McpCustomIcon string `json:"mcpCustom" mapstructure:"mcpCustom"`
-	McpServerIcon string `json:"mcpServer" mapstructure:"mcpServer"`
-	ToolIcon      string `json:"tool" mapstructure:"tool"`
-	PromptIcon    string `json:"prompt" mapstructure:"prompt"`
-	SkillIcon     string `json:"skill" mapstructure:"skill"`
+	UserIcon        string `json:"user" mapstructure:"user"`
+	RagIcon         string `json:"rag" mapstructure:"rag"`
+	AgentIcon       string `json:"agent" mapstructure:"agent"`
+	WorkflowIcon    string `json:"workflow" mapstructure:"workflow"`
+	ChatflowIcon    string `json:"chatflow" mapstructure:"chatflow"`
+	McpCustomIcon   string `json:"mcpCustom" mapstructure:"mcpCustom"`
+	McpServerIcon   string `json:"mcpServer" mapstructure:"mcpServer"`
+	ToolIcon        string `json:"tool" mapstructure:"tool"`
+	PromptIcon      string `json:"prompt" mapstructure:"prompt"`
+	SkillIcon       string `json:"skill" mapstructure:"skill"`
+	CustomSkillIcon string `json:"skillCustom" mapstructure:"skillCustom"`
 }
 
 func LoadConfig(in string) error {

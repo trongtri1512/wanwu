@@ -9,7 +9,7 @@ require (
 	github.com/ThinkInAIXYZ/go-mcp v0.2.22
 	github.com/ag-ui-protocol/ag-ui/sdks/community/go v0.0.0-20260221022154-c11d702bd168
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/cloudwego/eino v0.7.34
+	github.com/cloudwego/eino v0.7.37
 	github.com/cloudwego/eino-ext/components/model/openai v0.1.4
 	github.com/cloudwego/eino-ext/components/tool/mcp v0.0.6
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -196,7 +196,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241223144023-3abc09e42ca8 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/sqlserver v1.5.3 // indirect
 	gorm.io/plugin/dbresolver v1.3.0 // indirect
 	modernc.org/libc v1.22.2 // indirect

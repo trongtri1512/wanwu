@@ -112,7 +112,11 @@ func SkillConversationChat(ctx *gin.Context) {
 	}
 
 	// service层直接处理流式响应写入
-	service.SkillConversationChat(ctx, userId, orgId, req)
+	_, err := service.SkillConversationChat(ctx, userId, orgId, req)
+	if err != nil {
+		gin_util.Response(ctx, nil, err)
+		return
+	}
 }
 
 // SkillConversationSave

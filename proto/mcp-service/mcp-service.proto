@@ -55,6 +55,13 @@ service MCPService {
 
   // --- mcp mcpserver tool ---
   rpc GetMCPByMCPIdList(GetMCPByMCPIdListReq) returns (GetMCPByMCPIdListResp) {}
+
+  // --- custom skill ---
+  rpc CustomSkillCreate(CustomSkillCreateReq) returns (CustomSkillCreateResp) {}
+  rpc CustomSkillDelete(CustomSkillDeleteReq) returns (google.protobuf.Empty) {}
+  rpc CustomSkillGet(CustomSkillGetReq) returns (CustomSkill) {}
+  rpc CustomSkillGetList(CustomSkillGetListReq) returns (CustomSkillGetListResp) {}
+  rpc CustomSkillGetBySaveIds(CustomSkillGetBySaveIdsReq) returns (CustomSkillSaveIdsResp) {}
 }
 
 // --- req ---
@@ -424,4 +431,62 @@ message GetToolByToolIdListResp {
 message GetToolDetailByToolIdListResp {
   repeated GetCustomToolInfoResp customList = 1;
   repeated SquareToolDetail toolSquareInfoList = 2;
+}
+
+// --- custom skill ---
+message CustomSkill {
+  string skillId = 1;
+  string name = 2;
+  string avatar = 3;
+  string author = 4;
+  string desc = 5;
+  string objectPath = 6;
+  string markdown = 9;
+  int64 createdAt = 7;
+  int64 updatedAt = 8;
+}
+
+message CustomSkillCreateReq {
+  string name = 1;
+  string avatar = 2;
+  string author = 3;
+  string desc = 4;
+  string objectPath = 5;
+  string saveId = 6;
+  string sourceType = 7;
+  Identity identity = 8;
+  string markdown = 9;
+}
+
+message CustomSkillCreateResp {
+  string skillId = 1;
+}
+
+message CustomSkillDeleteReq {
+  string skillId = 1;
+}
+
+message CustomSkillGetReq {
+  string skillId = 1;
+  Identity identity = 2;
+}
+
+message CustomSkillGetListReq {
+  string name = 1;
+  int32 page = 2;
+  int32 pageSize = 3;
+  Identity identity = 4;
+}
+
+message CustomSkillGetListResp {
+  repeated CustomSkill list = 1;
+  int64 total = 2;
+}
+
+message CustomSkillGetBySaveIdsReq {
+  repeated string saveIds = 1;
+}
+
+message CustomSkillSaveIdsResp {
+  repeated string saveIds = 1;
 }

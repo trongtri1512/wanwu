@@ -13,7 +13,7 @@ import (
 )
 
 func GetAgentSkillList(ctx *gin.Context, name string) (*response.ListResult, error) {
-	var skillsTemplateList []*response.AgentSkillDetail
+	var skillsTemplateList []*response.SkillDetail
 	for _, skillsCfg := range config.Cfg().AgentSkills {
 		if name != "" && !strings.Contains(skillsCfg.Name, name) {
 			continue
@@ -26,7 +26,7 @@ func GetAgentSkillList(ctx *gin.Context, name string) (*response.ListResult, err
 	}, nil
 }
 
-func GetAgentSkillDetail(ctx *gin.Context, skillId string) (*response.AgentSkillDetail, error) {
+func GetAgentSkillDetail(ctx *gin.Context, skillId string) (*response.SkillDetail, error) {
 	skillsCfg, exist := config.Cfg().AgentSkill(skillId)
 	if !exist {
 		return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, "bff_agent_skill_detail", "get skill detail empty")
@@ -220,12 +220,12 @@ func SkillConversationSave(ctx *gin.Context, userId, orgId string, req request.S
 }
 
 // --- internal ---
-func buildSkillTempDetail(skillsCfg config.SkillsConfig, needMd bool) *response.AgentSkillDetail {
+func buildSkillTempDetail(skillsCfg config.SkillsConfig, needMd bool) *response.SkillDetail {
 	iconUrl := config.Cfg().DefaultIcon.SkillIcon
 	if skillsCfg.Avatar != "" {
 		iconUrl = skillsCfg.Avatar
 	}
-	ret := &response.AgentSkillDetail{
+	ret := &response.SkillDetail{
 		SkillId: skillsCfg.SkillId,
 		Author:  skillsCfg.Author,
 		Avatar:  request.Avatar{Path: iconUrl},

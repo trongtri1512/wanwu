@@ -158,3 +158,12 @@ func WithMcpServerIdList(mcpServerIdList []string) SQLOption {
 		return db.Where("mcp_server_id IN ?", mcpServerIdList)
 	})
 }
+
+func WithCustomSkillSaveIds(saveIdList []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(saveIdList) > 0 {
+			return db.Where("save_id IN ?", saveIdList)
+		}
+		return db
+	})
+}

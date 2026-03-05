@@ -1557,6 +1557,26 @@ definitions:
     required:
     - name
     type: object
+  request.CreateCustomSkillReq:
+    properties:
+      author:
+        type: string
+      avatar:
+        $ref: '#/definitions/request.Avatar'
+      desc:
+        type: string
+      name:
+        type: string
+      saveId:
+        type: string
+      sourceType:
+        type: string
+      zipUrl:
+        type: string
+    required:
+    - author
+    - zipUrl
+    type: object
   request.CreateDocChildSegmentReq:
     properties:
       content:
@@ -3955,28 +3975,6 @@ definitions:
         description: 状态
         type: boolean
     type: object
-  response.AgentSkillDetail:
-    properties:
-      author:
-        description: 作者
-        type: string
-      avatar:
-        allOf:
-        - $ref: '#/definitions/request.Avatar'
-        description: 模板头像
-      desc:
-        description: 模板描述
-        type: string
-      name:
-        description: 模板名称
-        type: string
-      skillId:
-        description: 模板ID
-        type: string
-      skillMarkdown:
-        description: 模板markdown预览
-        type: string
-    type: object
   response.AnalysisDocUrlResp:
     properties:
       urlList:
@@ -4908,6 +4906,35 @@ definitions:
         allOf:
         - $ref: '#/definitions/response.CustomEmail'
         description: 邮箱
+    type: object
+  response.CustomSkillDetail:
+    properties:
+      author:
+        description: 作者
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 模板头像
+      desc:
+        description: 模板描述
+        type: string
+      name:
+        description: 模板名称
+        type: string
+      skillId:
+        description: 模板ID
+        type: string
+      skillMarkdown:
+        description: 模板markdown预览
+        type: string
+      zipUrl:
+        type: string
+    type: object
+  response.CustomSkillIDResp:
+    properties:
+      skillId:
+        type: string
     type: object
   response.CustomTab:
     properties:
@@ -6777,6 +6804,28 @@ definitions:
         description: 会话标题
         type: string
     type: object
+  response.SkillDetail:
+    properties:
+      author:
+        description: 作者
+        type: string
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 模板头像
+      desc:
+        description: 模板描述
+        type: string
+      name:
+        description: 模板名称
+        type: string
+      skillId:
+        description: 模板ID
+        type: string
+      skillMarkdown:
+        description: 模板markdown预览
+        type: string
+    type: object
   response.StatisticChart:
     properties:
       lines:
@@ -7430,6 +7479,119 @@ paths:
       summary: Skill发送到资源库
       tags:
       - skill.conversation
+  /agent/skill/custom:
+    delete:
+      consumes:
+      - application/json
+      description: 删除自定义skill
+      parameters:
+      - description: skill ID
+        in: query
+        name: skillId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 删除自定义skill
+      tags:
+      - resource.skill
+    post:
+      consumes:
+      - application/json
+      description: 创建自定义skill
+      parameters:
+      - description: 自定义skill信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCustomSkillReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CustomSkillIDResp'
+              type: object
+      security:
+      - JWT: []
+      summary: 创建自定义skill
+      tags:
+      - resource.skill
+  /agent/skill/custom/detail:
+    get:
+      consumes:
+      - application/json
+      description: 获取自定义skill详情
+      parameters:
+      - description: skill ID
+        in: query
+        name: skillId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.CustomSkillDetail'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取自定义skill详情
+      tags:
+      - resource.skill
+  /agent/skill/custom/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取自定义skill列表
+      parameters:
+      - description: skill名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.ListResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.CustomSkillDetail'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取自定义skill列表
+      tags:
+      - resource.skill
   /agent/skill/detail:
     get:
       consumes:
@@ -7451,13 +7613,13 @@ paths:
             - $ref: '#/definitions/response.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/response.AgentSkillDetail'
+                  $ref: '#/definitions/response.SkillDetail'
               type: object
       security:
       - JWT: []
       summary: 获取skill模板详情
       tags:
-      - guest
+      - resource.skill
   /agent/skill/download:
     get:
       consumes:
@@ -7480,7 +7642,7 @@ paths:
       - JWT: []
       summary: 下载skill模板
       tags:
-      - guest
+      - resource.skill
   /agent/skill/list:
     get:
       consumes:
@@ -7506,7 +7668,7 @@ paths:
                   - properties:
                       list:
                         items:
-                          $ref: '#/definitions/response.AgentSkillDetail'
+                          $ref: '#/definitions/response.SkillDetail'
                         type: array
                     type: object
               type: object
@@ -7514,7 +7676,7 @@ paths:
       - JWT: []
       summary: 获取skill模板列表
       tags:
-      - guest
+      - resource.skill
   /api/key:
     delete:
       consumes:
@@ -13102,6 +13264,7 @@ paths:
       description: 获取模型体验对话记录列表
       parameters:
       - description: 模型体验对话ID
+        format: int32
         in: query
         name: modelExperienceId
         required: true

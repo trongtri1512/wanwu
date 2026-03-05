@@ -211,6 +211,14 @@ func cacheToolAvatar(ctx *gin.Context, toolType string, avatarObjectPath string)
 	return avatar
 }
 
+// skill custom
+func cacheSkillAvatar(ctx *gin.Context, avatarObjectPath string) request.Avatar {
+	if avatarObjectPath == "" {
+		return request.Avatar{Path: config.Cfg().DefaultIcon.CustomSkillIcon}
+	}
+	return CacheAvatar(ctx, avatarObjectPath, true)
+}
+
 // mcp square & custom
 func cacheMCPAvatar(ctx *gin.Context, squareObjectPath, customObjectPath string) request.Avatar {
 	if squareObjectPath == "" {

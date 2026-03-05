@@ -95,6 +95,7 @@ default-icon:
   tool: "/v1/static/icon/custom-tool-default-icon.png"
   prompt: "/v1/static/icon/prompt-default-icon.png"
   skill: "/v1/static/icon/skill-default-icon.png"
+  skillCustom: "/v1/static/icon/custom-skill-default-icon.png"
 
 doc-center:
   frontend_prefix: /aibase/docCenter/pages

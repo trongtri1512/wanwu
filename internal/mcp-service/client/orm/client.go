@@ -26,6 +26,7 @@ func NewClient(ctx context.Context, db *gorm.DB) (*Client, error) {
 		model.MCPServer{},
 		model.MCPServerTool{},
 		model.BuiltinTool{},
+		model.CustomSkill{},
 	); err != nil {
 		return nil, err
 	}

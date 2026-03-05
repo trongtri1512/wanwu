@@ -41,4 +41,11 @@ type IClient interface {
 	DeleteMCPServerTool(ctx context.Context, mcpServerToolId string) *errs.Status
 	ListMCPServerTools(ctx context.Context, mcpServerId string) ([]*model.MCPServerTool, *errs.Status)
 	CountMCPServerTools(ctx context.Context, mcpServerId string) (int64, *errs.Status)
+
+	//================CustomSkill================
+	CreateCustomSkill(ctx context.Context, customSkill *model.CustomSkill) (string, *errs.Status)
+	DeleteCustomSkill(ctx context.Context, skillId string) *errs.Status
+	GetCustomSkill(ctx context.Context, skillId string) (*model.CustomSkill, *errs.Status)
+	GetCustomSkillList(ctx context.Context, userId, orgId, name string) ([]*model.CustomSkill, int64, *errs.Status)
+	GetCustomSkillBySaveIds(ctx context.Context, saveIds []string) ([]*model.CustomSkill, *errs.Status)
 }
