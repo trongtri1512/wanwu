@@ -93,6 +93,7 @@ type AppQAKnowledgebaseConfig struct {
 type AppQAKnowledgeBase struct {
 	ID                   string                `json:"id" validate:"required"` // 知识库id
 	Name                 string                `json:"name"`
+	Category             int32                 `json:"category"` // 知识库类别 0-知识库，1-问答库，2-多模态知识库
 	MetaDataFilterParams *MetaDataFilterParams `json:"metaDataFilterParams"`
 }
 

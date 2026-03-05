@@ -489,10 +489,7 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 		})
 		if err != nil {
 			log.Errorf("select knowledge detail error: %v", err)
-			return request.AppKnowledgebaseConfig{
-				Knowledgebases: make([]request.AppKnowledgeBase, 0),
-				Config:         request.AppKnowledgebaseParams{},
-			}
+			continue
 		}
 		// 基础信息映射
 		knowledge := request.AppKnowledgeBase{
@@ -546,15 +543,13 @@ func ragKBQAConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagQAKnowl
 		})
 		if err != nil {
 			log.Errorf("select qa detail error: %v", err)
-			return request.AppQAKnowledgebaseConfig{
-				Knowledgebases: make([]request.AppQAKnowledgeBase, 0),
-				Config:         request.AppQAKnowledgebaseParams{},
-			}
+			continue
 		}
 		// 基础信息映射
 		knowledge := request.AppQAKnowledgeBase{
-			ID:   perConfig.KnowledgeId,
-			Name: kbInfo.Name,
+			ID:       perConfig.KnowledgeId,
+			Name:     kbInfo.Name,
+			Category: kbInfo.Category,
 		}
 		// 转换元数据过滤配置
 		metaFilter := perConfig.RagMetaFilter
