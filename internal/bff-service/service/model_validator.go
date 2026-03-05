@@ -371,7 +371,7 @@ func ValidateOcrModel(ctx *gin.Context, modelInfo *model_service.ModelInfo) erro
 	if _, err := io.Copy(part, file); err != nil {
 		return fmt.Errorf("copy file content failed: %v", err)
 	}
-	defer func() { _ = writer.Close() }()
+	_ = writer.Close()
 
 	// 模拟HTTP请求
 	mockReq, _ := http.NewRequest("POST", "", body)
@@ -430,7 +430,7 @@ func ValidatePdfParserModel(ctx *gin.Context, modelInfo *model_service.ModelInfo
 	if _, err := io.Copy(part, file); err != nil {
 		return fmt.Errorf("copy file content failed: %v", err)
 	}
-	defer func() { _ = writer.Close() }()
+	_ = writer.Close()
 
 	// 模拟HTTP请求
 	mockReq, _ := http.NewRequest("POST", "", body)

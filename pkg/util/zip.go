@@ -60,7 +60,7 @@ func DirToBytes(dir string) ([]byte, error) {
 				return err
 			}
 			_, err = io.Copy(writer, file)
-			defer func() { _ = file.Close() }()
+			_ = file.Close()
 			if err != nil {
 				return err
 			}
