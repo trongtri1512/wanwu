@@ -623,6 +623,14 @@ export default {
           justify-content: center;
           align-items: center;
           cursor: pointer;
+          margin-bottom: 5px;
+        }
+        .stop-icon {
+          width: 18px;
+          margin-right: 3px;
+        }
+        .mdl {
+          font-size: 14px;
         }
       }
     }
