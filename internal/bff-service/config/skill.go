@@ -23,6 +23,20 @@ type SkillsConfig struct {
 	SkillMarkdown []byte `json:"-" mapstructure:"-"`
 }
 
+type SkillCreatorConfig struct {
+	Agent  AgentConfig   `json:"agent" mapstructure:"agent"`
+	Skills []SkillConfig `json:"skills" mapstructure:"skills"`
+}
+
+type AgentConfig struct {
+	Instruction    string `json:"instruction" mapstructure:"instruction"`
+	EnableThinking bool   `json:"enable_thinking" mapstructure:"enable_thinking"`
+}
+
+type SkillConfig struct {
+	Dir string `json:"dir" mapstructure:"dir"`
+}
+
 func (stf *SkillsConfig) AgentSkillZipToBytes(skillsId string) ([]byte, error) {
 	return util.ZipDir(filepath.Join(akConfigDir, skillsId))
 }

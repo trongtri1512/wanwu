@@ -34,6 +34,8 @@ type Config struct {
 	PromptTemplates   []*PromptTempConfig        `json:"prompts" mapstructure:"prompts"`
 	AgentSkills       []*SkillsConfig            `json:"skills" mapstructure:"skills"`
 	PromptEngineering PromptEngineeringConfig    `json:"prompt-engineering" mapstructure:"prompt-engineering"`
+	SkillCreator      SkillCreatorConfig         `json:"skill-creator" mapstructure:"skill-creator"`
+	SkillCreatorPath  SkillCreatorPathConfig     `json:"skill-creator-path" mapstructure:"skill-creator-path"`
 	// middleware
 	Minio minio.Config `json:"minio" mapstructure:"minio"`
 	Redis redis.Config `json:"redis" mapstructure:"redis"`
@@ -146,6 +148,10 @@ type PromptTemplatePathConfig struct {
 }
 
 type SkillsTemplatePathConfig struct {
+	ConfigPath string `json:"configPath" mapstructure:"configPath"`
+}
+
+type SkillCreatorPathConfig struct {
 	ConfigPath string `json:"configPath" mapstructure:"configPath"`
 }
 
@@ -328,6 +334,11 @@ func LoadConfig(in string) error {
 		if err := st.load(); err != nil {
 			return err
 		}
+	}
+	// 加载 skill-creator 配置
+	skillCreatorIn := _c.SkillCreatorPath.ConfigPath
+	if err := util.LoadConfig(skillCreatorIn, _c); err != nil {
+		return fmt.Errorf("load skill-creator config err: %v", err)
 	}
 	return nil
 }

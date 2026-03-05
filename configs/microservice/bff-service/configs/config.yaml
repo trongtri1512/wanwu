@@ -189,6 +189,9 @@ prompt-template:
 skills-template:
   configPath: configs/microservice/bff-service/configs/skills_template_config.yaml
 
+skill-creator-path:
+  configPath: configs/microservice/bff-service/configs/skill_creator.yaml
+
 # --- middleware ---
 
 minio:
