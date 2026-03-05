@@ -912,7 +912,8 @@ export default {
         },
       );
     },
-    sendEventStreamIsolation(url, params, callbacks = {}) {
+    // 多线程SSE简化版本
+    sendEventStreamIsolation(url, params, callbacks = {}, timeout = 0) {
       let fullContent = '';
       let completeLock = true;
       const { onProgress, onComplete } = callbacks;
@@ -971,13 +972,14 @@ export default {
         signal: ctrlAbort.signal,
       });
 
-      setTimeout(() => {
-        if (!ctrlAbort.signal.aborted) {
-          ctrlAbort.abort();
-          this.$message.warning(i18n.t('sse.timeoutError'));
-          onComplete(fullContent);
-        }
-      }, 60000);
+      if (timeout > 0)
+        setTimeout(() => {
+          if (!ctrlAbort.signal.aborted) {
+            ctrlAbort.abort();
+            this.$message.warning(i18n.t('sse.timeoutError'));
+            onComplete(fullContent);
+          }
+        }, timeout);
     },
     preStop() {
       //获取已经拿到的全部回答,一次性回显出来
