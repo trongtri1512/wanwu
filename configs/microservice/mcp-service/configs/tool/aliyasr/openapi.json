@@ -1,0 +1,193 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "阿里云 ASR 语音识别",
+    "description": "基于阿里云通义千问的语音识别服务，将音频转换为文字",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/ali-asr/qwen3-asr-flash": {
+      "post": {
+        "summary": "阿里云 ASR 语音识别",
+        "operationId": "ali_asr",
+        "deprecated": false,
+        "description": "使用阿里语音大模型进行语音识别，模型为qwen3-asr-flash。支持URL和base64格式的音频输入",
+        "tags": ["callback"],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer Token (API Key)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "audio": {
+                    "type": "string",
+                    "description": "音频文件URL或base64数据"
+                  }
+                },
+                "required": ["audio"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "识别成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AliASRResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AliASRResponse": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "description": "输出结果",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "description": "选项列表",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "finish_reason": {
+                      "type": "string",
+                      "description": "结束原因"
+                    },
+                    "message": {
+                      "type": "object",
+                      "properties": {
+                        "annotations": {
+                          "type": "array",
+                          "description": "标注信息",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "language": {
+                                "type": "string",
+                                "description": "语言"
+                              },
+                              "type": {
+                                "type": "string",
+                                "description": "类型"
+                              },
+                              "emotion": {
+                                "type": "string",
+                                "description": "情感"
+                              }
+                            }
+                          }
+                        },
+                        "content": {
+                          "type": "array",
+                          "description": "内容列表",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "description": "识别文本"
+                              }
+                            }
+                          }
+                        },
+                        "role": {
+                          "type": "string",
+                          "description": "角色"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "request_id": {
+            "type": "string",
+            "description": "请求ID"
+          },
+          "usage": {
+            "type": "object",
+            "description": "使用量",
+            "properties": {
+              "audio_tokens": {
+                "type": "integer",
+                "description": "音频token数"
+              },
+              "input_tokens": {
+                "type": "integer",
+                "description": "输入token数"
+              },
+              "input_tokens_details": {
+                "type": "object",
+                "description": "输入token详情",
+                "properties": {
+                  "audio_tokens": {
+                    "type": "integer",
+                    "description": "音频token数"
+                  },
+                  "text_tokens": {
+                    "type": "integer",
+                    "description": "文本token数"
+                  }
+                }
+              },
+              "output_tokens": {
+                "type": "integer",
+                "description": "输出token数"
+              },
+              "output_tokens_details": {
+                "type": "object",
+                "description": "输出token详情",
+                "properties": {
+                  "text_tokens": {
+                    "type": "integer",
+                    "description": "文本token数"
+                  }
+                }
+              },
+              "seconds": {
+                "type": "number",
+                "description": "耗时（秒）"
+              },
+              "total_tokens": {
+                "type": "integer",
+                "description": "总token数"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {}
+  },
+  "servers": [
+    {
+      "url": "http://callback-wanwu:8669/v1",
+      "description": "Callback服务URL"
+    }
+  ]
+}
