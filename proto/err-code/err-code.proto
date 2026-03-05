@@ -166,7 +166,10 @@ enum Code {
   AssistantToolErr = 160006; // 智能体工具相关错误
   AssistantCustomPromptErr = 160007; // 智能体自定义提示错误
   AssistantMultiAgentErr = 160008; // 多智能体相关错误
-
+  SkillConversationCreateErr = 160009; // 创建技能错误
+  SkillConversationUpdateErr = 160010; // 更新技能错误
+  SkillConversationDeleteErr = 160011; // 删除技能错误
+  SkillConversationGetErr = 160012; // 获取技能错误
 
   // --- workflow-service ---
   // [210000, 219999]

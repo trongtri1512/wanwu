@@ -20,6 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	AssistantService_SaveToES_FullMethodName                            = "/assistant_service.AssistantService/SaveToES"
+	AssistantService_DeleteFromES_FullMethodName                        = "/assistant_service.AssistantService/DeleteFromES"
+	AssistantService_SearchFromES_FullMethodName                        = "/assistant_service.AssistantService/SearchFromES"
 	AssistantService_GetAssistantByIds_FullMethodName                   = "/assistant_service.AssistantService/GetAssistantByIds"
 	AssistantService_AssistantCreate_FullMethodName                     = "/assistant_service.AssistantService/AssistantCreate"
 	AssistantService_AssistantUpdate_FullMethodName                     = "/assistant_service.AssistantService/AssistantUpdate"
@@ -68,12 +71,19 @@ const (
 	AssistantService_MultiAgentDelete_FullMethodName                    = "/assistant_service.AssistantService/MultiAgentDelete"
 	AssistantService_MultiAgentEnableSwitch_FullMethodName              = "/assistant_service.AssistantService/MultiAgentEnableSwitch"
 	AssistantService_MultiAgentConfigUpdate_FullMethodName              = "/assistant_service.AssistantService/MultiAgentConfigUpdate"
+	AssistantService_CreateSkillConversation_FullMethodName             = "/assistant_service.AssistantService/CreateSkillConversation"
+	AssistantService_DeleteSkillConversation_FullMethodName             = "/assistant_service.AssistantService/DeleteSkillConversation"
+	AssistantService_GetSkillConversationList_FullMethodName            = "/assistant_service.AssistantService/GetSkillConversationList"
 )
 
 // AssistantServiceClient is the client API for AssistantService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AssistantServiceClient interface {
+	// --- Generic ES Operation ---
+	SaveToES(ctx context.Context, in *SaveToESReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteFromES(ctx context.Context, in *DeleteFromESReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SearchFromES(ctx context.Context, in *SearchFromESReq, opts ...grpc.CallOption) (*SearchFromESResp, error)
 	// --- assistant ---
 	GetAssistantByIds(ctx context.Context, in *GetAssistantByIdsReq, opts ...grpc.CallOption) (*AppBriefList, error)
 	AssistantCreate(ctx context.Context, in *AssistantCreateReq, opts ...grpc.CallOption) (*AssistantCreateResp, error)
@@ -130,6 +140,10 @@ type AssistantServiceClient interface {
 	MultiAgentDelete(ctx context.Context, in *MultiAgentCreateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MultiAgentEnableSwitch(ctx context.Context, in *MultiAgentEnableSwitchReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	MultiAgentConfigUpdate(ctx context.Context, in *MultiAgentConfigUpdateReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// --- skill conversation ---
+	CreateSkillConversation(ctx context.Context, in *CreateSkillConversationReq, opts ...grpc.CallOption) (*CreateSkillConversationResp, error)
+	DeleteSkillConversation(ctx context.Context, in *DeleteSkillConversationReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetSkillConversationList(ctx context.Context, in *GetSkillConversationListReq, opts ...grpc.CallOption) (*GetSkillConversationListResp, error)
 }
 
 type assistantServiceClient struct {
@@ -138,6 +152,36 @@ type assistantServiceClient struct {
 
 func NewAssistantServiceClient(cc grpc.ClientConnInterface) AssistantServiceClient {
 	return &assistantServiceClient{cc}
+}
+
+func (c *assistantServiceClient) SaveToES(ctx context.Context, in *SaveToESReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_SaveToES_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) DeleteFromES(ctx context.Context, in *DeleteFromESReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_DeleteFromES_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) SearchFromES(ctx context.Context, in *SearchFromESReq, opts ...grpc.CallOption) (*SearchFromESResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchFromESResp)
+	err := c.cc.Invoke(ctx, AssistantService_SearchFromES_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *assistantServiceClient) GetAssistantByIds(ctx context.Context, in *GetAssistantByIdsReq, opts ...grpc.CallOption) (*AppBriefList, error) {
@@ -638,10 +682,44 @@ func (c *assistantServiceClient) MultiAgentConfigUpdate(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *assistantServiceClient) CreateSkillConversation(ctx context.Context, in *CreateSkillConversationReq, opts ...grpc.CallOption) (*CreateSkillConversationResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateSkillConversationResp)
+	err := c.cc.Invoke(ctx, AssistantService_CreateSkillConversation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) DeleteSkillConversation(ctx context.Context, in *DeleteSkillConversationReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AssistantService_DeleteSkillConversation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assistantServiceClient) GetSkillConversationList(ctx context.Context, in *GetSkillConversationListReq, opts ...grpc.CallOption) (*GetSkillConversationListResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSkillConversationListResp)
+	err := c.cc.Invoke(ctx, AssistantService_GetSkillConversationList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssistantServiceServer is the server API for AssistantService service.
 // All implementations must embed UnimplementedAssistantServiceServer
 // for forward compatibility.
 type AssistantServiceServer interface {
+	// --- Generic ES Operation ---
+	SaveToES(context.Context, *SaveToESReq) (*emptypb.Empty, error)
+	DeleteFromES(context.Context, *DeleteFromESReq) (*emptypb.Empty, error)
+	SearchFromES(context.Context, *SearchFromESReq) (*SearchFromESResp, error)
 	// --- assistant ---
 	GetAssistantByIds(context.Context, *GetAssistantByIdsReq) (*AppBriefList, error)
 	AssistantCreate(context.Context, *AssistantCreateReq) (*AssistantCreateResp, error)
@@ -698,6 +776,10 @@ type AssistantServiceServer interface {
 	MultiAgentDelete(context.Context, *MultiAgentCreateReq) (*emptypb.Empty, error)
 	MultiAgentEnableSwitch(context.Context, *MultiAgentEnableSwitchReq) (*emptypb.Empty, error)
 	MultiAgentConfigUpdate(context.Context, *MultiAgentConfigUpdateReq) (*emptypb.Empty, error)
+	// --- skill conversation ---
+	CreateSkillConversation(context.Context, *CreateSkillConversationReq) (*CreateSkillConversationResp, error)
+	DeleteSkillConversation(context.Context, *DeleteSkillConversationReq) (*emptypb.Empty, error)
+	GetSkillConversationList(context.Context, *GetSkillConversationListReq) (*GetSkillConversationListResp, error)
 	mustEmbedUnimplementedAssistantServiceServer()
 }
 
@@ -708,6 +790,15 @@ type AssistantServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAssistantServiceServer struct{}
 
+func (UnimplementedAssistantServiceServer) SaveToES(context.Context, *SaveToESReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveToES not implemented")
+}
+func (UnimplementedAssistantServiceServer) DeleteFromES(context.Context, *DeleteFromESReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFromES not implemented")
+}
+func (UnimplementedAssistantServiceServer) SearchFromES(context.Context, *SearchFromESReq) (*SearchFromESResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchFromES not implemented")
+}
 func (UnimplementedAssistantServiceServer) GetAssistantByIds(context.Context, *GetAssistantByIdsReq) (*AppBriefList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAssistantByIds not implemented")
 }
@@ -852,6 +943,15 @@ func (UnimplementedAssistantServiceServer) MultiAgentEnableSwitch(context.Contex
 func (UnimplementedAssistantServiceServer) MultiAgentConfigUpdate(context.Context, *MultiAgentConfigUpdateReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiAgentConfigUpdate not implemented")
 }
+func (UnimplementedAssistantServiceServer) CreateSkillConversation(context.Context, *CreateSkillConversationReq) (*CreateSkillConversationResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSkillConversation not implemented")
+}
+func (UnimplementedAssistantServiceServer) DeleteSkillConversation(context.Context, *DeleteSkillConversationReq) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSkillConversation not implemented")
+}
+func (UnimplementedAssistantServiceServer) GetSkillConversationList(context.Context, *GetSkillConversationListReq) (*GetSkillConversationListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSkillConversationList not implemented")
+}
 func (UnimplementedAssistantServiceServer) mustEmbedUnimplementedAssistantServiceServer() {}
 func (UnimplementedAssistantServiceServer) testEmbeddedByValue()                          {}
 
@@ -871,6 +971,60 @@ func RegisterAssistantServiceServer(s grpc.ServiceRegistrar, srv AssistantServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AssistantService_ServiceDesc, srv)
+}
+
+func _AssistantService_SaveToES_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveToESReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).SaveToES(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_SaveToES_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).SaveToES(ctx, req.(*SaveToESReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_DeleteFromES_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteFromESReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).DeleteFromES(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_DeleteFromES_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).DeleteFromES(ctx, req.(*DeleteFromESReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_SearchFromES_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchFromESReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).SearchFromES(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_SearchFromES_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).SearchFromES(ctx, req.(*SearchFromESReq))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AssistantService_GetAssistantByIds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1723,6 +1877,60 @@ func _AssistantService_MultiAgentConfigUpdate_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssistantService_CreateSkillConversation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSkillConversationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).CreateSkillConversation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_CreateSkillConversation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).CreateSkillConversation(ctx, req.(*CreateSkillConversationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_DeleteSkillConversation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSkillConversationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).DeleteSkillConversation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_DeleteSkillConversation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).DeleteSkillConversation(ctx, req.(*DeleteSkillConversationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssistantService_GetSkillConversationList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSkillConversationListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssistantServiceServer).GetSkillConversationList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssistantService_GetSkillConversationList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssistantServiceServer).GetSkillConversationList(ctx, req.(*GetSkillConversationListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssistantService_ServiceDesc is the grpc.ServiceDesc for AssistantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1730,6 +1938,18 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "assistant_service.AssistantService",
 	HandlerType: (*AssistantServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SaveToES",
+			Handler:    _AssistantService_SaveToES_Handler,
+		},
+		{
+			MethodName: "DeleteFromES",
+			Handler:    _AssistantService_DeleteFromES_Handler,
+		},
+		{
+			MethodName: "SearchFromES",
+			Handler:    _AssistantService_SearchFromES_Handler,
+		},
 		{
 			MethodName: "GetAssistantByIds",
 			Handler:    _AssistantService_GetAssistantByIds_Handler,
@@ -1913,6 +2133,18 @@ var AssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MultiAgentConfigUpdate",
 			Handler:    _AssistantService_MultiAgentConfigUpdate_Handler,
+		},
+		{
+			MethodName: "CreateSkillConversation",
+			Handler:    _AssistantService_CreateSkillConversation_Handler,
+		},
+		{
+			MethodName: "DeleteSkillConversation",
+			Handler:    _AssistantService_DeleteSkillConversation_Handler,
+		},
+		{
+			MethodName: "GetSkillConversationList",
+			Handler:    _AssistantService_GetSkillConversationList_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -8,6 +8,11 @@ import "proto/common/common.proto";
 option go_package = "github.com/UnicomAI/wanwu/api/proto/assistant-service";
 
 service AssistantService {
+  // --- Generic ES Operation ---
+  rpc SaveToES(SaveToESReq) returns (google.protobuf.Empty) {}
+  rpc DeleteFromES(DeleteFromESReq) returns (google.protobuf.Empty) {}
+  rpc SearchFromES(SearchFromESReq) returns (SearchFromESResp) {}
+
   // --- assistant ---
   rpc GetAssistantByIds(GetAssistantByIdsReq) returns (AppBriefList) {}   // 根据智能体id集合获取智能体列表
   rpc AssistantCreate(AssistantCreateReq) returns (AssistantCreateResp) {}
@@ -71,6 +76,35 @@ service AssistantService {
   rpc MultiAgentDelete(MultiAgentCreateReq) returns (google.protobuf.Empty) {}
   rpc MultiAgentEnableSwitch(MultiAgentEnableSwitchReq) returns (google.protobuf.Empty) {}
   rpc MultiAgentConfigUpdate(MultiAgentConfigUpdateReq) returns (google.protobuf.Empty) {}
+
+  // --- skill conversation ---
+  rpc CreateSkillConversation(CreateSkillConversationReq) returns (CreateSkillConversationResp) {}
+  rpc DeleteSkillConversation(DeleteSkillConversationReq) returns (google.protobuf.Empty) {}
+  rpc GetSkillConversationList(GetSkillConversationListReq) returns (GetSkillConversationListResp) {}
+}
+
+message SaveToESReq {
+  string index_name = 1;
+  string doc_json = 2; // JSON document
+}
+
+message DeleteFromESReq {
+  string index_name = 1;
+  map<string, string> conditions = 2; // e.g. {"conversationId": "123"}
+}
+
+message SearchFromESReq {
+  string index_name = 1;
+  map<string, string> conditions = 2; // e.g. {"conversationId": "123"}
+  int32 page_no = 3;
+  int32 page_size = 4;
+  string sort_field = 5;
+  string sort_order = 6;
+}
+
+message SearchFromESResp {
+  repeated string doc_json_list = 1; // JSON strings
+  int64 total = 2;
 }
 
 message AssistantConversionStreamResp {
@@ -727,4 +761,38 @@ message MultiAgentConfigUpdateReq{
 message AssistantBrief{
   common.AppBrief info = 1;
   int32 category = 2;
+}
+
+
+// --- skill conversation messages ---
+
+message CreateSkillConversationReq {
+  string title = 1;
+  Identity identity = 2;
+}
+
+message CreateSkillConversationResp {
+  string conversationId = 1;
+}
+
+message DeleteSkillConversationReq {
+  string conversationId = 1;
+  Identity identity = 2;
+}
+
+message GetSkillConversationListReq {
+  int32 pageNo = 1;
+  int32 pageSize = 2;
+  Identity identity = 3;
+}
+
+message GetSkillConversationListResp {
+  repeated SkillConversationItem list = 1;
+  int64 total = 2;
+}
+
+message SkillConversationItem {
+  string conversationId = 1;
+  string title = 2;
+  int64 createdAt = 3;
 }

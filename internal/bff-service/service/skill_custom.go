@@ -19,7 +19,6 @@ import (
 )
 
 const (
-	customSkillType     = "auto_generated"
 	customSkillFileType = ".zip"
 )
 
@@ -114,7 +113,7 @@ func CreateCustomSkill(ctx *gin.Context, userId, orgId string, req request.Creat
 		ObjectPath: fileName,
 		Markdown:   markdownContent,
 		SaveId:     req.SaveId,
-		SourceType: customSkillType,
+		SourceType: req.SourceType,
 		Identity:   &mcp_service.Identity{UserId: userId, OrgId: orgId},
 	})
 	if err != nil {
