@@ -9,6 +9,7 @@ import (
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
+	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
 	minio_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/minio-util"
@@ -139,7 +140,7 @@ func GetCustomSkill(ctx *gin.Context, userId, orgId, skillId string) (*response.
 			Avatar:        cacheSkillAvatar(ctx, resp.Avatar),
 			Author:        resp.Author,
 			Desc:          resp.Desc,
-			SkillMarkdown: resp.Markdown,
+			SkillMarkdown: config.FixFrontMatterFormat(resp.Markdown),
 		},
 		ZipUrl: buildAccessFilePath(resp.ObjectPath),
 	}, nil

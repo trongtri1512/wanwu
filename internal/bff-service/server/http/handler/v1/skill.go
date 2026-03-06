@@ -129,10 +129,14 @@ func CreateCustomSkill(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Param			skillId	query		string	true	"skill ID"
+//	@Param			skillId	body		request.DeleteCustomSkillReq	true	"skill ID"
 //	@Success		200		{object}	response.Response
 //	@Router			/agent/skill/custom [delete]
 func DeleteCustomSkill(ctx *gin.Context) {
-	err := service.DeleteCustomSkill(ctx, ctx.Query("skillId"))
+	var req request.DeleteCustomSkillReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.DeleteCustomSkill(ctx, req.SkillId)
 	gin_util.Response(ctx, nil, err)
 }

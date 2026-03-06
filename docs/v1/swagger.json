@@ -376,11 +376,13 @@
                 "summary": "删除自定义skill",
                 "parameters": [
                     {
-                        "type": "string",
                         "description": "skill ID",
                         "name": "skillId",
-                        "in": "query",
-                        "required": true
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.DeleteCustomSkillReq"
+                        }
                     }
                 ],
                 "responses": {
@@ -11743,6 +11745,40 @@
                 }
             }
         },
+        "/prompt/evaluate": {
+            "post": {
+                "description": "获取提示词评估结果",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "prompt"
+                ],
+                "summary": "获取提示词评估结果",
+                "parameters": [
+                    {
+                        "description": "提示词评估请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PromptEvaluateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/prompt/optimize": {
             "post": {
                 "description": "获取提示词优化结果",
@@ -11764,6 +11800,40 @@
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/request.PromptOptimizeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/prompt/reason": {
+            "post": {
+                "description": "获取提示词推理结果",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "prompt"
+                ],
+                "summary": "获取提示词推理结果",
+                "parameters": [
+                    {
+                        "description": "提示词推理请求参数",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.PromptReasonReq"
                         }
                     }
                 ],
@@ -15816,6 +15886,14 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "orgName": {
+                    "description": "知识库所属名称",
+                    "type": "string"
+                },
+                "share": {
+                    "description": "是分享，还是私有",
+                    "type": "boolean"
                 }
             }
         },
@@ -15947,6 +16025,14 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "orgName": {
+                    "description": "知识库所属名称",
+                    "type": "string"
+                },
+                "share": {
+                    "description": "是分享，还是私有",
+                    "type": "boolean"
                 }
             }
         },
@@ -17480,6 +17566,17 @@
                 },
                 "appType": {
                     "description": "应用类型",
+                    "type": "string"
+                }
+            }
+        },
+        "request.DeleteCustomSkillReq": {
+            "type": "object",
+            "required": [
+                "skillId"
+            ],
+            "properties": {
+                "skillId": {
                     "type": "string"
                 }
             }
@@ -19217,7 +19314,41 @@
                 }
             }
         },
+        "request.PromptEvaluateReq": {
+            "type": "object",
+            "required": [
+                "answer",
+                "expectedOutput",
+                "modelId"
+            ],
+            "properties": {
+                "answer": {
+                    "type": "string"
+                },
+                "expectedOutput": {
+                    "type": "string"
+                },
+                "modelId": {
+                    "type": "string"
+                }
+            }
+        },
         "request.PromptOptimizeReq": {
+            "type": "object",
+            "required": [
+                "modelId",
+                "prompt"
+            ],
+            "properties": {
+                "modelId": {
+                    "type": "string"
+                },
+                "prompt": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.PromptReasonReq": {
             "type": "object",
             "required": [
                 "modelId",

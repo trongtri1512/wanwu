@@ -833,6 +833,12 @@ definitions:
         $ref: '#/definitions/request.MetaDataFilterParams'
       name:
         type: string
+      orgName:
+        description: 知识库所属名称
+        type: string
+      share:
+        description: 是分享，还是私有
+        type: boolean
     required:
     - id
     type: object
@@ -922,6 +928,12 @@ definitions:
         $ref: '#/definitions/request.MetaDataFilterParams'
       name:
         type: string
+      orgName:
+        description: 知识库所属名称
+        type: string
+      share:
+        description: 是分享，还是私有
+        type: boolean
     required:
     - id
     type: object
@@ -1955,6 +1967,13 @@ definitions:
     required:
     - appId
     - appType
+    type: object
+  request.DeleteCustomSkillReq:
+    properties:
+      skillId:
+        type: string
+    required:
+    - skillId
     type: object
   request.DeleteDocChildSegmentReq:
     properties:
@@ -3156,7 +3175,30 @@ definitions:
     required:
     - userId
     type: object
+  request.PromptEvaluateReq:
+    properties:
+      answer:
+        type: string
+      expectedOutput:
+        type: string
+      modelId:
+        type: string
+    required:
+    - answer
+    - expectedOutput
+    - modelId
+    type: object
   request.PromptOptimizeReq:
+    properties:
+      modelId:
+        type: string
+      prompt:
+        type: string
+    required:
+    - modelId
+    - prompt
+    type: object
+  request.PromptReasonReq:
     properties:
       modelId:
         type: string
@@ -7490,10 +7532,11 @@ paths:
       description: 删除自定义skill
       parameters:
       - description: skill ID
-        in: query
+        in: body
         name: skillId
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/request.DeleteCustomSkillReq'
       produces:
       - application/json
       responses:
@@ -14214,6 +14257,28 @@ paths:
       summary: 获取自定义Prompt列表
       tags:
       - prompt
+  /prompt/evaluate:
+    post:
+      consumes:
+      - application/json
+      description: 获取提示词评估结果
+      parameters:
+      - description: 提示词评估请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PromptEvaluateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取提示词评估结果
+      tags:
+      - prompt
   /prompt/optimize:
     post:
       consumes:
@@ -14234,6 +14299,28 @@ paths:
           schema:
             $ref: '#/definitions/response.Response'
       summary: 获取提示词优化结果
+      tags:
+      - prompt
+  /prompt/reason:
+    post:
+      consumes:
+      - application/json
+      description: 获取提示词推理结果
+      parameters:
+      - description: 提示词推理请求参数
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.PromptReasonReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: 获取提示词推理结果
       tags:
       - prompt
   /prompt/template:

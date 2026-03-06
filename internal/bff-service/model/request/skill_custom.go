@@ -21,3 +21,11 @@ type CustomSkillIDReq struct {
 func (c *CustomSkillIDReq) Check() error {
 	return nil
 }
+
+type DeleteCustomSkillReq struct {
+	SkillId string `json:"skillId" validate:"required"`
+}
+
+func (c *DeleteCustomSkillReq) Check() error {
+	return nil
+}

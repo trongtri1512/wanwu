@@ -2121,6 +2121,14 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "orgName": {
+                    "description": "知识库所属名称",
+                    "type": "string"
+                },
+                "share": {
+                    "description": "是分享，还是私有",
+                    "type": "boolean"
                 }
             }
         },
