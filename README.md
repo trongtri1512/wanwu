@@ -222,6 +222,18 @@ The platform has been successfully applied in multiple industries such as **fina
 
 ------
 
+### 📦 Sandbox Startup
+
+The Wanwu sandbox can be used for features like creating Skills with a single command and needs to be started separately.
+
+1. Based on the above Docker installation steps, complete the configuration before the first run
+
+2. Start the sandbox (taking amd64 as an example)
+
+   ```
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.wga-sandbox.yaml up -d
+   ```
+
 ### ⬆️ Version Upgrade
 
 1. Based on the above Docker installation steps, completely stop the system service
@@ -254,7 +266,7 @@ The platform has been successfully applied in multiple industries such as **fina
 
 2. Modify the `WANWU_DB_NAME` variable in the .env file according to the database
 
-3. Start the database (using amd64 as an example)
+3. Start the database (taking amd64 as an example)
    ```bash
    # tidb
    docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.tidb.yaml up -d
@@ -358,6 +370,8 @@ The F1 score serving as the comprehensive evaluation metric (the harmonic mean o
 
 - [Coze](https://github.com/coze-dev)
 - [LangChain](https://github.com/langchain-ai/langchain)
+- [AIO Sandbox](https://github.com/agent-infra/sandbox)
+- [OpenCode](https://github.com/anomalyco/opencode)
 
 ------
 

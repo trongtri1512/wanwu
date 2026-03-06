@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	agent_chat_builder "github.com/UnicomAI/wanwu/internal/agent-service/service/agent-chat-builder"
 	"io"
 	"strings"
 
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/agent-service/model/response"
+	agent_chat_builder "github.com/UnicomAI/wanwu/internal/agent-service/service/agent-chat-builder"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	safe_go_util "github.com/UnicomAI/wanwu/pkg/safe-go-util"
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"

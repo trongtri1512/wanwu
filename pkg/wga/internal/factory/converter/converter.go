@@ -2,7 +2,7 @@
 package converter
 
 import (
-	"github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
+	wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
 	"github.com/cloudwego/eino/schema"
 )
 

@@ -219,6 +219,18 @@
 
 ------
 
+### 📦 沙箱啟動
+
+萬悟沙箱可用於一句話創建 Skills 等功能，需要單獨啟動
+
+1. 基於上述 Docker 安裝步驟，完成首次運行前的配置
+
+2. 啟動沙箱（以 amd64 為例）
+
+   ```
+   docker compose --env-file .env --env-file .env.image.amd64 -f docker-compose.wga-sandbox.yaml up -d
+   ```
+
 ### ⬆️ 版本升級
 
 1. 基於上述Docker安裝步驟，將系統服務完整停止
@@ -366,6 +378,8 @@
 
 - [Coze](https://github.com/coze-dev)
 - [LangChain](https://github.com/langchain-ai/langchain)
+- [AIO Sandbox](https://github.com/agent-infra/sandbox)
+- [OpenCode](https://github.com/anomalyco/opencode)
 
 ------
 

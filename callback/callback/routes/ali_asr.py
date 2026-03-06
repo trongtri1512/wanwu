@@ -60,7 +60,6 @@ def ali_asr_recognize():
 
     audio_processed = process_audio_mime(audio)
 
-
     auth_header = request.headers.get("Authorization")
     api_key = None
 

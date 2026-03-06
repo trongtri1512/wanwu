@@ -78,8 +78,9 @@ create-docker-net:
 
 check:
 	go vet ./...
-	go fmt ./...
-	docker run --rm -t -v $(PWD):/app -w /app golangci/golangci-lint:v2.10.1 bash -c 'golangci-lint run -v --timeout 3m'
+	gofmt -w cmd/ internal/ pkg/
+	goimports -w -local github.com/wanwulite/wanwu cmd/ internal/ pkg/
+	docker run --rm -t -v $(PWD):/app -w /app golangci/golangci-lint:v2.10.1 bash -c 'golangci-lint run -v --timeout 5m'
 
 check-callback:
 	docker run --rm -t -v $(PWD)/callback:/callback -w /callback crpi-6pj79y7ddzdpexs8.cn-hangzhou.personal.cr.aliyuncs.com/gromitlee/python:3.12-slim-isort7.0.0 isort --check-only --diff --color .
