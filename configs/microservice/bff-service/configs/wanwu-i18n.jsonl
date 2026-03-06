@@ -361,6 +361,8 @@
 {"code":310025,"key":"mcp_custom_skill_get","langs":{"zh":"自定义skill(%v)获取异常"}}
 {"code":310025,"key":"mcp_custom_skill_list","langs":{"zh":"自定义skill列表获取异常"}}
 {"code":310025,"key":"mcp_custom_skill_get_by_message_ids","langs":{"zh":"生成自定义skill获取消息失败"}}
+{"code":310025,"key":"mcp_custom_skill_check_exists","langs":{"zh":"自定义skill获取失败: %v"}}
+{"code":310025,"key":"mcp_custom_skill_save_id_exists","langs":{"zh":"自定义skill已存在"}}
 {"code":150001,"key":"rag_role_err","langs":{"zh":"角色权限错误：%v"}}
 {"code":150002,"key":"rag_info_not_exist","langs":{"zh":"文本问答信息不存在：%v"}}
 {"code":150003,"key":"rag_delete_err","langs":{"zh":"删除文本问答错误：%v"}}
@@ -440,6 +442,10 @@
 {"code":160008,"key":"assistant_multi_agent_delete","langs":{"zh":"删除多智能体配置错误: %v"}}
 {"code":160008,"key":"assistant_multi_agent_get","langs":{"zh":"获取多智能体配置错误: %v"}}
 {"code":160008,"key":"assistant_multi_agent_create","langs":{"zh":"新增多智能体配置错误: %v"}}
+{"code":160009,"key":"skill_conversation_create","langs":{"zh":"对话创建失败：%v"}}
+{"code":160010,"key":"skill_conversation_update","langs":{"zh":"对话更新失败：%v"}}
+{"code":160011,"key":"skill_conversation_delete","langs":{"zh":"对话删除失败：%v"}}
+{"code":160012,"key":"skill_conversation_get_list","langs":{"zh":"对话获取失败：%v"}}
 {"code":300000,"key":"app_config_delete","langs":{"zh":"删除应用配置错误:%v"}}
 {"code":300001,"key":"app_api_keys_get","langs":{"zh":"获取AppKey列表错误:%v"}}
 {"code":300001,"key":"app_api_key_delete","langs":{"zh":"删除AppKey错误:%v"}}

@@ -10,7 +10,7 @@ import (
 
 func (c *Client) CreateSkillConversation(ctx context.Context, conversation *model.SkillConversation) *errs.Status {
 	if err := c.db.WithContext(ctx).Create(conversation).Error; err != nil {
-		return toErrStatus("mcp_create_skill_conversation_err", err.Error())
+		return toErrStatus("skill_conversation_create", err.Error())
 	}
 	return nil
 }
@@ -21,7 +21,7 @@ func (c *Client) DeleteSkillConversation(ctx context.Context, conversationId, us
 		sqlopt.WithUserId(userId),
 		sqlopt.WithOrgID(orgId),
 	).Apply(c.db.WithContext(ctx)).Delete(&model.SkillConversation{}).Error; err != nil {
-		return toErrStatus("mcp_delete_skill_conversation_err", err.Error())
+		return toErrStatus("skill_conversation_delete", err.Error())
 	}
 	return nil
 }
@@ -35,7 +35,7 @@ func (c *Client) GetSkillConversationList(ctx context.Context, userId, orgId str
 		sqlopt.WithOrgID(orgId),
 	).Apply(c.db.WithContext(ctx)).Model(&model.SkillConversation{}).
 		Order("created_at desc").Offset((pageNo - 1) * pageSize).Limit(pageSize).Find(&list).Error; err != nil {
-		return nil, 0, toErrStatus("mcp_get_skill_conversation_list_err", err.Error())
+		return nil, 0, toErrStatus("skill_conversation_get_list", err.Error())
 	}
 
 	total = int64(len(list))

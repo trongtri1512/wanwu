@@ -39,7 +39,7 @@ func (s *Service) DeleteSkillConversation(ctx context.Context, req *assistant_se
 func (s *Service) GetSkillConversationList(ctx context.Context, req *assistant_service.GetSkillConversationListReq) (*assistant_service.GetSkillConversationListResp, error) {
 	list, total, err := s.cli.GetSkillConversationList(ctx, req.Identity.UserId, req.Identity.OrgId, int(req.PageNo), int(req.PageSize))
 	if err != nil {
-		return nil, errStatus(errs.Code_MCPGetCustomMCPListErr, err)
+		return nil, errStatus(errs.Code_SkillConversationGetErr, err)
 	}
 
 	respList := make([]*assistant_service.SkillConversationItem, 0, len(list))
