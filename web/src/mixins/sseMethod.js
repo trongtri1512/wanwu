@@ -915,19 +915,31 @@ export default {
     // 多线程SSE简化版本
     sendEventStreamIsolation(url, params, callbacks = {}, timeout = 0) {
       let fullContent = '';
-      let completeLock = true;
+      let isCompleted = false;
       const { onProgress, onComplete } = callbacks;
 
       const _print = new Print({});
       const ctrlAbort = new AbortController();
+
+      const handleComplete = content => {
+        if (isCompleted) return;
+        isCompleted = true;
+        ctrlAbort.abort();
+        if (onComplete) onComplete(content);
+      };
+
       this.fetchEventSource(`${USER_API}` + url, params, {
         onopen: async response => {
           if (response.status !== 200) {
-            const errorData = await response.json();
-            console.log('Network error', errorData);
-            this.$message.error(errorData.msg || i18n.t('sse.error'));
-            ctrlAbort.abort();
-            onComplete(fullContent);
+            try {
+              const errorData = await response.json();
+              console.log('Network error', errorData);
+              this.$message.error(errorData.msg || i18n.t('sse.error'));
+            } catch (e) {
+              console.error('Failed to parse error response', e);
+              this.$message.error(i18n.t('sse.error'));
+            }
+            handleComplete(fullContent);
           }
         },
         onmessage: e => {
@@ -942,10 +954,10 @@ export default {
                 {},
                 worldObj => {
                   fullContent += worldObj.world;
-                  onProgress(fullContent, worldObj);
+                  if (onProgress) onProgress(fullContent, worldObj);
                   if (Boolean(worldObj.finish)) {
-                    onComplete(fullContent);
-                    completeLock = false;
+                    console.log('===> eventSource onComplete');
+                    handleComplete(fullContent);
                   }
                 },
               );
@@ -956,8 +968,7 @@ export default {
         },
         onclose: () => {
           console.log('===> eventSource onClose');
-          ctrlAbort.abort();
-          if (completeLock) onComplete(fullContent);
+          handleComplete(fullContent);
         },
         onerror: e => {
           console.log(i18n.t('sse.connectError'));
@@ -966,20 +977,20 @@ export default {
           } else {
             console.warn('Error occured', e);
           }
-          ctrlAbort.abort();
-          if (completeLock) onComplete(fullContent);
+          handleComplete(fullContent);
         },
         signal: ctrlAbort.signal,
       });
 
-      if (timeout > 0)
+      if (timeout > 0) {
         setTimeout(() => {
           if (!ctrlAbort.signal.aborted) {
             ctrlAbort.abort();
             this.$message.warning(i18n.t('sse.timeoutError'));
-            onComplete(fullContent);
+            handleComplete(fullContent);
           }
         }, timeout);
+      }
     },
     preStop() {
       //获取已经拿到的全部回答,一次性回显出来
