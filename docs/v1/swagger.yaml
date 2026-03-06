@@ -3457,6 +3457,7 @@ definitions:
         description: 技能ID
         type: string
     required:
+    - conversationId
     - skillSaveId
     type: object
   request.ToolSquareAPIKeyReq:

@@ -5,13 +5,13 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net/http"
 	"path/filepath"
 
 	errs "github.com/UnicomAI/wanwu/api/proto/err-code"
 	mcp_service "github.com/UnicomAI/wanwu/api/proto/mcp-service"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/response"
-	minio_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/minio-util"
 	grpc_util "github.com/UnicomAI/wanwu/pkg/grpc-util"
 	"github.com/UnicomAI/wanwu/pkg/minio"
 	"github.com/UnicomAI/wanwu/pkg/util"
@@ -76,10 +76,18 @@ func CreateCustomSkill(ctx *gin.Context, userId, orgId string, req request.Creat
 	skillDesc := req.Desc
 
 	if req.ZipUrl != "" {
-		// 使用minio-util下载文件
-		data, _, err := minio_util.DownloadFile(ctx.Request.Context(), req.ZipUrl)
+		// 下载文件
+		resp, err := http.Get(req.ZipUrl)
 		if err != nil {
-			return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, err.Error())
+			return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("download skill zip (%v) err: %v", req.ZipUrl, err))
+		}
+		defer func() { _ = resp.Body.Close() }()
+		if resp.StatusCode != http.StatusOK {
+			return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("download skill zip (%v) status: %v", req.ZipUrl, resp.StatusCode))
+		}
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, grpc_util.ErrorStatus(errs.Code_BFFGeneral, fmt.Sprintf("download skill zip (%v) read data err: %v", req.ZipUrl, err))
 		}
 
 		// 解压并查找SKILL.md文件，提取name和description

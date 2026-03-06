@@ -25,8 +25,8 @@ type SkillConversationChatReq struct {
 }
 
 type SkillConversationSaveReq struct {
-	ConversationId string `json:"conversationId"`                  // 会话ID
-	SkillSaveId    string `json:"skillSaveId" validate:"required"` // 技能ID
+	ConversationId string `json:"conversationId" validate:"required"` // 会话ID
+	SkillSaveId    string `json:"skillSaveId" validate:"required"`    // 技能ID
 }
 
 func (c *CreateSkillConversationReq) Check() error {

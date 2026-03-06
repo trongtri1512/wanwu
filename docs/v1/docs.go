@@ -19667,6 +19667,7 @@ const docTemplate = `{
         "request.SkillConversationSaveReq": {
             "type": "object",
             "required": [
+                "conversationId",
                 "skillSaveId"
             ],
             "properties": {
