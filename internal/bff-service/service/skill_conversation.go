@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -105,7 +106,7 @@ func GetSkillConversationList(ctx *gin.Context, userId, orgId string, req reques
 func GetSkillConversationDetail(ctx *gin.Context, userId, orgId string, req request.GetSkillConversationDetailReq) (*response.ListResult, error) {
 
 	// 查询对话记录
-	detailList, err := getSkillConversationDetailListFromES(ctx, req.ConversationId)
+	detailList, err := getSkillConversationDetailListFromES(ctx, req.ConversationId, true)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +180,7 @@ func SkillConversationChat(ctx *gin.Context, userId, orgId string, req request.S
 	}
 
 	// 查询对话记录
-	detailList, err := getSkillConversationDetailListFromES(ctx, req.ConversationId)
+	detailList, err := getSkillConversationDetailListFromES(ctx, req.ConversationId, false)
 	if err != nil {
 		return err
 	}
@@ -214,7 +215,7 @@ func SkillConversationChat(ctx *gin.Context, userId, orgId string, req request.S
 func SkillConversationSave(ctx *gin.Context, userId, orgId string, req request.SkillConversationSaveReq) (*response.CustomSkillIDResp, error) {
 
 	// 查询对话记录
-	detailList, err := getSkillConversationDetailListFromES(ctx, req.ConversationId)
+	detailList, err := getSkillConversationDetailListFromES(ctx, req.ConversationId, true)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +248,11 @@ func SkillConversationSave(ctx *gin.Context, userId, orgId string, req request.S
 
 // --- internal ---
 
-func getSkillConversationDetailListFromES(ctx *gin.Context, conversationId string) ([]*response.SkillConversationDetailInfo, error) {
+func getSkillConversationDetailListFromES(ctx *gin.Context, conversationId string, orderDesc bool) ([]*response.SkillConversationDetailInfo, error) {
+	sortOrder := "asc"
+	if orderDesc {
+		sortOrder = "desc"
+	}
 	searchResp, err := assistant.SearchFromES(ctx.Request.Context(), &assistant_service.SearchFromESReq{
 		IndexName: skillConversationESIndexName,
 		Conditions: map[string]string{
@@ -256,7 +261,7 @@ func getSkillConversationDetailListFromES(ctx *gin.Context, conversationId strin
 		PageNo:    1,
 		PageSize:  1000,
 		SortField: "createdAt",
-		SortOrder: "desc",
+		SortOrder: sortOrder,
 	})
 	if err != nil {
 		return nil, err
@@ -310,6 +315,12 @@ func buildSkillChatDoneProcessor(ctx *gin.Context, userId, orgId string, req req
 			c.Flush()
 		}()
 
+		// 目录是否为空
+		entries, err := os.ReadDir(outputDir)
+		if err != nil || len(entries) == 0 {
+			return nil
+		}
+
 		// 压缩文件夹
 		zipBytes, err := util.ZipDir(outputDir + "/.")
 		if err != nil {
@@ -342,9 +353,9 @@ func buildSkillChatDoneProcessor(ctx *gin.Context, userId, orgId string, req req
 			},
 		})
 		// 删除临时文件
-		// if err := util.DeleteDir(outputDir); err != nil {
-		// 	return err
-		// }
+		if err := util.DeleteDir(outputDir); err != nil {
+			return err
+		}
 		return nil
 	}
 }
