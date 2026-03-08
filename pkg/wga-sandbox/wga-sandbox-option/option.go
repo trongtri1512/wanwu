@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
+	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -35,12 +36,13 @@ const (
 
 // ModelConfig 模型配置。
 type ModelConfig struct {
-	Provider     string // 提供商标识
-	ProviderName string // 提供商显示名称
-	BaseURL      string // API 基础地址
-	APIKey       string // API 密钥
-	Model        string // 模型标识
-	ModelName    string // 模型显示名称
+	Provider     string               // 提供商标识
+	ProviderName string               // 提供商显示名称
+	BaseURL      string               // API 基础地址
+	APIKey       string               // API 密钥
+	Model        string               // 模型标识
+	ModelName    string               // 模型显示名称
+	Params       *mp_common.LLMParams // 模型参数
 }
 
 // Message 消息结构。

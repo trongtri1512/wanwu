@@ -17,10 +17,13 @@ import (
 
 // ModelConfig 模型配置。
 type ModelConfig struct {
-	Model       string              // 模型标识
-	ApiKey      string              // API 密钥
-	EndpointUrl string              // API 端点地址
-	Params      mp_common.LLMParams // 模型参数
+	Provider     string               // 提供商标识
+	ProviderName string               // 提供商显示名称
+	BaseURL      string               // API 基础地址
+	APIKey       string               // API 密钥
+	Model        string               // 模型标识
+	ModelName    string               // 模型显示名称
+	Params       *mp_common.LLMParams // 模型参数
 }
 
 // ToolConfig 工具配置。

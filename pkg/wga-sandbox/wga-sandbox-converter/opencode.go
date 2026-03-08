@@ -1,4 +1,4 @@
-package converter
+package wga_sandbox_converter
 
 import (
 	"encoding/json"
@@ -8,7 +8,6 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-// opencodeConverter 实现 opencode runner 的事件转换。
 type opencodeConverter struct {
 	handlers map[wga_sandbox.OpencodeEventType]partParser
 }

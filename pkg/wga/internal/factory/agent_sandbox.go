@@ -2,34 +2,28 @@ package factory
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/UnicomAI/wanwu/pkg/log"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
-	"github.com/UnicomAI/wanwu/pkg/util"
 	wga_sandbox "github.com/UnicomAI/wanwu/pkg/wga-sandbox"
+	wga_sandbox_converter "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-converter"
 	wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
 	"github.com/UnicomAI/wanwu/pkg/wga/internal/config"
-	"github.com/UnicomAI/wanwu/pkg/wga/internal/factory/converter"
 	"github.com/UnicomAI/wanwu/pkg/wga/internal/option"
 	"github.com/cloudwego/eino/adk"
-	"github.com/cloudwego/eino/schema"
 )
 
 // sandboxAgent 在沙箱容器中执行的智能体。
 type sandboxAgent struct {
-	cfg       *config.Agent
-	query     string
-	options   option.Options
-	converter converter.EventConverter
+	cfg     *config.Agent
+	query   string
+	options option.Options
 }
 
 func newSandboxAgentImpl(_ context.Context, cfg *config.Agent, query string, options option.Options) (adk.Agent, error) {
 	return &sandboxAgent{
-		cfg:       cfg,
-		query:     query,
-		options:   options,
-		converter: converter.NewEventConverter(wga_sandbox_option.RunnerTypeOpencode),
+		cfg:     cfg,
+		query:   query,
+		options: options,
 	}, nil
 }
 
@@ -42,47 +36,26 @@ func (a *sandboxAgent) Description(_ context.Context) string {
 }
 
 func (a *sandboxAgent) Run(ctx context.Context, _ *adk.AgentInput, _ ...adk.AgentRunOption) *adk.AsyncIterator[*adk.AgentEvent] {
-	iterator, generator := adk.NewAsyncIteratorPair[*adk.AgentEvent]()
-	logPrefix := fmt.Sprintf("[wga][%s][%s]", a.options.RunSession.RunID, a.cfg.ID)
+	sandboxOpts := a.buildSandboxOpts(a.query)
 
-	go func() {
-		defer util.PrintPanicStack()
-		defer generator.Close()
+	_, outputCh, err := wga_sandbox.Run(ctx, sandboxOpts...)
+	if err != nil {
+		return wga_sandbox_converter.ConvertToEinoIteratorWithError(ctx, wga_sandbox_option.RunnerTypeOpencode, err)
+	}
 
-		sandboxOpts := a.buildSandboxOpts(a.query)
-
-		_, outputCh, err := wga_sandbox.Run(ctx, sandboxOpts...)
-		if err != nil {
-			log.Errorf("%s failed to run sandbox: %v", logPrefix, err)
-			generator.Send(&adk.AgentEvent{Err: err})
-			return
-		}
-
-		for line := range outputCh {
-			msg, err := a.converter.Convert(line)
-			if err != nil {
-				log.Warnf("%s failed to convert event: %v", logPrefix, err)
-				continue
-			}
-			if msg == nil {
-				continue
-			}
-			a.sendMessage(generator, msg)
-		}
-	}()
-
-	return iterator
+	return wga_sandbox_converter.ConvertToEinoIterator(ctx, wga_sandbox_option.RunnerTypeOpencode, outputCh)
 }
 
 func (a *sandboxAgent) buildSandboxOpts(overallTask string) []wga_sandbox_option.Option {
 	opts := []wga_sandbox_option.Option{
 		wga_sandbox_option.WithModelConfig(wga_sandbox_option.ModelConfig{
-			Provider:     "custom",
-			ProviderName: "Custom",
-			BaseURL:      a.options.Model.EndpointUrl,
-			APIKey:       a.options.Model.ApiKey,
+			Provider:     a.options.Model.Provider,
+			ProviderName: a.options.Model.ProviderName,
+			BaseURL:      a.options.Model.BaseURL,
+			APIKey:       a.options.Model.APIKey,
 			Model:        a.options.Model.Model,
-			ModelName:    a.options.Model.Model,
+			ModelName:    a.options.Model.ModelName,
+			Params:       a.options.Model.Params,
 		}),
 		wga_sandbox_option.WithInstruction(a.cfg.Prompt),
 		wga_sandbox_option.WithEnableThinking(a.cfg.Configure.EnableThinking),
@@ -170,17 +143,4 @@ func (a *sandboxAgent) buildSandboxOpts(overallTask string) []wga_sandbox_option
 	}
 
 	return opts
-}
-
-func (a *sandboxAgent) sendMessage(generator *adk.AsyncGenerator[*adk.AgentEvent], msg *schema.Message) {
-	generator.Send(&adk.AgentEvent{
-		AgentName: a.cfg.ID,
-		Output: &adk.AgentOutput{
-			MessageOutput: &adk.MessageVariant{
-				IsStreaming: false,
-				Message:     msg,
-				Role:        schema.Assistant,
-			},
-		},
-	})
 }

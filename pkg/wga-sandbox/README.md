@@ -23,6 +23,15 @@ api_opencode.go
   ├── ParseOpencodePartRetryPart(data)    → *PartRetryPart
   └── ParseOpencodeErrorPart(data)        → *ErrorPart
 
+wga-sandbox-converter/
+  ├── eino_converter.go
+  │   └── EinoConverter 接口
+  ├── eino_iterator.go
+  │   ├── ConvertToEinoIterator()       JSON 流 → AgentEvent 迭代器
+  │   └── ConvertToEinoIteratorWithError() 错误 → AgentEvent 迭代器
+  └── opencode.go
+      └── opencodeConverter 实现
+
 sandbox.Manager
   ├── Create(ctx, runID, cfg)  创建沙箱
   ├── Get(runID)               获取实例
@@ -83,6 +92,37 @@ for line := range outputCh {
 }
 ```
 
+## Eino 集成
+
+```go
+import (
+    wga_sandbox "github.com/UnicomAI/wanwu/pkg/wga-sandbox"
+    "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-converter"
+    wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
+)
+
+runSession, outputCh, _ := wga_sandbox.Run(ctx,
+    wga_sandbox_option.WithModelConfig(modelConfig),
+    wga_sandbox_option.WithSandbox(wga_sandbox_option.SandboxReuse("localhost")),
+    wga_sandbox_option.WithCurrentTask("任务描述"),
+)
+
+// 转换为 eino AgentEvent 迭代器
+iter := wga_sandbox_converter.ConvertToEinoIterator(ctx, wga_sandbox_option.RunnerTypeOpencode, outputCh)
+for {
+    event, ok := iter.Next()
+    if !ok {
+        break
+    }
+    if event.Err != nil {
+        // 处理错误
+    }
+    if event.Output != nil && event.Output.MessageOutput != nil {
+        fmt.Println(event.Output.MessageOutput.Message.Content)
+    }
+}
+```
+
 ## AG-UI 协议
 
 ```go
@@ -120,6 +160,14 @@ eventCh := tr.TranslateStream(ctx, outputCh)
 | `ParseOpencodeFilePart(data)` | 解析文件部分 |
 | `ParseOpencodeSnapshotPart(data)` | 解析快照部分 |
 | `ParseOpencodeAgentPart(data)` | 解析智能体部分 |
+
+### Eino 转换 (wga-sandbox-converter)
+
+| 函数 | 说明 |
+|------|------|
+| `NewEinoConverter(runnerType)` | 创建转换器 |
+| `ConvertToEinoIterator(ctx, runnerType, outputCh)` | JSON 流 → `*adk.AsyncIterator[*adk.AgentEvent]` |
+| `ConvertToEinoIteratorWithError(ctx, runnerType, err)` | 错误 → `*adk.AsyncIterator[*adk.AgentEvent]` |
 
 ## 选项
 
