@@ -81,11 +81,20 @@
                         v-if="item.avatar && item.avatar.path"
                       />
                     </div>
-                    <h3>{{ item.toolName }}</h3>
-                    <span
-                      v-if="item.loading"
-                      class="el-icon-loading loading-text"
-                    ></span>
+                    <div :class="type === 'tool' && 'tool-name-container'">
+                      <h3 class="tool-name">{{ item.toolName }}</h3>
+                      <span
+                        v-if="item.loading"
+                        class="el-icon-loading loading-text"
+                      ></span>
+                      <span v-if="type === 'tool'" class="tag">
+                        {{
+                          item.toolType === 'builtin'
+                            ? $t('agent.toolDialog.builtinTools')
+                            : $t('agent.toolDialog.customTools')
+                        }}
+                      </span>
+                    </div>
                   </template>
                   <template v-if="item.children && item.children.length">
                     <div
@@ -544,5 +553,20 @@ export default {
   border: 1px solid $color !important;
   color: #fff;
   background: $color;
+}
+
+.tool-name-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  .tool-name {
+    height: auto;
+    line-height: 1.5;
+  }
+  .tag {
+    height: auto;
+    line-height: 1.5;
+    width: fit-content;
+  }
 }
 </style>
