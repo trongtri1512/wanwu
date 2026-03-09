@@ -86,7 +86,6 @@
             :visibleClearHistory="true"
             minHeight="22px"
             :modelConfig="sharedModelConfig"
-            modelPopperClass="model-popper-bottom"
             @preSend="preSend"
             @setSessionStatus="setSessionStatus"
             @clearHistory="handleClearHistory"
@@ -496,12 +495,6 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-.model-popper-bottom {
-  top: 570px !important;
-}
-</style>
 
 <style lang="scss" scoped>
 @import '@/style/chat.scss';

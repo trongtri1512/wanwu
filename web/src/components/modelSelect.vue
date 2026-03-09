@@ -11,7 +11,12 @@
     :filterable="filterable"
     :clearable="clearable"
     :popper-class="popperClass"
+    class="model-select"
+    ref="modelSelect"
   >
+    <template v-if="visibleModelAvatar" #prefix>
+      <img class="model-img" :src="modelAvatar" />
+    </template>
     <el-option
       v-for="item in options"
       :key="item.modelId"
@@ -36,6 +41,8 @@
 </template>
 
 <script>
+import { avatarSrc } from '@/utils/util';
+import defaultModelAvatar from '@/assets/imgs/model_default_icon.png';
 export default {
   name: 'ModelSelect',
   props: {
@@ -83,6 +90,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    // 显示模型头像
+    visibleModelAvatar: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -95,6 +107,27 @@ export default {
     },
     currentValue(val) {
       this.$emit('input', val);
+    },
+    loading(val) {
+      // 加载完成之后，重新计算下拉框的位置以解决下拉框位置计算错误
+      if (!val) {
+        this.$nextTick(() => {
+          if (this.$refs.modelSelect && this.$refs.modelSelect.broadcast) {
+            this.$refs.modelSelect.broadcast(
+              'ElSelectDropdown',
+              'updatePopper',
+            );
+          }
+        });
+      }
+    },
+  },
+  computed: {
+    modelAvatar() {
+      const o = this.options.find(o => o.modelId === this.currentValue);
+      return this.currentValue.length && o.avatar.path
+        ? avatarSrc(o.avatar.path)
+        : defaultModelAvatar;
     },
   },
   methods: {

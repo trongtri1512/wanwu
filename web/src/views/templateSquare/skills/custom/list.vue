@@ -99,7 +99,7 @@ export default {
         }).then(res => {
           if (res.code === 0) {
             this.$message.success(this.$t('common.info.delete'));
-            this.fetchList();
+            this.doGetSkillTempList();
           } else {
             this.$message.error(res.msg || this.$t('common.info.deleteErr'));
           }

@@ -114,7 +114,6 @@
               :loading="modelLoading"
               :filterable="true"
               :disabled="false"
-              :popper-class="modelPopperClass"
             />
             <div class="edtable--wrap-right">
               <el-button
@@ -227,10 +226,6 @@ export default {
           modelId: '',
         };
       },
-    },
-    modelPopperClass: {
-      type: String,
-      default: '',
     },
   },
   mixins: [commonMixin, uploadChunk],

@@ -1617,6 +1617,8 @@ export default {
       createWorkflow: '创建工作流',
       errorApiKey: '该内置工具暂未绑定API Key，会导致调用失败!',
       addSuccess: '工具添加成功',
+      builtinTools: '内置工具',
+      customTools: '自定义工具',
     },
     agentDetail: {
       workFlowInstruction: '工作流配置说明',
