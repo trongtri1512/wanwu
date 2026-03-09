@@ -301,7 +301,9 @@ export function formatScore(score) {
 }
 
 export function avatarSrc(path, defaultImg = '') {
-  return path ? basePath + '/user/api/' + path : defaultImg;
+  if (!path) return defaultImg;
+  if (path.startsWith('http')) return path;
+  return basePath + '/user/api/' + path;
 }
 
 // 换算单位万/亿/万亿，保留2位小数

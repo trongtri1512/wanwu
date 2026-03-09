@@ -835,6 +835,7 @@ export default {
       desc: 'API描述',
     },
     externalKnowledge: '外部知识库名称',
+    knowledgeAvatar: '知识库图标',
     knowledgeName: '知识库名称',
     knowledgeNameRules: '请输入知识库名称',
     pidClassify: '上级分类',
@@ -1244,6 +1245,7 @@ export default {
     },
     qaDatabase: {
       title: '问答库',
+      avatar: '问答库图标',
       name: '问答库名称',
       desc: '问答库描述',
       editInfo: '编辑问答库',

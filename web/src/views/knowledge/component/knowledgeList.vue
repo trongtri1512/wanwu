@@ -45,7 +45,12 @@
           <div>
             <img
               class="logo"
-              :src="require('@/assets/imgs/knowledgeIcon.png')"
+              :src="
+                avatarSrc(
+                  n.avatar.path,
+                  require('@/assets/imgs/knowledgeIcon.png'),
+                )
+              "
             />
             <p :class="['smartDate']">
               {{ n.docCount || 0 }}
@@ -197,6 +202,7 @@ import {
   POWER_TYPE_ADMIN,
   POWER_TYPE_SYSTEM_ADMIN,
 } from '@/views/knowledge/constants';
+import { avatarSrc } from '@/utils/util';
 
 export default {
   components: { tagDialog, PowerManagement, exportRecord },
@@ -216,6 +222,7 @@ export default {
     appData: {
       handler: function (val) {
         this.listData = val;
+        console.log('appData', val);
       },
       immediate: true,
       deep: true,
@@ -236,6 +243,7 @@ export default {
   },
 
   methods: {
+    avatarSrc,
     ...mapActions('app', ['setPermissionType', 'clearPermissionType']),
     formattedTagNames(data) {
       if (data.length === 0) {
@@ -380,6 +388,7 @@ export default {
       padding: 5px !important;
       width: 65px !important;
       height: 65px !important;
+      object-fit: cover;
     }
 
     .tagList {

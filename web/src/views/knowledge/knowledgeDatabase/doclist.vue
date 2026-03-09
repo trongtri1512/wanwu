@@ -500,6 +500,7 @@ export default {
   },
   data() {
     return {
+      avatar: '',
       knowledgeName: '',
       description: '',
       category: 0,
@@ -614,6 +615,7 @@ export default {
       this.$refs.createKnowledge.showDialog({
         category: this.category,
         knowledgeId: this.docQuery.knowledgeId,
+        avatar: this.avatar,
         name: this.knowledgeName,
         description: this.description,
         embeddingModelInfo: this.embeddingModel,
@@ -1002,6 +1004,7 @@ export default {
       if (tableInfo && tableInfo.docKnowledgeInfo) {
         this.graphSwitch = tableInfo.docKnowledgeInfo.graphSwitch === 1;
         this.showGraphReport = tableInfo.docKnowledgeInfo.showGraphReport;
+        this.avatar = tableInfo.docKnowledgeInfo.avatar;
         this.knowledgeName = tableInfo.docKnowledgeInfo.knowledgeName;
         this.description = tableInfo.docKnowledgeInfo.description;
         this.category = tableInfo.docKnowledgeInfo.category;
