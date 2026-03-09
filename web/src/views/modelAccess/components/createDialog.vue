@@ -288,6 +288,7 @@
             :disabled="!allowEdit"
           ></el-input>
         </el-form-item>
+        <!-- 系统管理员可设置的公开范围（个人、全局），普通用户可设置的公开范围（个人、组织内） -->
         <el-form-item
           :label="$t('modelAccess.table.scopeType')"
           prop="scopeType"
@@ -299,10 +300,11 @@
             style="width: 100%"
           >
             <el-option
-              v-for="item in getScopeTypeList()"
+              v-for="item in scopeTypeList"
               :key="item.key"
               :label="item.name"
               :value="item.key"
+              v-show="isSystem ? item.key !== org : item.key !== all"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -383,6 +385,9 @@ export default {
       defaultLogo: require('@/assets/imgs/model_default_icon.png'),
       dialogVisible: false,
       modelType: [],
+      scopeTypeList: SCOPE_TYPE_LIST,
+      org: ORG,
+      all: ALL,
       functionCalling: FUNC_CALLING,
       supportList: SUPPORT_LIST,
       supportFileTypeObj: SUPPORT_FILE_TYPE_OBJ,
@@ -538,12 +543,6 @@ export default {
   },
   methods: {
     avatarSrc,
-    getScopeTypeList() {
-      // 系统管理员可设置的公开范围（个人、全局），普通用户可设置的公开范围（个人、组织内）
-      return this.isSystem
-        ? SCOPE_TYPE_LIST.filter(item => item.key !== ORG)
-        : SCOPE_TYPE_LIST.filter(item => item.key !== ALL);
-    },
     isMultiModal() {
       return [MULTIMODAL_RERANK, MULTIMODAL_EMBEDDING].includes(
         this.createForm.modelType,
