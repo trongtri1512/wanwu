@@ -9,7 +9,7 @@ import (
 
 // CreateSkillConversation
 //
-//	@Tags			skill.conversation
+//	@Tags			resource.skill
 //	@Summary		创建Skill生成会话
 //	@Description	创建Skill生成会话
 //	@Security		JWT
@@ -30,7 +30,7 @@ func CreateSkillConversation(ctx *gin.Context) {
 
 // DeleteSkillConversation
 //
-//	@Tags			skill.conversation
+//	@Tags			resource.skill
 //	@Summary		删除Skill生成会话
 //	@Description	删除Skill生成会话
 //	@Security		JWT
@@ -49,9 +49,30 @@ func DeleteSkillConversation(ctx *gin.Context) {
 	gin_util.Response(ctx, nil, err)
 }
 
+// ClearSkillConversation
+//
+//	@Tags			resource.skill
+//	@Summary		清除Skill生成会话对话记录
+//	@Description	清除Skill生成会话对话记录（保留会话ID）
+//	@Security		JWT
+//	@Accept			json
+//	@Produce		json
+//	@Param			conversationId	body		request.ClearSkillConversationReq	true	"会话ID"
+//	@Success		200				{object}	response.Response
+//	@Router			/agent/skill/conversation/clear [delete]
+func ClearSkillConversation(ctx *gin.Context) {
+	userId, orgId := getUserID(ctx), getOrgID(ctx)
+	var req request.ClearSkillConversationReq
+	if !gin_util.Bind(ctx, &req) {
+		return
+	}
+	err := service.ClearSkillConversation(ctx, userId, orgId, req.ConversationId)
+	gin_util.Response(ctx, nil, err)
+}
+
 // GetSkillConversationList
 //
-//	@Tags			skill.conversation
+//	@Tags			resource.skill
 //	@Summary		获取Skill生成会话列表
 //	@Description	获取Skill生成会话列表
 //	@Security		JWT
@@ -73,7 +94,7 @@ func GetSkillConversationList(ctx *gin.Context) {
 
 // GetSkillConversationDetail
 //
-//	@Tags			skill.conversation
+//	@Tags			resource.skill
 //	@Summary		获取Skill生成会话详情
 //	@Description	获取Skill生成会话详情
 //	@Security		JWT
@@ -95,7 +116,7 @@ func GetSkillConversationDetail(ctx *gin.Context) {
 
 // SkillConversationChat
 //
-//	@Tags			skill.conversation
+//	@Tags			resource.skill
 //	@Summary		Skill生成流式对话
 //	@Description	Skill生成流式对话
 //	@Security		JWT
@@ -121,7 +142,7 @@ func SkillConversationChat(ctx *gin.Context) {
 
 // SkillConversationSave
 //
-//	@Tags			skill.conversation
+//	@Tags			resource.skill
 //	@Summary		Skill发送到资源库
 //	@Description	Skill发送到资源库
 //	@Security		JWT

@@ -1509,6 +1509,14 @@ definitions:
     required:
     - chunkName
     type: object
+  request.ClearSkillConversationReq:
+    properties:
+      conversationId:
+        description: 会话ID
+        type: string
+    required:
+    - conversationId
+    type: object
   request.ConversationCreateRequest:
     properties:
       assistantId:
@@ -7384,7 +7392,7 @@ paths:
       - JWT: []
       summary: 删除Skill生成会话
       tags:
-      - skill.conversation
+      - resource.skill
     post:
       consumes:
       - application/json
@@ -7412,7 +7420,7 @@ paths:
       - JWT: []
       summary: 创建Skill生成会话
       tags:
-      - skill.conversation
+      - resource.skill
   /agent/skill/conversation/chat:
     post:
       consumes:
@@ -7436,7 +7444,31 @@ paths:
       - JWT: []
       summary: Skill生成流式对话
       tags:
-      - skill.conversation
+      - resource.skill
+  /agent/skill/conversation/clear:
+    delete:
+      consumes:
+      - application/json
+      description: 清除Skill生成会话对话记录（保留会话ID）
+      parameters:
+      - description: 会话ID
+        in: body
+        name: conversationId
+        required: true
+        schema:
+          $ref: '#/definitions/request.ClearSkillConversationReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 清除Skill生成会话对话记录
+      tags:
+      - resource.skill
   /agent/skill/conversation/detail:
     get:
       consumes:
@@ -7471,7 +7503,7 @@ paths:
       - JWT: []
       summary: 获取Skill生成会话详情
       tags:
-      - skill.conversation
+      - resource.skill
   /agent/skill/conversation/list:
     get:
       consumes:
@@ -7509,7 +7541,7 @@ paths:
       - JWT: []
       summary: 获取Skill生成会话列表
       tags:
-      - skill.conversation
+      - resource.skill
   /agent/skill/conversation/save:
     post:
       consumes:
@@ -7533,7 +7565,7 @@ paths:
       - JWT: []
       summary: Skill发送到资源库
       tags:
-      - skill.conversation
+      - resource.skill
   /agent/skill/custom:
     delete:
       consumes:

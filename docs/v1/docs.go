@@ -31,7 +31,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "skill.conversation"
+                    "resource.skill"
                 ],
                 "summary": "创建Skill生成会话",
                 "parameters": [
@@ -80,7 +80,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "skill.conversation"
+                    "resource.skill"
                 ],
                 "summary": "删除Skill生成会话",
                 "parameters": [
@@ -119,7 +119,7 @@ const docTemplate = `{
                     "text/event-stream"
                 ],
                 "tags": [
-                    "skill.conversation"
+                    "resource.skill"
                 ],
                 "summary": "Skill生成流式对话",
                 "parameters": [
@@ -143,6 +143,45 @@ const docTemplate = `{
                 }
             }
         },
+        "/agent/skill/conversation/clear": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "清除Skill生成会话对话记录（保留会话ID）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource.skill"
+                ],
+                "summary": "清除Skill生成会话对话记录",
+                "parameters": [
+                    {
+                        "description": "会话ID",
+                        "name": "conversationId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ClearSkillConversationReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/agent/skill/conversation/detail": {
             "get": {
                 "security": [
@@ -158,7 +197,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "skill.conversation"
+                    "resource.skill"
                 ],
                 "summary": "获取Skill生成会话详情",
                 "parameters": [
@@ -222,7 +261,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "skill.conversation"
+                    "resource.skill"
                 ],
                 "summary": "获取Skill生成会话列表",
                 "parameters": [
@@ -291,7 +330,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "skill.conversation"
+                    "resource.skill"
                 ],
                 "summary": "Skill发送到资源库",
                 "parameters": [
@@ -16886,6 +16925,18 @@ const docTemplate = `{
             "properties": {
                 "chunkName": {
                     "description": "上传批次标识",
+                    "type": "string"
+                }
+            }
+        },
+        "request.ClearSkillConversationReq": {
+            "type": "object",
+            "required": [
+                "conversationId"
+            ],
+            "properties": {
+                "conversationId": {
+                    "description": "会话ID",
                     "type": "string"
                 }
             }

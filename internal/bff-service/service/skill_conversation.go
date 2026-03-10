@@ -77,6 +77,16 @@ func DeleteSkillConversation(ctx *gin.Context, userId, orgId, conversationId str
 	return err
 }
 
+func ClearSkillConversation(ctx *gin.Context, userId, orgId, conversationId string) error {
+	_, err := assistant.DeleteFromES(ctx.Request.Context(), &assistant_service.DeleteFromESReq{
+		IndexName: skillConversationESIndexName,
+		Conditions: map[string]string{
+			"conversationId": conversationId,
+		},
+	})
+	return err
+}
+
 func GetSkillConversationList(ctx *gin.Context, userId, orgId string, req request.GetSkillConversationListReq) (*response.PageResult, error) {
 	rpcResp, err := assistant.GetSkillConversationList(ctx.Request.Context(), &assistant_service.GetSkillConversationListReq{
 		PageNo:   int32(req.PageNo),

@@ -8,6 +8,10 @@ type DeleteSkillConversationReq struct {
 	ConversationId string `json:"conversationId" validate:"required"` // 会话ID
 }
 
+type ClearSkillConversationReq struct {
+	ConversationId string `json:"conversationId" validate:"required"` // 会话ID
+}
+
 type GetSkillConversationListReq struct {
 	PageNo   int `json:"pageNo" form:"pageNo" validate:"required"`     // 页码
 	PageSize int `json:"pageSize" form:"pageSize" validate:"required"` // 每页数量
@@ -34,6 +38,10 @@ func (c *CreateSkillConversationReq) Check() error {
 }
 
 func (c *DeleteSkillConversationReq) Check() error {
+	return nil
+}
+
+func (c *ClearSkillConversationReq) Check() error {
 	return nil
 }
 
