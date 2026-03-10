@@ -3417,6 +3417,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "importSource": {
+                    "description": "模型导入来源(builtin=平台内置,external=外部URL)",
+                    "type": "string"
+                },
                 "isActive": {
                     "description": "启用状态（true: 启用，false: 禁用）",
                     "type": "boolean"
