@@ -3868,14 +3868,10 @@ const docTemplate = `{
         "request.WgaSandboxRunReq": {
             "type": "object",
             "required": [
-                "currentTask",
                 "model"
             ],
             "properties": {
                 "agentName": {
-                    "type": "string"
-                },
-                "currentTask": {
                     "type": "string"
                 },
                 "enableThinking": {

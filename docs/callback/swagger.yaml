@@ -1843,8 +1843,6 @@ definitions:
     properties:
       agentName:
         type: string
-      currentTask:
-        type: string
       enableThinking:
         type: boolean
       inputDir:
@@ -1876,7 +1874,6 @@ definitions:
           $ref: '#/definitions/request.WgaSandboxTool'
         type: array
     required:
-    - currentTask
     - model
     type: object
   request.WgaSandboxSkill:
