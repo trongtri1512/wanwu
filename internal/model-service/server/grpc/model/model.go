@@ -27,8 +27,9 @@ func (s *Service) ImportModel(ctx context.Context, req *model_service.ModelInfo)
 			OrgID:  req.OrgId,
 			UserID: req.UserId,
 		},
-		ModelDesc: req.ModelDesc,
-		ScopeType: util.MustU32(req.ScopeType),
+		ModelDesc:    req.ModelDesc,
+		ScopeType:    util.MustU32(req.ScopeType),
+		ImportSource: req.ImportSource,
 	}); err != nil {
 		return nil, errStatus(errs.Code_ModelImportedModel, err)
 	}
@@ -192,6 +193,7 @@ func toModelInfo(modelInfo *model.ModelImported) *model_service.ModelInfo {
 		UpdatedAt:      modelInfo.UpdatedAt,
 		ModelDesc:      modelInfo.ModelDesc,
 		ScopeType:      util.Int2Str(modelInfo.ScopeType),
+		ImportSource:   modelInfo.ImportSource,
 	}
 }
 

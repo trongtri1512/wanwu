@@ -63,6 +63,7 @@ message ModelInfo {
     string modelDesc = 14;
     string uuid = 15;
     string scopeType = 16;
+    string importSource = 17;  // 模型导入来源(builtin=平台内置,external=外部URL)
 }
 
 message ModelInfos {

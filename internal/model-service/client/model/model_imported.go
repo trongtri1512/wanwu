@@ -13,5 +13,6 @@ type ModelImported struct {
 	ModelDesc      string `gorm:"column:model_desc;type:longtext;comment:模型描述"`
 	PublishDate    string `gorm:"column:publish_date;type:varchar(100);comment:模型发布时间"`
 	ScopeType      uint32 `gorm:"column:scope_type;type:int(10) unsigned;default:1;comment:模型公开范围 1-私有 2-公开 3-当前组织可见"`
+	ImportSource   string `gorm:"column:import_source;type:varchar(50);default:external;comment:模型导入来源(builtin=平台内置,external=外部URL)"`
 	PublicModel
 }

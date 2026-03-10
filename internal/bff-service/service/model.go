@@ -204,6 +204,10 @@ func parseImportAndUpdateClientReq(userId, orgId string, req *request.ImportOrUp
 			return nil, grpc_util.ErrorStatus(err_code.Code_BFFInvalidArg, "Only system administrators can make the model public")
 		}
 	}
+	importSource := req.ImportSource
+	if importSource == "" {
+		importSource = "external"
+	}
 	clientReq := &model_service.ModelInfo{
 		Provider:      req.Provider,
 		ModelId:       req.ModelId,
@@ -217,6 +221,7 @@ func parseImportAndUpdateClientReq(userId, orgId string, req *request.ImportOrUp
 		IsActive:      true,
 		ModelDesc:     req.ModelDesc,
 		ScopeType:     req.ScopeType,
+		ImportSource:  importSource,
 	}
 	configStr, err := req.ConfigString()
 	if err != nil {
@@ -243,16 +248,12 @@ func toModelInfo(ctx *gin.Context, modelInfo *model_service.ModelInfo, opts ...*
 	if err != nil {
 		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v get model config err: %v", modelInfo.ModelId, err))
 	}
-	// 先获取模型公开范围标签
-	scopeTags := mp_common.GetTagsByScopeType(modelInfo.ScopeType)
 
-	// 获取模型基础标签
-	baseTags, err := mp.ToModelTags(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	// 获取模型全量标签（独立函数）
+	allModelTags, err := getModelAllTags(modelInfo)
 	if err != nil {
-		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v get model tags err: %v", modelInfo.ModelId, err))
+		return nil, err
 	}
-
-	tags := append(scopeTags, baseTags...)
 
 	// 判断模型是否支持 编辑
 	option := DefaultModelInfoOptions()
@@ -264,27 +265,51 @@ func toModelInfo(ctx *gin.Context, modelInfo *model_service.ModelInfo, opts ...*
 	allowEdit := modelInfo.UserId == option.UserId
 
 	res := &response.ModelInfo{
-		ModelId:     modelInfo.ModelId,
-		Uuid:        modelInfo.Uuid,
-		Provider:    modelInfo.Provider,
-		Model:       modelInfo.Model,
-		ModelType:   modelInfo.ModelType,
-		DisplayName: modelInfo.DisplayName,
-		Avatar:      CacheAvatar(ctx, modelInfo.ModelIconPath, true),
-		PublishDate: modelInfo.PublishDate,
-		IsActive:    modelInfo.IsActive,
-		UserId:      modelInfo.UserId,
-		OrgId:       modelInfo.OrgId,
-		CreatedAt:   util.Time2Str(modelInfo.CreatedAt),
-		UpdatedAt:   util.Time2Str(modelInfo.UpdatedAt),
-		ModelDesc:   modelInfo.ModelDesc,
-		Config:      modelConfig,
-		Tags:        tags,
-		ScopeType:   modelInfo.ScopeType,
-		AllowEdit:   allowEdit,
+		ModelId:      modelInfo.ModelId,
+		Uuid:         modelInfo.Uuid,
+		Provider:     modelInfo.Provider,
+		Model:        modelInfo.Model,
+		ModelType:    modelInfo.ModelType,
+		DisplayName:  modelInfo.DisplayName,
+		Avatar:       CacheAvatar(ctx, modelInfo.ModelIconPath, true),
+		PublishDate:  modelInfo.PublishDate,
+		IsActive:     modelInfo.IsActive,
+		UserId:       modelInfo.UserId,
+		OrgId:        modelInfo.OrgId,
+		CreatedAt:    util.Time2Str(modelInfo.CreatedAt),
+		UpdatedAt:    util.Time2Str(modelInfo.UpdatedAt),
+		ModelDesc:    modelInfo.ModelDesc,
+		Config:       modelConfig,
+		Tags:         allModelTags,
+		ScopeType:    modelInfo.ScopeType,
+		AllowEdit:    allowEdit,
+		ImportSource: modelInfo.ImportSource,
 	}
 	if res.DisplayName == "" {
 		res.DisplayName = res.Model
 	}
 	return res, nil
+}
+
+// getModelAllTags 获取模型所有标签
+func getModelAllTags(modelInfo *model_service.ModelInfo) ([]mp_common.Tag, error) {
+	var allModelTags []mp_common.Tag
+
+	// - 公开范围标签：如私有/公开/内部测试等
+	scopeTags := mp_common.GetTagsByScopeType(modelInfo.ScopeType)
+	allModelTags = append(allModelTags, scopeTags...)
+
+	// - 导入来源标签：如外部URL/内置模型等
+	sourceTags := mp_common.GetTagsByImportSource(modelInfo.ImportSource)
+	allModelTags = append(allModelTags, sourceTags...)
+
+	// - 基础属性标签：如模型类型(LLM/rerank)、最大token数、推理能力等
+	baseTags, err := mp.ToModelTags(modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig)
+	if err != nil {
+		errMsg := fmt.Sprintf("failed to get model base tags, modelId: %v, err: %v", modelInfo.ModelId, err)
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, errMsg)
+	}
+	allModelTags = append(allModelTags, baseTags...)
+
+	return allModelTags, nil
 }

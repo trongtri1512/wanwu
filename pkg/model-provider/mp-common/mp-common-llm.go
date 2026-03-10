@@ -40,7 +40,7 @@ const (
 	TagScopeTypePrivate    string = "个人"
 	TagScopeTypePublic     string = "全局公开"
 	TagScopeTypeOrg        string = "组织公开"
-	TagScopeTypeLocal      string = "本地"
+	TagSourceTypeLocal     string = "本地"
 )
 
 type Tag struct {
@@ -61,6 +61,17 @@ func GetTagsByScopeType(scopeType string) []Tag {
 	case config.ModelScopeTypeOrg:
 		tags = append(tags, Tag{
 			Text: TagScopeTypeOrg,
+		})
+	}
+	return tags
+}
+
+func GetTagsByImportSource(importSource string) []Tag {
+	var tags []Tag
+	switch importSource {
+	case config.ModelSourceBuiltin:
+		tags = append(tags, Tag{
+			Text: TagSourceTypeLocal,
 		})
 	}
 	return tags
@@ -137,16 +148,17 @@ type LLMReq struct {
 	Tools          []OpenAITool          `json:"tools,omitempty"`
 
 	// custom
-	Thinking            *Thinking      `json:"thinking,omitempty"` // 控制模型是否开启深度思考模式。
-	EnableThinking      *bool          `json:"enable_thinking,omitempty"`
-	MaxCompletionTokens *int           `json:"max_completion_tokens,omitempty"` // 控制模型输出的最大长度[0,64k]
-	LogitBias           map[string]int `json:"logit_bias,omitempty"`            // 调整指定 token 在模型输出内容中出现的概率
-	ToolChoice          interface{}    `json:"tool_choice,omitempty"`           // 强制指定工具调用的策略
-	TopP                *float64       `json:"top_p,omitempty"`
-	TopK                *int           `json:"top_k,omitempty"`
-	MinP                *float64       `json:"min_p,omitempty"`
-	ParallelToolCalls   *bool          `json:"parallel_tool_calls,omitempty"` // 是否开启并行工具调用
-	StreamOptions       *StreamOptions `json:"stream_options,omitempty"`      //当启用流式输出时，可通过将本参数设置为{"include_usage": true}，在输出的最后一行显示所使用的Token数。
+	Thinking            *Thinking              `json:"thinking,omitempty"` // 控制模型是否开启深度思考模式。
+	EnableThinking      *bool                  `json:"enable_thinking,omitempty"`
+	ChatTemplateKwargs  map[string]interface{} `json:"chat_template_kwargs,omitempty"`
+	MaxCompletionTokens *int                   `json:"max_completion_tokens,omitempty"` // 控制模型输出的最大长度[0,64k]
+	LogitBias           map[string]int         `json:"logit_bias,omitempty"`            // 调整指定 token 在模型输出内容中出现的概率
+	ToolChoice          interface{}            `json:"tool_choice,omitempty"`           // 强制指定工具调用的策略
+	TopP                *float64               `json:"top_p,omitempty"`
+	TopK                *int                   `json:"top_k,omitempty"`
+	MinP                *float64               `json:"min_p,omitempty"`
+	ParallelToolCalls   *bool                  `json:"parallel_tool_calls,omitempty"` // 是否开启并行工具调用
+	StreamOptions       *StreamOptions         `json:"stream_options,omitempty"`      //当启用流式输出时，可通过将本参数设置为{"include_usage": true}，在输出的最后一行显示所使用的Token数。
 
 	PresencePenalty   *float64 `json:"presence_penalty,omitempty"`   // 控制模型生成文本时的内容重复度
 	FrequencyPenalty  *float64 `json:"frequency_penalty,omitempty"`  // 频率惩罚系数
