@@ -5,11 +5,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
-
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 	openapi3_util "github.com/UnicomAI/wanwu/pkg/openapi3-util"
+	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/schema"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/google/uuid"
 )
 
 // ============================================================================
@@ -43,12 +44,6 @@ type ModelConfig struct {
 	Model        string               // 模型标识
 	ModelName    string               // 模型显示名称
 	Params       *mp_common.LLMParams // 模型参数
-}
-
-// Message 消息结构。
-type Message struct {
-	Role    string // 角色：user, assistant, system
-	Content string // 消息内容
 }
 
 // Tool 工具配置。
@@ -131,12 +126,11 @@ type RunOption struct {
 	RunnerType     RunnerType
 	Instruction    string
 	OverallTask    string
-	CurrentTask    string
 	InputDir       string
 	OutputDir      string
-	Messages       []Message
 	Skills         []Skill
 	Tools          []Tool
+	Messages       []adk.Message // 历史消息 + 当前问题（最后一条 User 消息）
 	EnableThinking bool
 	SkipCleanup    bool
 	AgentName      string
@@ -162,6 +156,13 @@ func (o *RunOption) Apply(opts ...Option) error {
 	}
 	if o.Sandbox.Type() == SandboxTypeOneshot && o.Sandbox.ImageName() == "" {
 		return fmt.Errorf("oneshot sandbox requires image name")
+	}
+	if len(o.Messages) == 0 {
+		return fmt.Errorf("messages is empty")
+	}
+	lastMsg := o.Messages[len(o.Messages)-1]
+	if lastMsg.Role != schema.User {
+		return fmt.Errorf("last message must be user message, got %s", lastMsg.Role)
 	}
 	return nil
 }
@@ -232,13 +233,6 @@ func WithOverallTask(overallTask string) Option {
 	})
 }
 
-func WithCurrentTask(currentTask string) Option {
-	return OptionFunc(func(opts *RunOption) error {
-		opts.CurrentTask = currentTask
-		return nil
-	})
-}
-
 func WithInputDir(inputDir string) Option {
 	return OptionFunc(func(opts *RunOption) error {
 		opts.InputDir = inputDir
@@ -253,9 +247,10 @@ func WithOutputDir(outputDir string) Option {
 	})
 }
 
-func WithMessages(messages []Message) Option {
+// WithMessages 设置消息列表，最后一条消息必须是 User 消息。
+func WithMessages(messages []adk.Message) Option {
 	return OptionFunc(func(opts *RunOption) error {
-		opts.Messages = messages
+		opts.Messages = append(opts.Messages, messages...)
 		return nil
 	})
 }

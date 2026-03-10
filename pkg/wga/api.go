@@ -14,7 +14,6 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/wga/internal/option"
 	wga_option "github.com/UnicomAI/wanwu/pkg/wga/wga-option"
 	"github.com/cloudwego/eino/adk"
-	"github.com/cloudwego/eino/schema"
 )
 
 var (
@@ -51,7 +50,7 @@ func CheckOptions(_ context.Context, id string, opts ...option.Option) (*wga_opt
 }
 
 // Run 执行智能体任务，返回会话标识和事件迭代器。
-func Run(ctx context.Context, id, query string, opts ...option.Option) (wga_option.RunSession, *adk.AsyncIterator[*adk.AgentEvent], error) {
+func Run(ctx context.Context, id string, opts ...option.Option) (wga_option.RunSession, *adk.AsyncIterator[*adk.AgentEvent], error) {
 	agentCfg, err := getAgent(id)
 	if err != nil {
 		return wga_option.RunSession{}, nil, err
@@ -60,14 +59,11 @@ func Run(ctx context.Context, id, query string, opts ...option.Option) (wga_opti
 	if err := options.Apply(opts...); err != nil {
 		return wga_option.RunSession{}, nil, err
 	}
-	agent, err := factory.NewAgent(ctx, agentCfg, query, options)
+	agent, err := factory.NewAgent(ctx, agentCfg, options)
 	if err != nil {
 		return wga_option.RunSession{}, nil, err
 	}
-	input := &adk.AgentInput{
-		Messages: []adk.Message{schema.UserMessage(query)},
-	}
-	return options.RunSession, agent.Run(ctx, input), nil
+	return options.RunSession, agent.Run(ctx, &adk.AgentInput{Messages: options.Messages, EnableStreaming: true}), nil
 }
 
 func getAgent(id string) (*config.Agent, error) {

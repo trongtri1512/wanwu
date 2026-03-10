@@ -10,13 +10,6 @@ import (
 	aguievents "github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/events"
 )
 
-// Translator 事件转换器接口。
-type Translator interface {
-	Translate(ctx context.Context, line string) []aguievents.Event
-	Finish() []aguievents.Event
-	TranslateStream(ctx context.Context, in <-chan string) <-chan aguievents.Event
-}
-
 // BaseState 转换器基础状态。
 type BaseState struct {
 	runID       string
@@ -97,32 +90,6 @@ func (s *BaseState) FinishBase() []aguievents.Event {
 	events = append(events, s.EndTextMessage()...)
 	events = append(events, aguievents.NewRunFinishedEvent(s.threadID, s.runID))
 	return events
-}
-
-// TranslateStream 转换事件流。
-func TranslateStream(ctx context.Context, t Translator, in <-chan string) <-chan aguievents.Event {
-	out := make(chan aguievents.Event, 1024)
-	go func() {
-		defer util.PrintPanicStack()
-		defer close(out)
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case line, ok := <-in:
-				if !ok {
-					for _, evt := range t.Finish() {
-						out <- evt
-					}
-					return
-				}
-				for _, evt := range t.Translate(ctx, line) {
-					out <- evt
-				}
-			}
-		}
-	}()
-	return out
 }
 
 // EventsToJSONChannel 将事件流转换为 JSON 字符串流。

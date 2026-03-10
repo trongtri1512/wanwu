@@ -21,7 +21,7 @@ eventCh := tr.TranslateStream(ctx, outputCh)
 jsonCh := ag_ui_util.EventsToJSONChannel(ctx, eventCh)
 
 // EinoTranslator - wga 输出转换
-runSession, iter, _ := wga.Run(ctx, agentID, query, opts...)
+runSession, iter, _ := wga.Run(ctx, agentID, opts...)
 tr := ag_ui_util.NewEinoTranslator(runSession.RunID, runSession.ThreadID)
 eventCh := tr.TranslateStream(ctx, iter)
 jsonCh := ag_ui_util.EventsToJSONChannel(ctx, eventCh)
@@ -48,13 +48,17 @@ jsonCh := ag_ui_util.EventsToJSONChannel(ctx, eventCh)
 | `NewOpencodeTranslator(runID, threadID)` | 创建 opencode 转换器 |
 | `NewEinoTranslator(runID, threadID)` | 创建 eino 转换器 |
 
-### Translator 接口
+### OpencodeTranslator
 
 | 方法 | 说明 |
 |------|------|
-| `Translate(ctx, input)` | 转换单个事件 |
-| `Finish()` | 生成结束事件 |
-| `TranslateStream(ctx, in)` | 转换事件流 |
+| `TranslateStream(ctx, <-chan string)` | 转换 opencode JSON 字符串流 |
+
+### EinoTranslator
+
+| 方法 | 说明 |
+|------|------|
+| `TranslateStream(ctx, *adk.AsyncIterator[*adk.AgentEvent])` | 转换 eino AgentEvent 迭代器 |
 
 ### 辅助函数
 

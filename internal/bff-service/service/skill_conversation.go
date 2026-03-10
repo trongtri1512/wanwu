@@ -23,6 +23,8 @@ import (
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
+	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/schema"
 	"github.com/gin-gonic/gin"
 )
 
@@ -186,17 +188,21 @@ func SkillConversationChat(ctx *gin.Context, userId, orgId string, req request.S
 	if err != nil {
 		return err
 	}
-	messages := make([]wga_sandbox_option.Message, 0, len(detailList)*2)
+	messages := make([]adk.Message, 0, len(detailList)*2+1)
 	for _, detail := range detailList {
-		messages = append(messages, wga_sandbox_option.Message{
-			Role:    "user",
+		messages = append(messages, &schema.Message{
+			Role:    schema.User,
 			Content: detail.Prompt,
-		}, wga_sandbox_option.Message{
-			Role:    "assistant",
+		}, &schema.Message{
+			Role:    schema.Assistant,
 			Content: detail.Response,
 		})
-
 	}
+	// 当前任务
+	messages = append(messages, &schema.Message{
+		Role:    schema.User,
+		Content: req.Query,
+	})
 
 	// 存储路径 /tmp/skills/<uuid>
 	messageId := util.GenUUID()
@@ -219,7 +225,7 @@ func SkillConversationChat(ctx *gin.Context, userId, orgId string, req request.S
 	}
 
 	// 流式问答
-	streamCh, err := RunSkillCreator(ctx, modelConfig, messageId, workspaceDir, workspaceDir, req.Query, messages)
+	streamCh, err := RunSkillCreator(ctx, modelConfig, messageId, workspaceDir, workspaceDir, messages)
 	if err != nil {
 		return grpc_util.ErrorStatus(errs.Code_BFFGeneral, err.Error())
 	}

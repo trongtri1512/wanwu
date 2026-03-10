@@ -21,6 +21,7 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/wga-sandbox/internal/runner"
 	"github.com/UnicomAI/wanwu/pkg/wga-sandbox/internal/sandbox"
 	wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
+	"github.com/cloudwego/eino/adk"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 )
@@ -78,12 +79,6 @@ const (
 {{.Content}}
 
 {{end}}{{end}}`
-
-	defaultPrompt = `请根据系统提示词中的要求完成任务。
-要求：
-1. 充分利用工作目录中的现有内容
-2. 充分利用已配置的工具和技能
-3. 自行决定最终结果是直接输出还是保存到工作目录；如果保存到工作目录，也输出一段总结性描述`
 )
 
 // ============================================================================
@@ -97,7 +92,7 @@ var _ runner.Runner = (*Runner)(nil)
 // 通过 SSE 连接接收事件流，转换为 JSON 格式输出。
 type Runner struct {
 	sb         sandbox.Sandbox
-	req        runner.RunRequest
+	opt        wga_sandbox_option.RunOption
 	sessionID  string
 	userMsgIDs map[string]bool // 用户消息 ID 集合，用于过滤
 	logPrefix  string
@@ -108,11 +103,11 @@ type Runner struct {
 // ============================================================================
 
 // NewRunner 创建 opencode 运行器实例。
-func NewRunner(sb sandbox.Sandbox, req runner.RunRequest) runner.Runner {
-	logPrefix := fmt.Sprintf("[wga-sandbox][%s]", req.RunSession.RunID)
+func NewRunner(sb sandbox.Sandbox, opt wga_sandbox_option.RunOption) runner.Runner {
+	logPrefix := fmt.Sprintf("[wga-sandbox][%s]", opt.RunSession.RunID)
 	return &Runner{
 		sb:         sb,
-		req:        req,
+		opt:        opt,
 		userMsgIDs: make(map[string]bool),
 		logPrefix:  logPrefix,
 	}
@@ -137,8 +132,8 @@ func (r *Runner) BeforeRun(ctx context.Context) error {
 		return err
 	}
 
-	if r.req.InputDir != "" {
-		if err := r.sb.CopyToSandbox(ctx, r.req.InputDir); err != nil {
+	if r.opt.InputDir != "" {
+		if err := r.sb.CopyToSandbox(ctx, r.opt.InputDir); err != nil {
 			return fmt.Errorf("failed to copy input to workspace: %w", err)
 		}
 	}
@@ -180,7 +175,7 @@ func (r *Runner) Run(ctx context.Context) (<-chan string, error) {
 func (r *Runner) AfterRun(ctx context.Context) error {
 	r.deleteSession(ctx)
 
-	if r.req.OutputDir != "" {
+	if r.opt.OutputDir != "" {
 		return r.copyOutput(ctx)
 	}
 	return nil
@@ -196,7 +191,7 @@ func (r *Runner) setupConfig(ctx context.Context) error {
 		return fmt.Errorf("failed to create .opencode directory: %w", err)
 	}
 
-	content, err := renderConfig(r.req.ModelConfig)
+	content, err := renderConfig(r.opt.ModelConfig)
 	if err != nil {
 		return fmt.Errorf("failed to render config: %w", err)
 	}
@@ -209,7 +204,7 @@ func (r *Runner) setupConfig(ctx context.Context) error {
 
 // setupSkills 复制 skills 到工作目录。
 func (r *Runner) setupSkills(ctx context.Context) error {
-	if len(r.req.Skills) == 0 {
+	if len(r.opt.Skills) == 0 {
 		return nil
 	}
 
@@ -217,7 +212,7 @@ func (r *Runner) setupSkills(ctx context.Context) error {
 		return fmt.Errorf("failed to create skills directory: %w", err)
 	}
 
-	for _, skill := range r.req.Skills {
+	for _, skill := range r.opt.Skills {
 		dirName := path.Base(skill.Dir)
 		if err := r.sb.CopyToSandbox(ctx, skill.Dir, ".opencode/skills"); err != nil {
 			return fmt.Errorf("failed to copy skill %s to workspace: %w", dirName, err)
@@ -229,7 +224,7 @@ func (r *Runner) setupSkills(ctx context.Context) error {
 
 // setupTools 转换 tools 为 skills 并复制到工作目录。
 func (r *Runner) setupTools(ctx context.Context) error {
-	if len(r.req.Tools) == 0 {
+	if len(r.opt.Tools) == 0 {
 		return nil
 	}
 
@@ -241,7 +236,7 @@ func (r *Runner) setupTools(ctx context.Context) error {
 		return fmt.Errorf("failed to create skills directory: %w", err)
 	}
 
-	for _, tool := range r.req.Tools {
+	for _, tool := range r.opt.Tools {
 		if err := r.setupTool(ctx, tool); err != nil {
 			return err
 		}
@@ -287,18 +282,18 @@ func (r *Runner) setupTool(ctx context.Context, tool wga_sandbox_option.Tool) er
 
 // copyOutput 复制输出文件到本地，并移除隐藏文件。
 func (r *Runner) copyOutput(ctx context.Context) error {
-	if err := r.sb.CopyFromSandbox(ctx, r.req.OutputDir); err != nil {
+	if err := r.sb.CopyFromSandbox(ctx, r.opt.OutputDir); err != nil {
 		return fmt.Errorf("failed to copy output from workspace: %w", err)
 	}
 
-	entries, err := os.ReadDir(r.req.OutputDir)
+	entries, err := os.ReadDir(r.opt.OutputDir)
 	if err != nil {
 		return fmt.Errorf("failed to read output directory: %w", err)
 	}
 
 	for _, entry := range entries {
 		if strings.HasPrefix(entry.Name(), ".") {
-			removePath := r.req.OutputDir + "/" + entry.Name()
+			removePath := r.opt.OutputDir + "/" + entry.Name()
 			if err := os.RemoveAll(removePath); err != nil {
 				return fmt.Errorf("failed to remove hidden file %s: %w", entry.Name(), err)
 			}
@@ -322,7 +317,7 @@ func (r *Runner) createSession(ctx context.Context) error {
 		SetQueryParam("directory", r.sb.WorkDir()).
 		SetBody(map[string]any{}).
 		SetResult(&result).
-		Post(r.req.Sandbox.OpencodeEndpoint() + "/session")
+		Post(r.opt.Sandbox.OpencodeEndpoint() + "/session")
 	if err != nil {
 		return fmt.Errorf("failed to create session: %w", err)
 	}
@@ -341,7 +336,7 @@ func (r *Runner) deleteSession(ctx context.Context) {
 	resp, err := resty.New().R().
 		SetContext(ctx).
 		SetQueryParam("directory", r.sb.WorkDir()).
-		Delete(fmt.Sprintf("%s/session/%s", r.req.Sandbox.OpencodeEndpoint(), r.sessionID))
+		Delete(fmt.Sprintf("%s/session/%s", r.opt.Sandbox.OpencodeEndpoint(), r.sessionID))
 	if err != nil {
 		log.Warnf("%s failed to delete session %s: %v", r.logPrefix, r.sessionID, err)
 		return
@@ -373,7 +368,7 @@ func (r *Runner) connectSSE(ctx context.Context) (<-chan string, error) {
 			SetContext(ctx).
 			SetHeader("Accept", "text/event-stream").
 			SetDoNotParseResponse(true).
-			Get(r.req.Sandbox.OpencodeEndpoint() + "/global/event")
+			Get(r.opt.Sandbox.OpencodeEndpoint() + "/global/event")
 		if err != nil {
 			errCh <- fmt.Errorf("SSE connect failed: %w", err)
 			return
@@ -481,7 +476,7 @@ func (r *Runner) sendPromptAsync(ctx context.Context) error {
 		SetContext(ctx).
 		SetQueryParam("directory", r.sb.WorkDir()).
 		SetBody(reqBody).
-		Post(fmt.Sprintf("%s/session/%s/prompt_async", r.req.Sandbox.OpencodeEndpoint(), r.sessionID))
+		Post(fmt.Sprintf("%s/session/%s/prompt_async", r.opt.Sandbox.OpencodeEndpoint(), r.sessionID))
 	if err != nil {
 		return fmt.Errorf("failed to send prompt: %w", err)
 	}
@@ -493,13 +488,16 @@ func (r *Runner) sendPromptAsync(ctx context.Context) error {
 
 // buildSystemAndPrompt 构建系统提示词和用户提示词。
 func (r *Runner) buildSystemAndPrompt() (system string, prompt string, err error) {
-	system, err = renderSystem(r.req.Instruction, r.req.OverallTask, r.req.Messages)
+	var historyMessages []adk.Message
+	if len(r.opt.Messages) > 1 {
+		historyMessages = r.opt.Messages[:len(r.opt.Messages)-1]
+	}
+	system, err = renderSystem(r.opt.Instruction, r.opt.OverallTask, historyMessages)
 	if err != nil {
 		return "", "", err
 	}
-	prompt = r.req.CurrentTask
-	if prompt == "" {
-		prompt = defaultPrompt
+	if len(r.opt.Messages) > 0 {
+		prompt = r.opt.Messages[len(r.opt.Messages)-1].Content
 	}
 	return system, prompt, nil
 }
@@ -600,7 +598,7 @@ func (r *Runner) convertTextEvent(part *sseEventPart, delta string) string {
 // delta 非空时输出增量文本（流式），delta 为空时跳过（最终事件，已通过增量输出）。
 // 未开启 EnableThinking 时不输出 reasoning。
 func (r *Runner) convertReasoningEvent(part *sseEventPart, delta string) string {
-	if !r.req.EnableThinking {
+	if !r.opt.EnableThinking {
 		return ""
 	}
 	if delta == "" {
@@ -689,15 +687,16 @@ func renderConfig(config wga_sandbox_option.ModelConfig) (string, error) {
 }
 
 // renderSystem 渲染系统提示词模板。
-func renderSystem(instruction, overallTask string, messages []wga_sandbox_option.Message) (string, error) {
+func renderSystem(instruction, overallTask string, messages []adk.Message) (string, error) {
 	tmpl, err := template.New("system").Parse(systemTemplate)
 	if err != nil {
 		return "", fmt.Errorf("parse system template failed: %w", err)
 	}
+
 	data := struct {
 		Instruction string
 		OverallTask string
-		Messages    []wga_sandbox_option.Message
+		Messages    []adk.Message
 	}{
 		Instruction: instruction,
 		OverallTask: overallTask,

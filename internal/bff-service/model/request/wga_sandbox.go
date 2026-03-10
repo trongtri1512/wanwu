@@ -4,7 +4,6 @@ type WgaSandboxRunReq struct {
 	ThreadID       string              `json:"threadId"`
 	RunID          string              `json:"runId"`
 	Model          AppModelConfig      `json:"model" validate:"required"`
-	CurrentTask    string              `json:"currentTask" validate:"required"`
 	Instruction    string              `json:"instruction"`
 	OverallTask    string              `json:"overallTask"`
 	Messages       []WgaSandboxMessage `json:"messages"`

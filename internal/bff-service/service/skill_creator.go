@@ -10,17 +10,18 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/util"
 	wga_sandbox "github.com/UnicomAI/wanwu/pkg/wga-sandbox"
 	wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
+	"github.com/cloudwego/eino/adk"
 	"github.com/gin-gonic/gin"
 )
 
-func RunSkillCreator(ctx *gin.Context, modelConfig wga_sandbox_option.ModelConfig, runId, inputDir, outputDir, currentTask string, messages []wga_sandbox_option.Message) (<-chan string, error) {
+func RunSkillCreator(ctx *gin.Context, modelConfig wga_sandbox_option.ModelConfig, runId, inputDir, outputDir string, messages []adk.Message) (<-chan string, error) {
 	skillCreatorCfg := config.Cfg().SkillCreator
 
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return nil, fmt.Errorf("create output directory failed: %w", err)
 	}
 
-	opts := buildSkillCreatorOptions(modelConfig, runId, inputDir, outputDir, currentTask, messages, skillCreatorCfg)
+	opts := buildSkillCreatorOptions(modelConfig, runId, inputDir, outputDir, messages, skillCreatorCfg)
 
 	_, jsonCh, err := wga_sandbox.Run(ctx, opts...)
 	if err != nil {
@@ -31,13 +32,13 @@ func RunSkillCreator(ctx *gin.Context, modelConfig wga_sandbox_option.ModelConfi
 	return filteredCh, nil
 }
 
-func buildSkillCreatorOptions(modelConfig wga_sandbox_option.ModelConfig, runId, inputDir, outputDir, currentTask string, messages []wga_sandbox_option.Message, skillCreatorCfg config.SkillCreatorConfig) []wga_sandbox_option.Option {
+func buildSkillCreatorOptions(modelConfig wga_sandbox_option.ModelConfig, runId, inputDir, outputDir string, messages []adk.Message, skillCreatorCfg config.SkillCreatorConfig) []wga_sandbox_option.Option {
 
 	opts := []wga_sandbox_option.Option{
 		wga_sandbox_option.WithRunSession(wga_sandbox_option.RunSession{RunID: runId}),
 		wga_sandbox_option.WithModelConfig(modelConfig),
 		wga_sandbox_option.WithOutputDir(outputDir),
-		wga_sandbox_option.WithCurrentTask(currentTask),
+		wga_sandbox_option.WithMessages(messages),
 		wga_sandbox_option.WithEnableThinking(skillCreatorCfg.EnableThinking),
 	}
 
@@ -55,17 +56,6 @@ func buildSkillCreatorOptions(modelConfig wga_sandbox_option.ModelConfig, runId,
 		opts = append(opts, wga_sandbox_option.WithSandbox(wga_sandbox_option.SandboxOneshot(sandboxCfg.ImageName)))
 	default:
 		opts = append(opts, wga_sandbox_option.WithSandbox(wga_sandbox_option.SandboxReuse(sandboxCfg.Host)))
-	}
-
-	if len(messages) > 0 {
-		optsMessages := make([]wga_sandbox_option.Message, len(messages))
-		for i, msg := range messages {
-			optsMessages[i] = wga_sandbox_option.Message{
-				Role:    msg.Role,
-				Content: msg.Content,
-			}
-		}
-		opts = append(opts, wga_sandbox_option.WithMessages(optsMessages))
 	}
 
 	if len(skillCreatorCfg.Skills) > 0 {

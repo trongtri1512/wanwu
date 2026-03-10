@@ -70,8 +70,10 @@ runSession, outputCh, _ := wga_sandbox.Run(ctx,
         wga_sandbox_option.SandboxReuse("localhost"),  // 复用模式
         // 或 wga_sandbox_option.SandboxOneshot("image:tag"),  // 一次性模式
     ),
-    // 任务（必须）
-    wga_sandbox_option.WithCurrentTask("生成一个 HTTP 服务器"),
+    // 消息列表（必须，最后一条必须是 User 消息）
+    wga_sandbox_option.WithMessages([]adk.Message{
+        &schema.Message{Role: schema.User, Content: "生成一个 HTTP 服务器"},
+    }),
     // 会话标识
     wga_sandbox_option.WithRunSession(wga_sandbox_option.RunSession{
         ThreadID: "thread-123",
@@ -99,12 +101,16 @@ import (
     wga_sandbox "github.com/UnicomAI/wanwu/pkg/wga-sandbox"
     "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-converter"
     wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
+    "github.com/cloudwego/eino/adk"
+    "github.com/cloudwego/eino/schema"
 )
 
 runSession, outputCh, _ := wga_sandbox.Run(ctx,
     wga_sandbox_option.WithModelConfig(modelConfig),
     wga_sandbox_option.WithSandbox(wga_sandbox_option.SandboxReuse("localhost")),
-    wga_sandbox_option.WithCurrentTask("任务描述"),
+    wga_sandbox_option.WithMessages([]adk.Message{
+        &schema.Message{Role: schema.User, Content: "任务描述"},
+    }),
 )
 
 // 转换为 eino AgentEvent 迭代器
@@ -131,7 +137,9 @@ import ag_ui_util "github.com/UnicomAI/wanwu/pkg/ag-ui-util"
 runSession, outputCh, _ := wga_sandbox.Run(ctx,
     wga_sandbox_option.WithModelConfig(modelConfig),
     wga_sandbox_option.WithSandbox(wga_sandbox_option.SandboxReuse("localhost")),
-    wga_sandbox_option.WithCurrentTask("任务描述"),
+    wga_sandbox_option.WithMessages([]adk.Message{
+        &schema.Message{Role: schema.User, Content: "任务描述"},
+    }),
     wga_sandbox_option.WithRunSession(wga_sandbox_option.RunSession{
         ThreadID: "thread-123",
         RunID:    "run-456",
@@ -175,11 +183,10 @@ eventCh := tr.TranslateStream(ctx, outputCh)
 |------|------|------|
 | `WithModelConfig` | 模型配置 | 是 |
 | `WithSandbox` | 沙箱配置（`SandboxReuse(host)` 或 `SandboxOneshot(imageName)`） | 是 |
-| `WithCurrentTask` | 当前任务 | 是 |
+| `WithMessages` | 消息列表（历史消息 + 当前问题，最后一条必须是 User 消息） | 是 |
 | `WithRunSession` | 会话标识 | 否 |
 | `WithInstruction` | 系统提示词 | 否 |
 | `WithOverallTask` | 整体任务（用于子智能体） | 否 |
-| `WithMessages` | 历史消息 | 否 |
 | `WithInputDir` | 输入目录 | 否 |
 | `WithOutputDir` | 输出目录 | 否 |
 | `WithTools` | 工具列表 | 否 |

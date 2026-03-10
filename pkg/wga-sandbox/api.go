@@ -38,28 +38,17 @@ func Run(ctx context.Context, opts ...wga_sandbox_option.Option) (wga_sandbox_op
 		logPrefix = fmt.Sprintf("[wga-sandbox][%s][%s]", runID, opt.AgentName)
 	}
 
-	log.Infof("%s %s", logPrefix, opt.CurrentTask)
-
-	req := runner.RunRequest{
-		RunSession:     opt.RunSession,
-		Sandbox:        opt.Sandbox,
-		Instruction:    opt.Instruction,
-		OverallTask:    opt.OverallTask,
-		CurrentTask:    opt.CurrentTask,
-		Messages:       opt.Messages,
-		InputDir:       opt.InputDir,
-		OutputDir:      opt.OutputDir,
-		Skills:         opt.Skills,
-		Tools:          opt.Tools,
-		ModelConfig:    opt.ModelConfig,
-		EnableThinking: opt.EnableThinking,
+	var currentTask string
+	if len(opt.Messages) > 0 {
+		currentTask = opt.Messages[len(opt.Messages)-1].Content
 	}
+	log.Infof("%s %s", logPrefix, currentTask)
 
 	sb, err := manager.Get(runID)
 	if err != nil {
 		return wga_sandbox_option.RunSession{}, nil, fmt.Errorf("get sandbox failed: %w", err)
 	}
-	r := createRunner(opt.RunnerType, sb, req)
+	r := createRunner(opt.RunnerType, sb, opt)
 
 	outputCh := make(chan string, 1024)
 
@@ -124,9 +113,9 @@ func sendErrorEvent(ch chan<- string, message string) {
 	}
 }
 
-func createRunner(t wga_sandbox_option.RunnerType, sb sandbox.Sandbox, req runner.RunRequest) runner.Runner {
+func createRunner(t wga_sandbox_option.RunnerType, sb sandbox.Sandbox, opt wga_sandbox_option.RunOption) runner.Runner {
 	switch t {
 	default:
-		return opencode.NewRunner(sb, req)
+		return opencode.NewRunner(sb, opt)
 	}
 }

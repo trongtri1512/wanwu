@@ -2,6 +2,7 @@ package wga_option
 
 import (
 	"github.com/UnicomAI/wanwu/pkg/wga/internal/option"
+	"github.com/cloudwego/eino/adk"
 )
 
 type Option = option.Option
@@ -9,7 +10,6 @@ type ModelConfig = option.ModelConfig
 type ToolConfig = option.ToolConfig
 type WorkspaceConfig = option.WorkspaceConfig
 type RunSession = option.RunSession
-type Message = option.Message
 
 type CheckResult = option.CheckResult
 
@@ -34,6 +34,6 @@ func WithRunSession(session RunSession) Option {
 }
 
 // WithMessages 设置历史消息。
-func WithMessages(messages []Message) Option {
+func WithMessages(messages []adk.Message) Option {
 	return option.WithMessages(messages)
 }

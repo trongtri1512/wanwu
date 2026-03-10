@@ -13,32 +13,32 @@ import (
 )
 
 // NewAgent 创建智能体实例。
-func NewAgent(ctx context.Context, cfg *config.Agent, query string, options option.Options) (adk.Agent, error) {
-	return newAgent(ctx, cfg, query, options)
+func NewAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.Agent, error) {
+	return newAgent(ctx, cfg, options)
 }
 
-func newAgent(ctx context.Context, cfg *config.Agent, query string, options option.Options) (adk.Agent, error) {
+func newAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.Agent, error) {
 	switch cfg.Type {
 	case config.AgentTypeReAct:
-		return newReactAgent(ctx, cfg, query, options)
+		return newReactAgent(ctx, cfg, options)
 	case config.AgentTypeSandbox:
-		return newSandboxAgentImpl(ctx, cfg, query, options)
+		return newSandboxAgent(ctx, cfg, options)
 	case config.AgentTypeSequential:
-		return newSequentialAgent(ctx, cfg, query, options)
+		return newSequentialAgent(ctx, cfg, options)
 	case config.AgentTypeLoop:
-		return newLoopAgent(ctx, cfg, query, options)
+		return newLoopAgent(ctx, cfg, options)
 	case config.AgentTypeParallel:
-		return newParallelAgent(ctx, cfg, query, options)
+		return newParallelAgent(ctx, cfg, options)
 	case config.AgentTypeDeep:
-		return newDeepAgent(ctx, cfg, query, options)
+		return newDeepAgent(ctx, cfg, options)
 	case config.AgentTypeSupervisor:
-		return newSupervisorAgent(ctx, cfg, query, options)
+		return newSupervisorAgent(ctx, cfg, options)
 	default:
 		return nil, fmt.Errorf("agent (%v) type (%v) unsupported", cfg.ID, cfg.Type)
 	}
 }
 
-func newReactAgent(ctx context.Context, cfg *config.Agent, _ string, options option.Options) (adk.Agent, error) {
+func newReactAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.Agent, error) {
 	instruction, err := options.FormatInstruction(ctx, cfg)
 	if err != nil {
 		return nil, err
@@ -62,10 +62,10 @@ func newReactAgent(ctx context.Context, cfg *config.Agent, _ string, options opt
 	})
 }
 
-func newSequentialAgent(ctx context.Context, cfg *config.Agent, query string, options option.Options) (adk.ResumableAgent, error) {
+func newSequentialAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.ResumableAgent, error) {
 	var subAgents []adk.Agent
 	for _, subCfg := range cfg.SubAgents {
-		subAgent, err := newAgent(ctx, subCfg, query, options)
+		subAgent, err := newAgent(ctx, subCfg, options)
 		if err != nil {
 			return nil, err
 		}
@@ -78,10 +78,10 @@ func newSequentialAgent(ctx context.Context, cfg *config.Agent, query string, op
 	})
 }
 
-func newLoopAgent(ctx context.Context, cfg *config.Agent, query string, options option.Options) (adk.ResumableAgent, error) {
+func newLoopAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.ResumableAgent, error) {
 	var subAgents []adk.Agent
 	for _, subCfg := range cfg.SubAgents {
-		subAgent, err := newAgent(ctx, subCfg, query, options)
+		subAgent, err := newAgent(ctx, subCfg, options)
 		if err != nil {
 			return nil, err
 		}
@@ -96,10 +96,10 @@ func newLoopAgent(ctx context.Context, cfg *config.Agent, query string, options 
 	})
 }
 
-func newParallelAgent(ctx context.Context, cfg *config.Agent, query string, options option.Options) (adk.ResumableAgent, error) {
+func newParallelAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.ResumableAgent, error) {
 	var subAgents []adk.Agent
 	for _, subCfg := range cfg.SubAgents {
-		subAgent, err := newAgent(ctx, subCfg, query, options)
+		subAgent, err := newAgent(ctx, subCfg, options)
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func newParallelAgent(ctx context.Context, cfg *config.Agent, query string, opti
 	})
 }
 
-func newDeepAgent(ctx context.Context, cfg *config.Agent, query string, options option.Options) (adk.ResumableAgent, error) {
+func newDeepAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.ResumableAgent, error) {
 	instruction, err := options.FormatInstruction(ctx, cfg)
 	if err != nil {
 		return nil, err
@@ -127,7 +127,7 @@ func newDeepAgent(ctx context.Context, cfg *config.Agent, query string, options 
 	}
 	var subAgents []adk.Agent
 	for _, subCfg := range cfg.SubAgents {
-		subAgent, err := newAgent(ctx, subCfg, query, options)
+		subAgent, err := newAgent(ctx, subCfg, options)
 		if err != nil {
 			return nil, err
 		}
@@ -146,14 +146,14 @@ func newDeepAgent(ctx context.Context, cfg *config.Agent, query string, options 
 	})
 }
 
-func newSupervisorAgent(ctx context.Context, cfg *config.Agent, query string, options option.Options) (adk.Agent, error) {
-	agent, err := newReactAgent(ctx, cfg, query, options)
+func newSupervisorAgent(ctx context.Context, cfg *config.Agent, options option.Options) (adk.Agent, error) {
+	agent, err := newReactAgent(ctx, cfg, options)
 	if err != nil {
 		return nil, err
 	}
 	var subAgents []adk.Agent
 	for _, subCfg := range cfg.SubAgents {
-		subAgent, err := newAgent(ctx, subCfg, query, options)
+		subAgent, err := newAgent(ctx, subCfg, options)
 		if err != nil {
 			return nil, err
 		}

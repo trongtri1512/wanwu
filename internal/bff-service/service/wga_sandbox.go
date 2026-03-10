@@ -13,6 +13,8 @@ import (
 	sse_util "github.com/UnicomAI/wanwu/pkg/sse-util"
 	wga_sandbox "github.com/UnicomAI/wanwu/pkg/wga-sandbox"
 	wga_sandbox_option "github.com/UnicomAI/wanwu/pkg/wga-sandbox/wga-sandbox-option"
+	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/schema"
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,7 +53,6 @@ func WgaSandboxRun(ctx *gin.Context, req *request.WgaSandboxRunReq) error {
 		}),
 		wga_sandbox_option.WithModelConfig(modelConfig),
 		wga_sandbox_option.WithSandbox(sandbox),
-		wga_sandbox_option.WithCurrentTask(req.CurrentTask),
 		wga_sandbox_option.WithInstruction(req.Instruction),
 		wga_sandbox_option.WithOverallTask(req.OverallTask),
 		wga_sandbox_option.WithEnableThinking(req.EnableThinking),
@@ -62,10 +63,10 @@ func WgaSandboxRun(ctx *gin.Context, req *request.WgaSandboxRunReq) error {
 	}
 
 	if len(req.Messages) > 0 {
-		messages := make([]wga_sandbox_option.Message, len(req.Messages))
+		messages := make([]adk.Message, len(req.Messages))
 		for i, msg := range req.Messages {
-			messages[i] = wga_sandbox_option.Message{
-				Role:    msg.Role,
+			messages[i] = &schema.Message{
+				Role:    schema.RoleType(msg.Role),
 				Content: msg.Content,
 			}
 		}

@@ -15,14 +15,12 @@ import (
 // sandboxAgent 在沙箱容器中执行的智能体。
 type sandboxAgent struct {
 	cfg     *config.Agent
-	query   string
 	options option.Options
 }
 
-func newSandboxAgentImpl(_ context.Context, cfg *config.Agent, query string, options option.Options) (adk.Agent, error) {
+func newSandboxAgent(_ context.Context, cfg *config.Agent, options option.Options) (adk.Agent, error) {
 	return &sandboxAgent{
 		cfg:     cfg,
-		query:   query,
 		options: options,
 	}, nil
 }
@@ -36,7 +34,7 @@ func (a *sandboxAgent) Description(_ context.Context) string {
 }
 
 func (a *sandboxAgent) Run(ctx context.Context, _ *adk.AgentInput, _ ...adk.AgentRunOption) *adk.AsyncIterator[*adk.AgentEvent] {
-	sandboxOpts := a.buildSandboxOpts(a.query)
+	sandboxOpts := a.buildSandboxOpts()
 
 	_, outputCh, err := wga_sandbox.Run(ctx, sandboxOpts...)
 	if err != nil {
@@ -46,8 +44,12 @@ func (a *sandboxAgent) Run(ctx context.Context, _ *adk.AgentInput, _ ...adk.Agen
 	return wga_sandbox_converter.ConvertToEinoIterator(ctx, wga_sandbox_option.RunnerTypeOpencode, outputCh)
 }
 
-func (a *sandboxAgent) buildSandboxOpts(overallTask string) []wga_sandbox_option.Option {
+func (a *sandboxAgent) buildSandboxOpts() []wga_sandbox_option.Option {
 	opts := []wga_sandbox_option.Option{
+		wga_sandbox_option.WithRunSession(wga_sandbox_option.RunSession{
+			ThreadID: a.options.RunSession.ThreadID,
+			RunID:    a.options.RunSession.RunID,
+		}),
 		wga_sandbox_option.WithModelConfig(wga_sandbox_option.ModelConfig{
 			Provider:     a.options.Model.Provider,
 			ProviderName: a.options.Model.ProviderName,
@@ -58,29 +60,10 @@ func (a *sandboxAgent) buildSandboxOpts(overallTask string) []wga_sandbox_option
 			Params:       a.options.Model.Params,
 		}),
 		wga_sandbox_option.WithInstruction(a.cfg.Prompt),
+		wga_sandbox_option.WithMessages(a.options.Messages),
 		wga_sandbox_option.WithEnableThinking(a.cfg.Configure.EnableThinking),
-		wga_sandbox_option.WithRunSession(wga_sandbox_option.RunSession{
-			ThreadID: a.options.RunSession.ThreadID,
-			RunID:    a.options.RunSession.RunID,
-		}),
 		wga_sandbox_option.WithSkipCleanup(true),
 		wga_sandbox_option.WithAgentName(a.cfg.ID),
-	}
-
-	if overallTask != "" {
-		opts = append(opts, wga_sandbox_option.WithOverallTask(overallTask))
-	}
-
-	// 传递历史消息
-	if len(a.options.Messages) > 0 {
-		messages := make([]wga_sandbox_option.Message, len(a.options.Messages))
-		for i, msg := range a.options.Messages {
-			messages[i] = wga_sandbox_option.Message{
-				Role:    msg.Role,
-				Content: msg.Content,
-			}
-		}
-		opts = append(opts, wga_sandbox_option.WithMessages(messages))
 	}
 
 	// 传递技能

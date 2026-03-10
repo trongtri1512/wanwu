@@ -26,7 +26,7 @@
 │  │ api.go                                                                        │ │
 │  │  ├─ Init(configPath)        加载智能体配置                                     │ │
 │  │  ├─ CheckOptions(id, opts)  检查运行条件                                      │ │
-│  │  ├─ Run(id, query, opts)    执行智能体，返回 AgentEvent 迭代器                 │ │
+│  │  ├─ Run(id, opts)          执行智能体，返回 AgentEvent 迭代器                 │ │
 │  │  └─ Cleanup(runID)          清理沙箱资源                                       │ │
 │  └───────────────────────────────────────────────────────────────────────────────┘ │
 │                                       │                                             │
@@ -476,11 +476,14 @@ ctx := context.Background()
 wga.Init(ctx, "/path/to/config.yaml")
 
 // 执行
-runSession, iter, _ := wga.Run(ctx, "agent-id", "任务描述",
+runSession, iter, _ := wga.Run(ctx, "agent-id",
     wga.WithModelConfig(wga_option.ModelConfig{
         Model:       "glm-4",
         ApiKey:      "sk-xxx",
         EndpointUrl: "https://api.example.com/v1",
+    }),
+    wga.WithMessages([]adk.Message{
+        &schema.Message{Role: schema.User, Content: "任务描述"},
     }),
 )
 
@@ -502,7 +505,7 @@ for {
 |------|------|
 | `Init(ctx, configPath)` | 初始化配置 |
 | `CheckOptions(ctx, id, opts...)` | 检查运行条件 |
-| `Run(ctx, id, query, opts...)` | 执行智能体 |
+| `Run(ctx, id, opts...)` | 执行智能体 |
 | `Cleanup(ctx, runID)` | 清理资源 |
 
 ## 选项
@@ -513,4 +516,4 @@ for {
 | `WithToolConfig` | 工具配置 |
 | `WithWorkspaceConfig` | 工作空间 |
 | `WithRunSession` | 会话标识 |
-| `WithMessages` | 历史消息 |
+| `WithMessages` | 消息列表（历史消息 + 当前问题，最后一条必须是 User 消息） |

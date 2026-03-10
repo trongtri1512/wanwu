@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/UnicomAI/wanwu/pkg/log"
 	aguievents "github.com/ag-ui-protocol/ag-ui/sdks/community/go/pkg/core/events"
 	"github.com/google/uuid"
 	"github.com/sst/opencode-sdk-go"
+
+	"github.com/UnicomAI/wanwu/pkg/log"
+	"github.com/UnicomAI/wanwu/pkg/util"
 )
 
 // opencode 事件类型（内部使用）。
@@ -50,8 +52,45 @@ func NewOpencodeTranslator(runID, threadID string) *OpencodeTranslator {
 	}
 }
 
-// Translate 转换单个 opencode 事件。
-func (t *OpencodeTranslator) Translate(_ context.Context, line string) []aguievents.Event {
+// TranslateStream 转换事件流。
+func (t *OpencodeTranslator) TranslateStream(ctx context.Context, in <-chan string) <-chan aguievents.Event {
+	out := make(chan aguievents.Event, 1024)
+	go func() {
+		defer util.PrintPanicStack()
+		defer close(out)
+		defer func() {
+			for _, evt := range t.FinishBase() {
+				select {
+				case out <- evt:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case line, ok := <-in:
+				if !ok {
+					return
+				}
+				for _, evt := range t.translate(ctx, line) {
+					select {
+					case out <- evt:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}
+	}()
+	return out
+}
+
+// translate 转换单个 opencode 事件。
+func (t *OpencodeTranslator) translate(_ context.Context, line string) []aguievents.Event {
 	var evt opencodeEvent
 	if err := json.Unmarshal([]byte(line), &evt); err != nil {
 		log.Warnf("[ag-ui-util][%s] failed to parse opencode event: %v", t.runID, err)
@@ -81,16 +120,6 @@ func (t *OpencodeTranslator) Translate(_ context.Context, line string) []aguieve
 	}
 
 	return events
-}
-
-// Finish 生成结束事件。
-func (t *OpencodeTranslator) Finish() []aguievents.Event {
-	return t.FinishBase()
-}
-
-// TranslateStream 转换事件流。
-func (t *OpencodeTranslator) TranslateStream(ctx context.Context, in <-chan string) <-chan aguievents.Event {
-	return TranslateStream(ctx, t, in)
 }
 
 func (t *OpencodeTranslator) translateText(partData json.RawMessage) []aguievents.Event {

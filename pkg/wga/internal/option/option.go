@@ -4,11 +4,12 @@ package option
 import (
 	"fmt"
 
-	"github.com/google/uuid"
-
 	mp_common "github.com/UnicomAI/wanwu/pkg/model-provider/mp-common"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/UnicomAI/wanwu/pkg/wga/internal/config"
+	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/schema"
+	"github.com/google/uuid"
 )
 
 // ============================================================================
@@ -44,12 +45,6 @@ type RunSession struct {
 	RunID    string // 执行请求 ID
 }
 
-// Message 消息。
-type Message struct {
-	Role    string // 角色：user, assistant, system
-	Content string // 消息内容
-}
-
 // ============================================================================
 // Option/Options
 // ============================================================================
@@ -68,11 +63,11 @@ func (f optionFunc) apply(opts *Options) error {
 
 // Options 智能体运行选项。
 type Options struct {
+	RunSession RunSession      // 执行会话标识
+	Workspace  WorkspaceConfig // 工作空间配置
 	Model      ModelConfig     // 模型配置
 	Tools      []ToolConfig    // 工具配置列表
-	Workspace  WorkspaceConfig // 工作空间配置
-	RunSession RunSession      // 执行会话标识
-	Messages   []Message       // 历史消息
+	Messages   []adk.Message   // 历史消息 + 当前问题（最后一条 User 消息）
 }
 
 // Apply 应用选项。
@@ -88,6 +83,13 @@ func (options *Options) Apply(opts ...Option) error {
 	}
 	if options.RunSession.RunID == "" {
 		options.RunSession.RunID = uuid.New().String()
+	}
+	if len(options.Messages) == 0 {
+		return fmt.Errorf("messages is empty")
+	}
+	lastMsg := options.Messages[len(options.Messages)-1]
+	if lastMsg.Role != schema.User {
+		return fmt.Errorf("last message must be user message, got %s", lastMsg.Role)
 	}
 	return nil
 }
@@ -183,10 +185,10 @@ func WithRunSession(session RunSession) Option {
 	})
 }
 
-// WithMessages 设置历史消息。
-func WithMessages(messages []Message) Option {
+// WithMessages 设置消息列表，最后一条消息必须是 User 消息。
+func WithMessages(messages []adk.Message) Option {
 	return optionFunc(func(opts *Options) error {
-		opts.Messages = messages
+		opts.Messages = append(opts.Messages, messages...)
 		return nil
 	})
 }
