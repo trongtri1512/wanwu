@@ -117,6 +117,10 @@ async def _generate_community_reports_task(user_id: str, kb_name: str, config, c
         if os.path.exists(file_path):
             new_graph = graph_processor.load_graph_from_json(file_path)
             reports = await asyncio.to_thread(graph_processor.extract_community, new_graph, config)
+            out_path = f"./data/graph/{user_id}/{kb_name}_community_reports.json"
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(reports, f, ensure_ascii=False, indent=2)
             await send_progress_update(client_id, "generate_community_reports", 90, "reports generated")
             await send_community_reports(client_id, reports, "completed")
             await send_progress_update(client_id, "generate_community_reports", 100, "completed")
@@ -227,6 +231,7 @@ async def extrac_graph_data(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
 @app.post("/api/generate_community_reports", response_model=CommunityReportsResponse)
 async def generate_community_reports(request: Request):
     """extrac_graph_data endpoint  chunks: List[Dict], client_id: str = 'default' """
@@ -257,6 +262,32 @@ async def generate_community_reports(request: Request):
 
     except Exception as e:
         await send_progress_update(client_id, "generate_community_reports", 0, f"failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/get_community_reports", response_model=CommunityReportsResponse)
+async def get_community_reports(request: Request):
+    try:
+        json_request = await request.json()
+        user_id = json_request["user_id"]
+        kb_name = json_request["kb_name"]
+        client_id = json_request.get("client_id", "default")
+        out_path = f"./data/graph/{user_id}/{kb_name}_community_reports.json"
+        if not os.path.exists(out_path):
+            return CommunityReportsResponse(
+                success=True,
+                message="not ready",
+                community_reports=[],
+            )
+        with open(out_path, "r", encoding="utf-8") as f:
+            reports = json.load(f)
+        await send_progress_update(client_id, "get_community_reports", 10, "get_community_reports completed successfully!")
+        return CommunityReportsResponse(
+            success=True,
+            message="ok",
+            community_reports=reports,
+        )
+    except Exception as e:
+        await send_progress_update(client_id, "get_community_reports", 0, f"failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

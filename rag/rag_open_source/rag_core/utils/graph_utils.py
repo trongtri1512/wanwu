@@ -152,7 +152,8 @@ def generate_community_reports(user_id, kb_name, graph_model_id):
         # 将JSON数据转换好格式
         json_data = json.dumps(data)
         community_url = GRAPH_SERVER_URL + "/generate_community_reports"
-        response = requests.post(community_url, headers=headers, data=json_data, timeout=30)
+        session = requests.Session()
+        response = session.post(community_url, headers=headers, data=json_data, timeout=60)
         if response.status_code != 200:
             raise Exception(f"{community_url} 请求失败，错误信息：" + response.text)
         finish_time1 = datetime.now()
@@ -163,15 +164,21 @@ def generate_community_reports(user_id, kb_name, graph_model_id):
         get_url = GRAPH_SERVER_URL + "/get_community_reports"
         while True:
             poll_start = datetime.now()
-            poll_resp = requests.post(get_url, headers=headers, data=json_data, timeout=30)
-            if poll_resp.status_code != 200:
-                raise Exception(f"{get_url} 请求失败，错误信息：" + poll_resp.text)
-            poll_data = poll_resp.json()
-            if poll_data.get("message") == "completed":
-                finish_time2 = datetime.now()
-                time_difference2 = finish_time2 - poll_start
-                logger.info(f"get_community_reports -{get_url}: 完成获取 耗时：{time_difference2}")
-                return poll_data
+            try:
+                poll_resp = session.post(get_url, headers=headers, data=json_data, timeout=60)
+                if poll_resp.status_code == 200:
+                    poll_data = poll_resp.json()
+                    if poll_data.get("message") == "ok":
+                        finish_time2 = datetime.now()
+                        time_difference2 = finish_time2 - poll_start
+                        logger.info(f"get_community_reports -{get_url}: 完成获取 耗时：{time_difference2}")
+                        return poll_data
+                else:
+                    logger.warning(f"{get_url} 非200状态码: {poll_resp.status_code}")
+            except requests.exceptions.RequestException as req_err:
+                logger.warning(f"轮询请求异常: {req_err}")
+            if (datetime.now() - start_time).total_seconds() > 900:
+                raise Exception("generate_community_reports 超时未完成")
             time.sleep(2)
     except Exception as e:
         raise Exception("generate_community_reports 发生异常：" + str(e))
