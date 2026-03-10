@@ -296,11 +296,11 @@ func getModelAllTags(modelInfo *model_service.ModelInfo) ([]mp_common.Tag, error
 	var allModelTags []mp_common.Tag
 
 	// - 公开范围标签：如私有/公开/内部测试等
-	scopeTags := mp_common.GetTagsByScopeType(modelInfo.ScopeType)
+	scopeTags := GetTagsByScopeType(modelInfo.ScopeType)
 	allModelTags = append(allModelTags, scopeTags...)
 
 	// - 导入来源标签：如外部URL/内置模型等
-	sourceTags := mp_common.GetTagsByImportSource(modelInfo.ImportSource)
+	sourceTags := GetTagsByImportSource(modelInfo.ImportSource)
 	allModelTags = append(allModelTags, sourceTags...)
 
 	// - 基础属性标签：如模型类型(LLM/rerank)、最大token数、推理能力等

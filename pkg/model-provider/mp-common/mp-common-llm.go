@@ -9,7 +9,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/UnicomAI/wanwu/internal/bff-service/config"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"github.com/go-resty/resty/v2"
@@ -47,35 +46,6 @@ type Tag struct {
 	Text string `json:"text"`
 }
 
-func GetTagsByScopeType(scopeType string) []Tag {
-	var tags []Tag
-	switch scopeType {
-	case config.ModelScopeTypePrivate:
-		tags = append(tags, Tag{
-			Text: TagScopeTypePrivate,
-		})
-	case config.ModelScopeTypePublic:
-		tags = append(tags, Tag{
-			Text: TagScopeTypePublic,
-		})
-	case config.ModelScopeTypeOrg:
-		tags = append(tags, Tag{
-			Text: TagScopeTypeOrg,
-		})
-	}
-	return tags
-}
-
-func GetTagsByImportSource(importSource string) []Tag {
-	var tags []Tag
-	switch importSource {
-	case config.ModelSourceBuiltin:
-		tags = append(tags, Tag{
-			Text: TagSourceTypeLocal,
-		})
-	}
-	return tags
-}
 func GetTagsByFunctionCall(fcType string) []Tag {
 	var tags []Tag
 	if FCType(fcType) == FCTypeToolCall {
