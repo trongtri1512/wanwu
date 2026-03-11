@@ -382,6 +382,7 @@ export default {
         padding: 20px 20px 20px 80px;
         text-align: left;
         cursor: pointer;
+        min-height: 100px;
         .logo {
           width: 46px;
           height: 46px;

@@ -11,6 +11,9 @@
                 ref="searchInput"
                 @handleSearch="doGetSkillTempList"
               />
+              <el-button size="mini" type="primary" @click="handleImport">
+                {{ $t('common.button.import') }}
+              </el-button>
             </div>
 
             <div class="card-loading-box">
@@ -44,15 +47,21 @@
         </div>
       </div>
     </div>
+    <skill-dialog
+      ref="skillDialog"
+      :type="dialogType"
+      @reload="doGetSkillTempList"
+    />
   </div>
 </template>
 <script>
 import SkillCard from '../card.vue';
 import SearchInput from '@/components/searchInput.vue';
+import SkillDialog from './components/SkillDialog.vue';
 import { getCustomSkillList, deleteCustomSkill } from '@/api/templateSquare';
 import { directDownload } from '@/utils/util';
 export default {
-  components: { SearchInput, SkillCard },
+  components: { SearchInput, SkillCard, SkillDialog },
   props: {
     type: '',
   },
@@ -62,6 +71,7 @@ export default {
       list: [],
       templateUrl: '',
       loading: false,
+      dialogType: 'import',
     };
   },
   mounted() {
@@ -112,9 +122,15 @@ export default {
         path,
       });
     },
+
     handleDownload(info) {
       const { zipUrl } = info;
       directDownload(zipUrl);
+    },
+    // 打开导入弹框
+    handleImport() {
+      this.dialogType = 'import';
+      this.$refs.skillDialog.openDialog();
     },
   },
 };
@@ -124,7 +140,7 @@ export default {
 @import '@/style/tempSquare.scss';
 .tempSquare-management {
   .card-search-cust {
-    justify-content: flex-start;
+    justify-content: space-between;
     margin-top: 10px;
   }
   .card-bottom-right {

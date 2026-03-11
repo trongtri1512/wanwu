@@ -25,7 +25,11 @@
       @click.native="handleOptionClick(item)"
     >
       <div class="model-option-content">
-        <span class="model-name">{{ item.displayName }}</span>
+        <div class="model-option-content-left">
+          <img class="model-img" :src="convertModelIcon(item.avatar.path)" />
+          <span class="model-name">{{ item.displayName }}</span>
+        </div>
+
         <div class="model-select-tags" v-if="item.tags && item.tags.length > 0">
           <span
             v-for="(tag, tagIdx) in item.tags"
@@ -145,6 +149,10 @@ export default {
         this.$message.warning(this.$t('modelAccess.publicWarning'));
       }
       this.$emit('option-click', item);
+    },
+    // 转换模型图标
+    convertModelIcon(iconPath) {
+      return iconPath ? avatarSrc(iconPath) : defaultModelAvatar;
     },
   },
 };
