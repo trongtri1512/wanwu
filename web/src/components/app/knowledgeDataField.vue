@@ -260,10 +260,10 @@ export default {
       const routeData = this.$router.resolve({
         name: targetRouterName,
       });
-      const fullUrl = `${routeData.href}${routeData.location.name}`.replace(
-        /\/+/g,
-        '/',
-      );
+      const baseUrl = routeData.href;
+      const locationName = routeData.location.name;
+      const combinedUrl = baseUrl + locationName;
+      const fullUrl = combinedUrl.replace(/\/+/g, '/');
       window.open(fullUrl, '_blank');
     },
   },
