@@ -525,7 +525,7 @@ export default {
   watch: {
     'createForm.modelType': {
       handler() {
-        this.$refs.createForm.clearValidate();
+        this.$refs.createForm && this.$refs.createForm.clearValidate();
         if (!this.isEdit) {
           this.setDefaultInferUrl();
         }
