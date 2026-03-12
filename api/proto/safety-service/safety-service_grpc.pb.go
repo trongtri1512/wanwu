@@ -27,6 +27,7 @@ const (
 	SafetyService_GetSensitiveWordTableList_FullMethodName               = "/safety_service.SafetyService/GetSensitiveWordTableList"
 	SafetyService_GetSensitiveWordTableListByIDs_FullMethodName          = "/safety_service.SafetyService/GetSensitiveWordTableListByIDs"
 	SafetyService_GetSensitiveWordTableByID_FullMethodName               = "/safety_service.SafetyService/GetSensitiveWordTableByID"
+	SafetyService_GetGlobalSensitiveWordTableList_FullMethodName         = "/safety_service.SafetyService/GetGlobalSensitiveWordTableList"
 	SafetyService_UploadSensitiveVocabulary_FullMethodName               = "/safety_service.SafetyService/UploadSensitiveVocabulary"
 	SafetyService_DeleteSensitiveVocabulary_FullMethodName               = "/safety_service.SafetyService/DeleteSensitiveVocabulary"
 	SafetyService_GetSensitiveVocabularyList_FullMethodName              = "/safety_service.SafetyService/GetSensitiveVocabularyList"
@@ -53,6 +54,8 @@ type SafetyServiceClient interface {
 	GetSensitiveWordTableListByIDs(ctx context.Context, in *GetSensitiveWordTableListByIDsReq, opts ...grpc.CallOption) (*SensitiveWordTables, error)
 	// 通过敏感词表id获取敏感词表信息
 	GetSensitiveWordTableByID(ctx context.Context, in *GetSensitiveWordTableByIDReq, opts ...grpc.CallOption) (*SensitiveWordTable, error)
+	// 获取全局敏感词表列表
+	GetGlobalSensitiveWordTableList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SensitiveWordTables, error)
 	// 敏感词相关
 	// 上传敏感词
 	UploadSensitiveVocabulary(ctx context.Context, in *UploadSensitiveVocabularyReq, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -142,6 +145,16 @@ func (c *safetyServiceClient) GetSensitiveWordTableByID(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *safetyServiceClient) GetGlobalSensitiveWordTableList(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SensitiveWordTables, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SensitiveWordTables)
+	err := c.cc.Invoke(ctx, SafetyService_GetGlobalSensitiveWordTableList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *safetyServiceClient) UploadSensitiveVocabulary(ctx context.Context, in *UploadSensitiveVocabularyReq, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -202,6 +215,8 @@ type SafetyServiceServer interface {
 	GetSensitiveWordTableListByIDs(context.Context, *GetSensitiveWordTableListByIDsReq) (*SensitiveWordTables, error)
 	// 通过敏感词表id获取敏感词表信息
 	GetSensitiveWordTableByID(context.Context, *GetSensitiveWordTableByIDReq) (*SensitiveWordTable, error)
+	// 获取全局敏感词表列表
+	GetGlobalSensitiveWordTableList(context.Context, *emptypb.Empty) (*SensitiveWordTables, error)
 	// 敏感词相关
 	// 上传敏感词
 	UploadSensitiveVocabulary(context.Context, *UploadSensitiveVocabularyReq) (*emptypb.Empty, error)
@@ -241,6 +256,9 @@ func (UnimplementedSafetyServiceServer) GetSensitiveWordTableListByIDs(context.C
 }
 func (UnimplementedSafetyServiceServer) GetSensitiveWordTableByID(context.Context, *GetSensitiveWordTableByIDReq) (*SensitiveWordTable, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSensitiveWordTableByID not implemented")
+}
+func (UnimplementedSafetyServiceServer) GetGlobalSensitiveWordTableList(context.Context, *emptypb.Empty) (*SensitiveWordTables, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGlobalSensitiveWordTableList not implemented")
 }
 func (UnimplementedSafetyServiceServer) UploadSensitiveVocabulary(context.Context, *UploadSensitiveVocabularyReq) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadSensitiveVocabulary not implemented")
@@ -401,6 +419,24 @@ func _SafetyService_GetSensitiveWordTableByID_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SafetyService_GetGlobalSensitiveWordTableList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SafetyServiceServer).GetGlobalSensitiveWordTableList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SafetyService_GetGlobalSensitiveWordTableList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SafetyServiceServer).GetGlobalSensitiveWordTableList(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SafetyService_UploadSensitiveVocabulary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UploadSensitiveVocabularyReq)
 	if err := dec(in); err != nil {
@@ -507,6 +543,10 @@ var SafetyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSensitiveWordTableByID",
 			Handler:    _SafetyService_GetSensitiveWordTableByID_Handler,
+		},
+		{
+			MethodName: "GetGlobalSensitiveWordTableList",
+			Handler:    _SafetyService_GetGlobalSensitiveWordTableList_Handler,
 		},
 		{
 			MethodName: "UploadSensitiveVocabulary",

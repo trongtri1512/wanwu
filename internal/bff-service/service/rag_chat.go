@@ -41,22 +41,21 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 	}
 	var matchDicts []ahocorasick.DictConfig
 	// 如果Enable为true,则处理敏感词
-	if ragInfo.SensitiveConfig.GetEnable() {
-		matchDicts, err = BuildSensitiveDict(ctx, ragInfo.SensitiveConfig.GetTableIds())
-		if err != nil {
-			return nil, err
-		}
-		matchResults, err := ahocorasick.ContentMatch(req.Question, matchDicts, true)
-		if err != nil {
-			return nil, grpc_util.ErrorStatus(err_code.Code_BFFSensitiveWordCheck, err.Error())
-		}
-		if len(matchResults) > 0 {
-			if matchResults[0].Reply != "" {
-				return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req", matchResults[0].Reply)
-			}
-			return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req_default_reply")
-		}
+	matchDicts, err = BuildSensitiveDict(ctx, ragInfo.SensitiveConfig.GetTableIds(), ragInfo.SensitiveConfig.GetEnable())
+	if err != nil {
+		return nil, err
 	}
+	matchResults, err := ahocorasick.ContentMatch(req.Question, matchDicts, true)
+	if err != nil {
+		return nil, grpc_util.ErrorStatus(err_code.Code_BFFSensitiveWordCheck, err.Error())
+	}
+	if len(matchResults) > 0 {
+		if matchResults[0].Reply != "" {
+			return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req", matchResults[0].Reply)
+		}
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req_default_reply")
+	}
+
 	var ragHistory []*rag_service.HistoryItem
 	if len(req.History) > 0 {
 		for _, history := range req.History {
@@ -93,11 +92,7 @@ func CallRagChatStream(ctx *gin.Context, userId, orgId string, req request.ChatR
 	if err != nil {
 		return nil, err
 	}
-
-	if !ragInfo.SensitiveConfig.GetEnable() {
-		return rawCh, nil
-	}
-	// 敏感词过滤
+	// 敏感词过滤(必须过滤，全局敏感词)
 	retCh := ProcessSensitiveWords(ctx, rawCh, matchDicts, &ragSensitiveService{})
 	return retCh, nil
 }

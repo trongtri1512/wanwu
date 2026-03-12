@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	queue_util "github.com/UnicomAI/wanwu/internal/bff-service/pkg/queue-util"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	safety_service "github.com/UnicomAI/wanwu/api/proto/safety-service"
@@ -27,10 +28,22 @@ type chatService interface {
 }
 
 // 构建敏感词字典
-func BuildSensitiveDict(ctx *gin.Context, tableIds []string) ([]ahocorasick.DictConfig, error) {
+func BuildSensitiveDict(ctx *gin.Context, personalTableIds []string, enable bool) ([]ahocorasick.DictConfig, error) {
+	var tableIDs []string
+	if enable {
+		tableIDs = personalTableIds
+	}
+	// safety服务获取全局敏感词
+	globalTables, err := safety.GetGlobalSensitiveWordTableList(ctx.Request.Context(), &emptypb.Empty{})
+	if err != nil {
+		return nil, err
+	}
+	for _, table := range globalTables.List {
+		tableIDs = append(tableIDs, table.TableId)
+	}
 	var dicts []ahocorasick.DictConfig
 	resp, err := safety.GetSensitiveWordTableListByIDs(ctx.Request.Context(), &safety_service.GetSensitiveWordTableListByIDsReq{
-		TableIds: tableIds,
+		TableIds: tableIDs,
 	})
 	if err != nil {
 		return nil, err

@@ -250,3 +250,9 @@ func WithApplicationID(applicationId string) SQLOption {
 		return db
 	})
 }
+
+func WithTableType(tableType string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		return db.Where("table_type = ?", tableType)
+	})
+}

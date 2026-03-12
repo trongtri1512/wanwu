@@ -10,6 +10,7 @@ type SensitiveWordTable struct {
 	Remark    string `gorm:"index:idx_swt_remark"`
 	Reply     string `gorm:"index:idx_swt_reply"`
 	Version   string `gorm:"index:idx_swt_version"`
+	TableType string `gorm:"default:personal;index:idx_swt_table_type"`
 }
 
 type SensitiveWordVocabulary struct {

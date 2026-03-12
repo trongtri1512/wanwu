@@ -23,6 +23,8 @@ service SafetyService {
   rpc GetSensitiveWordTableListByIDs(GetSensitiveWordTableListByIDsReq) returns (SensitiveWordTables){}
   // 通过敏感词表id获取敏感词表信息
   rpc GetSensitiveWordTableByID(GetSensitiveWordTableByIDReq) returns (SensitiveWordTable){}
+  // 获取全局敏感词表列表
+  rpc GetGlobalSensitiveWordTableList(google.protobuf.Empty) returns (SensitiveWordTables) {}
 
   // 敏感词相关
   // 上传敏感词
@@ -40,6 +42,7 @@ message CreateSensitiveWordTableReq {
   string userId = 2;
   string tableName = 3; // 敏感词表名
   string remark = 4; // 备注
+  string tableType = 5; // 敏感词表类型
 }
 
 message UpdateSensitiveWordTableReq {
@@ -64,6 +67,7 @@ message DeleteSensitiveWordTableReq {
 message GetSensitiveWordTableListReq {
   string orgId = 1;
   string userId = 2;
+  string tableType = 3; // 敏感词表类型
 }
 
 message UploadSensitiveVocabularyReq {
@@ -113,6 +117,7 @@ message SensitiveWordTable {
   string reply = 4;
   string version = 5;
   int64  createdAt = 6;
+  string tableType = 7; // 敏感词表类型
 }
 
 message SensitiveWordVocabularyResp {

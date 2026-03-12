@@ -41,27 +41,26 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 	}
 
 	var matchDicts []ahocorasick.DictConfig
-	// 如果Enable为true,则处理敏感词
-	if agentInfo.SafetyConfig.GetEnable() {
-		var ids []string
-		for _, idx := range agentInfo.SafetyConfig.GetSensitiveTable() {
-			ids = append(ids, idx.TableId)
-		}
-		matchDicts, err = BuildSensitiveDict(ctx, ids)
-		if err != nil {
-			return nil, err
-		}
-		matchResults, err := ahocorasick.ContentMatch(req.Prompt, matchDicts, true)
-		if err != nil {
-			return nil, err
-		}
-		if len(matchResults) > 0 {
-			if matchResults[0].Reply != "" {
-				return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req", matchResults[0].Reply)
-			}
-			return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req_default_reply")
-		}
+
+	var ids []string
+	for _, idx := range agentInfo.SafetyConfig.GetSensitiveTable() {
+		ids = append(ids, idx.TableId)
 	}
+	matchDicts, err = BuildSensitiveDict(ctx, ids, agentInfo.SafetyConfig.GetEnable())
+	if err != nil {
+		return nil, err
+	}
+	matchResults, err := ahocorasick.ContentMatch(req.Prompt, matchDicts, true)
+	if err != nil {
+		return nil, err
+	}
+	if len(matchResults) > 0 {
+		if matchResults[0].Reply != "" {
+			return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req", matchResults[0].Reply)
+		}
+		return nil, grpc_util.ErrorStatusWithKey(err_code.Code_BFFSensitiveWordCheck, "bff_sensitive_check_req_default_reply")
+	}
+
 	agentReq := &assistant_service.AssistantConversionStreamReq{
 		AssistantId:    req.AssistantId,
 		ConversationId: req.ConversationId,
@@ -102,10 +101,7 @@ func CallAssistantConversationStream(ctx *gin.Context, userId, orgId string, req
 			rawCh <- s.Content
 		}
 	}()
-	if !agentInfo.SafetyConfig.GetEnable() {
-		return rawCh, nil
-	}
-	// 敏感词过滤
+	// 敏感词过滤(必须过滤，全局敏感词)
 	outputCh := ProcessSensitiveWords(ctx, rawCh, matchDicts, &agentSensitiveService{})
 	return outputCh, nil
 }

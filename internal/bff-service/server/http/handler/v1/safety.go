@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 	"github.com/UnicomAI/wanwu/internal/bff-service/service"
+	"github.com/UnicomAI/wanwu/pkg/constant"
 	gin_util "github.com/UnicomAI/wanwu/pkg/gin-util"
 	"github.com/gin-gonic/gin"
 )
@@ -75,10 +76,11 @@ func DeleteSensitiveWordTable(ctx *gin.Context) {
 //	@Security		JWT
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	response.Response{data=response.ListResult{list=[]response.SensitiveWordTableDetail}}
+//	@Param			type	query		string	true	"敏感词表类型，personal：个人，global：全局"
+//	@Success		200		{object}	response.Response{data=response.ListResult{list=[]response.SensitiveWordTableDetail}}
 //	@Router			/safe/sensitive/table/list [get]
 func GetSensitiveWordTableList(ctx *gin.Context) {
-	resp, err := service.GetSensitiveWordTableList(ctx, getUserID(ctx), getOrgID(ctx))
+	resp, err := service.GetSensitiveWordTableList(ctx, getUserID(ctx), getOrgID(ctx), ctx.Query("type"))
 	gin_util.Response(ctx, resp, err)
 }
 
@@ -175,7 +177,7 @@ func UpdateSensitiveWordTableReply(ctx *gin.Context) {
 //	@Success		200	{object}	response.Response{data=response.ListResult{list=[]response.SensitiveWordTableDetail}}
 //	@Router			/safe/sensitive/table/select [get]
 func GetSensitiveWordTableSelect(ctx *gin.Context) {
-	resp, err := service.GetSensitiveWordTableList(ctx, getUserID(ctx), getOrgID(ctx))
+	resp, err := service.GetSensitiveWordTableList(ctx, getUserID(ctx), getOrgID(ctx), constant.SensitiveTableTypePersonal)
 	gin_util.Response(ctx, resp, err)
 }
 

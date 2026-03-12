@@ -10,6 +10,7 @@ import (
 	"github.com/UnicomAI/wanwu/internal/app-service/client/model"
 	"github.com/UnicomAI/wanwu/internal/app-service/client/orm/sqlopt"
 	"github.com/UnicomAI/wanwu/internal/app-service/pkg"
+	"github.com/UnicomAI/wanwu/pkg/constant"
 	"github.com/UnicomAI/wanwu/pkg/minio"
 	"github.com/UnicomAI/wanwu/pkg/util"
 	"gorm.io/gorm"
@@ -21,7 +22,7 @@ const (
 	MaxSensitiveUploadSize         int = 100
 )
 
-func (c *Client) CreateSensitiveWordTable(ctx context.Context, userId, orgId, tableName, remark string) (string, *errs.Status) {
+func (c *Client) CreateSensitiveWordTable(ctx context.Context, userId, orgId, tableName, remark, tableType string) (string, *errs.Status) {
 	err := sqlopt.SQLOptions(
 		sqlopt.WithOrgID(orgId),
 		sqlopt.WithUserID(userId),
@@ -34,11 +35,12 @@ func (c *Client) CreateSensitiveWordTable(ctx context.Context, userId, orgId, ta
 		return "", toErrStatus("app_safety_sensitive_table_get", tableName)
 	}
 	table := &model.SensitiveWordTable{
-		Name:    tableName,
-		Remark:  remark,
-		Version: getSensitiveTableVersion(),
-		UserID:  userId,
-		OrgID:   orgId,
+		Name:      tableName,
+		Remark:    remark,
+		Version:   getSensitiveTableVersion(),
+		UserID:    userId,
+		OrgID:     orgId,
+		TableType: tableType,
 	}
 	if err := c.db.WithContext(ctx).Create(table).Error; err != nil {
 		return "", toErrStatus("app_safety_sensitive_table_create", tableName, err.Error())
@@ -104,12 +106,23 @@ func (c *Client) DeleteSensitiveWordTable(ctx context.Context, tableId uint32) *
 	return nil
 }
 
-func (c *Client) GetSensitiveWordTableList(ctx context.Context, userId, orgId string) ([]*model.SensitiveWordTable, *errs.Status) {
+func (c *Client) GetSensitiveWordTableList(ctx context.Context, userId, orgId, tableType string) ([]*model.SensitiveWordTable, *errs.Status) {
 	var tables []*model.SensitiveWordTable
 	if err := sqlopt.SQLOptions(
 		sqlopt.WithOrgID(orgId),
 		sqlopt.WithUserID(userId),
-	).Apply(c.db.WithContext(ctx)).Order("updated_at DESC").Find(&tables).Error; err != nil {
+		sqlopt.WithTableType(tableType),
+	).Apply(c.db.WithContext(ctx)).
+		Order("updated_at DESC").Find(&tables).Error; err != nil {
+		return nil, toErrStatus("app_safety_sensitive_table_list_get", err.Error())
+	}
+	return tables, nil
+}
+
+func (c *Client) GetGlobalSensitiveWordTableList(ctx context.Context) ([]*model.SensitiveWordTable, *errs.Status) {
+	var tables []*model.SensitiveWordTable
+	if err := sqlopt.WithTableType(constant.SensitiveTableTypeGlobal).Apply(c.db.WithContext(ctx)).
+		Order("updated_at DESC").Find(&tables).Error; err != nil {
 		return nil, toErrStatus("app_safety_sensitive_table_list_get", err.Error())
 	}
 	return tables, nil

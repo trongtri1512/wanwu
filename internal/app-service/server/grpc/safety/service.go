@@ -29,7 +29,7 @@ func errStatus(code errs.Code, status *errs.Status) error {
 }
 
 func (s *Service) CreateSensitiveWordTable(ctx context.Context, req *safety_service.CreateSensitiveWordTableReq) (*safety_service.CreateSensitiveWordTableResp, error) {
-	tableId, err := s.cli.CreateSensitiveWordTable(ctx, req.UserId, req.OrgId, req.TableName, req.Remark)
+	tableId, err := s.cli.CreateSensitiveWordTable(ctx, req.UserId, req.OrgId, req.TableName, req.Remark, req.TableType)
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -61,7 +61,7 @@ func (s *Service) DeleteSensitiveWordTable(ctx context.Context, req *safety_serv
 }
 
 func (s *Service) GetSensitiveWordTableList(ctx context.Context, req *safety_service.GetSensitiveWordTableListReq) (*safety_service.SensitiveWordTables, error) {
-	tables, err := s.cli.GetSensitiveWordTableList(ctx, req.UserId, req.OrgId)
+	tables, err := s.cli.GetSensitiveWordTableList(ctx, req.UserId, req.OrgId, req.TableType)
 	if err != nil {
 		return nil, errStatus(errs.Code_AppSafety, err)
 	}
@@ -141,6 +141,20 @@ func (s *Service) GetSensitiveWordTableByID(ctx context.Context, req *safety_ser
 	return ret, nil
 }
 
+func (s *Service) GetGlobalSensitiveWordTableList(ctx context.Context, req *emptypb.Empty) (*safety_service.SensitiveWordTables, error) {
+	tables, err := s.cli.GetGlobalSensitiveWordTableList(ctx)
+	if err != nil {
+		return nil, errStatus(errs.Code_AppSafety, err)
+	}
+	ret := &safety_service.SensitiveWordTables{
+		Total: int64(len(tables)),
+	}
+	for _, table := range tables {
+		ret.List = append(ret.List, toProtoSensitiveWordTable(table))
+	}
+	return ret, nil
+}
+
 func toProtoSensitiveWordTable(sensitiveWordTable *model.SensitiveWordTable) *safety_service.SensitiveWordTable {
 	return &safety_service.SensitiveWordTable{
 		TableId:   util.Int2Str(sensitiveWordTable.ID),
@@ -149,6 +163,7 @@ func toProtoSensitiveWordTable(sensitiveWordTable *model.SensitiveWordTable) *sa
 		Reply:     sensitiveWordTable.Reply,
 		Version:   sensitiveWordTable.Version,
 		CreatedAt: sensitiveWordTable.CreatedAt,
+		TableType: sensitiveWordTable.TableType,
 	}
 }
 

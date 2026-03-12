@@ -12973,6 +12973,15 @@ const docTemplate = `{
                     "safety"
                 ],
                 "summary": "获取敏感词表列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "敏感词表类型，personal：个人，global：全局",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -17614,7 +17623,8 @@ const docTemplate = `{
         "request.CreateSensitiveWordTableReq": {
             "type": "object",
             "required": [
-                "tableName"
+                "tableName",
+                "type"
             ],
             "properties": {
                 "remark": {
@@ -17623,6 +17633,10 @@ const docTemplate = `{
                 },
                 "tableName": {
                     "description": "敏感词表名",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "敏感词表类型，personal：个人，global：全局",
                     "type": "string"
                 }
             }
@@ -25116,6 +25130,10 @@ const docTemplate = `{
                 },
                 "tableName": {
                     "description": "敏感词表名",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "敏感词表类型",
                     "type": "string"
                 }
             }

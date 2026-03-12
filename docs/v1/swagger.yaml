@@ -1826,8 +1826,12 @@ definitions:
       tableName:
         description: 敏感词表名
         type: string
+      type:
+        description: 敏感词表类型，personal：个人，global：全局
+        type: string
     required:
     - tableName
+    - type
     type: object
   request.CreateSkillConversationReq:
     properties:
@@ -6879,6 +6883,9 @@ definitions:
         type: string
       tableName:
         description: 敏感词表名
+        type: string
+      type:
+        description: 敏感词表类型
         type: string
     type: object
   response.SensitiveWordVocabularyDetail:
@@ -15091,6 +15098,12 @@ paths:
       consumes:
       - application/json
       description: 获取敏感词表列表
+      parameters:
+      - description: 敏感词表类型，personal：个人，global：全局
+        in: query
+        name: type
+        required: true
+        type: string
       produces:
       - application/json
       responses:

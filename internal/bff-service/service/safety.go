@@ -23,6 +23,7 @@ func CreateSensitiveWordTable(ctx *gin.Context, userId, orgId string, req *reque
 		OrgId:     orgId,
 		TableName: req.TableName,
 		Remark:    req.Remark,
+		TableType: req.Type,
 	})
 	if err != nil {
 		return &response.CreateSensitiveWordTableResp{}, err
@@ -54,23 +55,18 @@ func DeleteSensitiveWordTable(ctx *gin.Context, req *request.DeleteSensitiveWord
 	return nil
 }
 
-func GetSensitiveWordTableList(ctx *gin.Context, userId, orgId string) (*response.ListResult, error) {
+func GetSensitiveWordTableList(ctx *gin.Context, userId, orgId, tableType string) (*response.ListResult, error) {
 	listResult, err := safety.GetSensitiveWordTableList(ctx, &safety_service.GetSensitiveWordTableListReq{
-		OrgId:  orgId,
-		UserId: userId,
+		OrgId:     orgId,
+		UserId:    userId,
+		TableType: tableType,
 	})
 	if err != nil {
 		return nil, err
 	}
 	var retList = make([]*response.SensitiveWordTableDetail, 0)
 	for _, detail := range listResult.List {
-		retList = append(retList, &response.SensitiveWordTableDetail{
-			TableId:   detail.TableId,
-			TableName: detail.TableName,
-			Remark:    detail.Remark,
-			Reply:     detail.Reply,
-			CreatedAt: util.Time2Str(detail.CreatedAt),
-		})
+		retList = append(retList, convertSensitiveWordTableToResp(detail))
 	}
 	return &response.ListResult{
 		Total: listResult.Total,
@@ -161,11 +157,18 @@ func GetSensitiveWordTableByID(ctx *gin.Context, req *request.GetSensitiveVocabu
 	if err != nil {
 		return nil, err
 	}
+	return convertSensitiveWordTableToResp(resp), nil
+}
+
+// --- internal ---
+
+func convertSensitiveWordTableToResp(table *safety_service.SensitiveWordTable) *response.SensitiveWordTableDetail {
 	return &response.SensitiveWordTableDetail{
-		TableId:   resp.TableId,
-		TableName: resp.TableName,
-		Remark:    resp.Remark,
-		Reply:     resp.Reply,
-		CreatedAt: util.Time2Str(resp.CreatedAt),
-	}, nil
+		TableId:   table.TableId,
+		TableName: table.TableName,
+		Remark:    table.Remark,
+		Reply:     table.Reply,
+		CreatedAt: util.Time2Str(table.CreatedAt),
+		Type:      table.TableType,
+	}
 }
