@@ -143,7 +143,7 @@ func (sw *SSEWriter[Res]) WriteLine(lineText Res, done bool, streamProcessParams
 		lineText = sw.client.ToRes(fmt.Sprintf("%v%v", lineText, *sw.doneMsg))
 	}
 	// 写入数据
-	log.Debugf("[SSE]%v write: %v", sw.label, lineText)
+	// log.Debugf("[SSE]%v write: %v", sw.label, lineText)
 	if !EmptyValue(lineText) {
 		err = sw.client.Write(lineText)
 		if err != nil {
