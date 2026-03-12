@@ -58,4 +58,7 @@ func Register(apiV1 *gin.RouterGroup) {
 
 	// api_key
 	registerAPIKey(apiV1)
+
+	// model_statistic
+	registerModelStatistic(apiV1)
 }

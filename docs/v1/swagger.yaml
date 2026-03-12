@@ -6550,6 +6550,64 @@ definitions:
     - modelType
     - provider
     type: object
+  response.ModelStatistic:
+    properties:
+      overview:
+        $ref: '#/definitions/response.ModelStatisticOverview'
+      trend:
+        $ref: '#/definitions/response.ModelStatisticTrend'
+    type: object
+  response.ModelStatisticItem:
+    properties:
+      avgCosts:
+        type: number
+      avgFirstTokenLatency:
+        type: number
+      callCount:
+        type: integer
+      callFailure:
+        type: integer
+      completionTokens:
+        type: integer
+      failureRate:
+        type: number
+      model:
+        type: string
+      modelId:
+        type: string
+      orgName:
+        type: string
+      promptTokens:
+        type: integer
+      provider:
+        type: string
+      totalTokens:
+        type: integer
+    type: object
+  response.ModelStatisticOverview:
+    properties:
+      avgCosts:
+        $ref: '#/definitions/response.StatisticOverviewItem'
+      avgFirstTokenLatency:
+        $ref: '#/definitions/response.StatisticOverviewItem'
+      callCountTotal:
+        $ref: '#/definitions/response.StatisticOverviewItem'
+      callFailureTotal:
+        $ref: '#/definitions/response.StatisticOverviewItem'
+      completionTokensTotal:
+        $ref: '#/definitions/response.StatisticOverviewItem'
+      promptTokensTotal:
+        $ref: '#/definitions/response.StatisticOverviewItem'
+      totalTokensTotal:
+        $ref: '#/definitions/response.StatisticOverviewItem'
+    type: object
+  response.ModelStatisticTrend:
+    properties:
+      modelCalls:
+        $ref: '#/definitions/response.StatisticChart'
+      tokensUsage:
+        $ref: '#/definitions/response.StatisticChart'
+    type: object
   response.OAuthAppInfo:
     properties:
       clientId:
@@ -15306,6 +15364,144 @@ paths:
       summary: 获取客户端统计数据
       tags:
       - statistic_client
+  /statistic/model:
+    get:
+      consumes:
+      - application/json
+      description: 获取模型统计数据
+      parameters:
+      - description: 开始时间（格式yyyy-mm-dd）
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: 结束时间（格式yyyy-mm-dd）
+        in: query
+        name: endDate
+        required: true
+        type: string
+      - description: 模型ID列表
+        in: query
+        name: models
+        type: string
+      - description: 模型类型
+        in: query
+        name: modelType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/response.ModelStatistic'
+              type: object
+      security:
+      - JWT: []
+      summary: 获取模型统计数据
+      tags:
+      - app_observability.statistic
+  /statistic/model/export:
+    get:
+      consumes:
+      - application/json
+      description: 导出模型统计列表数据
+      parameters:
+      - description: 开始时间（格式yyyy-mm-dd）
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: 结束时间（格式yyyy-mm-dd）
+        in: query
+        name: endDate
+        required: true
+        type: string
+      - description: 模型ID列表
+        in: query
+        name: models
+        type: string
+      - description: 模型类型
+        in: query
+        name: modelType
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - JWT: []
+      summary: 导出模型统计列表
+      tags:
+      - app_observability.statistic
+  /statistic/model/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取模型统计列表（分页）
+      parameters:
+      - description: 开始时间（格式yyyy-mm-dd）
+        in: query
+        name: startDate
+        required: true
+        type: string
+      - description: 结束时间（格式yyyy-mm-dd）
+        in: query
+        name: endDate
+        required: true
+        type: string
+      - description: 模型ID列表
+        in: query
+        name: models
+        type: string
+      - description: 模型类型
+        in: query
+        name: modelType
+        required: true
+        type: string
+      - description: 页面编号，从1开始
+        in: query
+        name: pageNo
+        required: true
+        type: integer
+      - description: 单页数量
+        in: query
+        name: pageSize
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/response.PageResult'
+                  - properties:
+                      list:
+                        items:
+                          $ref: '#/definitions/response.ModelStatisticItem'
+                        type: array
+                    type: object
+              type: object
+      security:
+      - JWT: []
+      summary: 获取模型统计列表
+      tags:
+      - app_observability.statistic
   /tool/action/detail:
     get:
       consumes:

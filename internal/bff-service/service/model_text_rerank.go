@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
@@ -50,6 +51,7 @@ func ModelTextRerank(ctx *gin.Context, modelID string, req *mp_common.TextRerank
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v rerank NewReq err: %v", modelInfo.ModelId, err)))
 		return
 	}
+	startTime := time.Now()
 	resp, err := iRerank.Rerank(ctx.Request.Context(), rerankReq)
 	if err != nil {
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v rerank err: %v", modelInfo.ModelId, err)))
@@ -63,7 +65,11 @@ func ModelTextRerank(ctx *gin.Context, modelID string, req *mp_common.TextRerank
 		ctx.Set(gin_util.STATUS, status)
 		//ctx.Set(config.RESULT, resp.String())
 		ctx.JSON(status, data)
+		costs := int(time.Since(startTime).Milliseconds())
+		recordModelStatistic(ctx, modelInfo, true,
+			data.Usage.PromptTokens, data.Usage.CompletionTokens, data.Usage.TotalTokens, costs, 0, false)
 		return
 	}
+	recordModelStatistic(ctx, modelInfo, false, 0, 0, 0, 0, 0, false)
 	gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v rerank err: invalid resp", modelInfo.ModelId)))
 }

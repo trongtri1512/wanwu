@@ -256,3 +256,66 @@ func WithTableType(tableType string) SQLOption {
 		return db.Where("table_type = ?", tableType)
 	})
 }
+
+func WithModelID(modelID string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if modelID != "" {
+			return db.Where("model_id = ?", modelID)
+		}
+		return db
+	})
+}
+
+func WithModelIds(modelIds []string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if len(modelIds) > 0 {
+			return db.Where("model_id IN ?", modelIds)
+		}
+		return db
+	})
+}
+
+func WithProvider(provider string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if provider != "" {
+			return db.Where("provider = ?", provider)
+		}
+		return db
+	})
+}
+
+func WithDate(date string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if date != "" {
+			return db.Where("date = ?", date)
+		}
+		return db
+	})
+}
+
+func WithModelType(modelType string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if modelType != "" {
+			return db.Where("model_type = ?", modelType)
+		}
+		return db
+	})
+}
+
+func StartDate(startDate string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if startDate != "" {
+			return db.Where("date >= ?", startDate)
+		}
+		return db
+	})
+}
+
+func EndDate(endDate string) SQLOption {
+	return funcSQLOption(func(db *gorm.DB) *gorm.DB {
+		if endDate != "" {
+			return db.Where("date <= ?", endDate)
+		}
+		return db
+	})
+}

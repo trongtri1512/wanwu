@@ -90,6 +90,12 @@ func Init() {
 	// api_key.api_key_management
 	mid.Sub("api_key").NewSub("api_key_management", "API Key管理", route.PermNeedCheck, true, true)
 
+	// --- app_observability ---
+	mid.NewSub("app_observability", "应用观测", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
+
+	// --- app_observability.statistic ---
+	mid.Sub("app_observability").NewSub("statistic", "统计看板", route.PermNeedCheck, true, true)
+
 	// --- permission ---
 	mid.NewSub("permission", "组织管理", route.PermNeedCheck, true, true, JWTUser, CheckUserPerm)
 

@@ -65,4 +65,10 @@ type IClient interface {
 	GetChatflowApplication(ctx context.Context, orgId, userId, workflowId string) (*model.ChatflowApplcation, *err_code.Status)
 	GetChatflowApplicationByApplicationID(ctx context.Context, orgId, userId, applicationId string) (*model.ChatflowApplcation, *err_code.Status)
 	CreateChatflowApplication(ctx context.Context, orgId, userId, workflowId, applicationId string) *err_code.Status
+
+	// --- statistic ---
+	GetModelStatistic(ctx context.Context, userId, orgId, startDate, endDate string, modelIds []string, modelType string) (*orm.ModelStatistic, *err_code.Status)
+	GetModelStatisticList(ctx context.Context, userId, orgId, startDate, endDate string, modelIds []string, modelType string, offset, limit int32) (*orm.ModelStatisticList, *err_code.Status)
+	RecordModelStatistic(ctx context.Context, userId, orgId, modelId, model, modelType string,
+		promptTokens, completionTokens, totalTokens int64, firstTokenLatency, costs int32, isSuccess bool, isStream bool, provider string) *err_code.Status
 }

@@ -90,6 +90,10 @@ func (c *client) Del(ctx context.Context, key string) error {
 	return c.cli.Del(ctx, key).Err()
 }
 
+func (c *client) Eval(ctx context.Context, script string, keys []string, args ...any) (any, error) {
+	return c.cli.Eval(ctx, script, keys, args...).Result()
+}
+
 func (c *client) Expire(ctx context.Context, key string, expire time.Duration) error {
 	return c.cli.Expire(ctx, key, expire).Err()
 }

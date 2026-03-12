@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
@@ -50,6 +51,7 @@ func ModelEmbeddings(ctx *gin.Context, modelID string, req *mp_common.EmbeddingR
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v embeddings NewReq err: %v", modelInfo.ModelId, err)))
 		return
 	}
+	startTime := time.Now()
 	resp, err := iEmbedding.Embeddings(ctx.Request.Context(), embeddingReq)
 	if err != nil {
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v embeddings err: %v", modelInfo.ModelId, err)))
@@ -63,7 +65,11 @@ func ModelEmbeddings(ctx *gin.Context, modelID string, req *mp_common.EmbeddingR
 		ctx.Set(gin_util.STATUS, status)
 		//ctx.Set(config.RESULT, resp.String())
 		ctx.JSON(status, data)
+		costs := int(time.Since(startTime).Milliseconds())
+		recordModelStatistic(ctx, modelInfo, true,
+			data.Usage.PromptTokens, data.Usage.CompletionTokens, data.Usage.TotalTokens, costs, 0, false)
 		return
 	}
+	recordModelStatistic(ctx, modelInfo, false, 0, 0, 0, 0, 0, false)
 	gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v embeddings err: invalid resp", modelInfo.ModelId)))
 }

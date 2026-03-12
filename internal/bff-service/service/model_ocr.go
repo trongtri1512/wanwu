@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
@@ -42,6 +43,7 @@ func ModelOcr(ctx *gin.Context, modelID string, req *mp_common.OcrReq) {
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v ocr NewReq err: %v", modelInfo.ModelId, err)))
 		return
 	}
+	startTime := time.Now()
 	resp, err := iOcr.Ocr(ctx, ocrReq)
 	if err != nil {
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v ocr err: %v", modelInfo.ModelId, err)))
@@ -52,7 +54,10 @@ func ModelOcr(ctx *gin.Context, modelID string, req *mp_common.OcrReq) {
 		ctx.Set(gin_util.STATUS, status)
 		//ctx.Set(config.RESULT, resp.String())
 		ctx.JSON(status, data)
+		costs := int(time.Since(startTime).Milliseconds())
+		recordModelStatistic(ctx, modelInfo, true, 0, 0, 0, costs, 0, false)
 		return
 	}
+	recordModelStatistic(ctx, modelInfo, false, 0, 0, 0, 0, 0, false)
 	gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v ocr err: invalid resp", modelInfo.ModelId)))
 }

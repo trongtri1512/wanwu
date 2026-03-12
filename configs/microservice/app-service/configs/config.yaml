@@ -59,3 +59,11 @@ minio:
   user: root
   password: Wanwu123456
   bucket: safety
+
+redis:
+  host: localhost
+  port: 6379
+  username:
+  password: Wanwu123456
+  standalone: true
+  master_name: mymaster

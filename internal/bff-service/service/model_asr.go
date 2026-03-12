@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	err_code "github.com/UnicomAI/wanwu/api/proto/err-code"
 	model_service "github.com/UnicomAI/wanwu/api/proto/model-service"
@@ -32,10 +33,10 @@ func ModelSyncAsr(ctx *gin.Context, modelID string, req *mp_common.SyncAsrReq) {
 			return
 		}
 	}
-	modelSyncAsr(ctx, modelID, modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig, req)
+	modelSyncAsr(ctx, modelInfo, modelID, modelInfo.Provider, modelInfo.ModelType, modelInfo.ProviderConfig, req)
 }
 
-func modelSyncAsr(ctx *gin.Context, modelId, provider, modelType, providerConfig string, req *mp_common.SyncAsrReq) {
+func modelSyncAsr(ctx *gin.Context, modelInfo *model_service.ModelInfo, modelId, provider, modelType, providerConfig string, req *mp_common.SyncAsrReq) {
 	// sync_asr config
 	sync_asr, err := mp.ToModelConfig(provider, modelType, providerConfig)
 	if err != nil {
@@ -47,7 +48,7 @@ func modelSyncAsr(ctx *gin.Context, modelId, provider, modelType, providerConfig
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v sync_asr err: invalid provider", modelId)))
 		return
 	}
-
+	startTime := time.Now()
 	asrReq, err := iSyncAsr.NewReq(req)
 	if err != nil {
 		gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v sync_asr NewReq err: %v", modelId, err)))
@@ -63,7 +64,10 @@ func modelSyncAsr(ctx *gin.Context, modelId, provider, modelType, providerConfig
 		ctx.Set(gin_util.STATUS, status)
 		//ctx.Set(config.RESULT, resp.String())
 		ctx.JSON(status, data)
+		costs := int(time.Since(startTime).Milliseconds())
+		recordModelStatistic(ctx, modelInfo, true, 0, 0, 0, costs, 0, false)
 		return
 	}
+	recordModelStatistic(ctx, modelInfo, false, 0, 0, 0, 0, 0, false)
 	gin_util.Response(ctx, nil, grpc_util.ErrorStatus(err_code.Code_BFFGeneral, fmt.Sprintf("model %v sync_asr err: invalid resp", modelId)))
 }

@@ -512,7 +512,7 @@
 {"code":300013,"key":"api_key_list","langs":{"zh":"获取ApiKey列表错误:%v"}}
 {"code":300013,"key":"api_key_update_status","langs":{"zh":"更新ApiKey状态错误:%v"}}
 {"code":300013,"key":"api_key_get_by_key","langs":{"zh":"获取ApiKey信息错误:%v"}}
-{"code":0,"key":"app_statistic_api_calls","langs":{"zh":"模型调用次数统计表"}}
+{"code":0,"key":"app_statistic_model_calls","langs":{"zh":"模型调用次数统计表"}}
 {"code":0,"key":"app_statistic_call_count_total","langs":{"zh":"模型调用总数"}}
 {"code":0,"key":"app_statistic_call_success","langs":{"zh":"模型调用成功数"}}
 {"code":0,"key":"app_statistic_call_failure","langs":{"zh":"模型调用失败数"}}

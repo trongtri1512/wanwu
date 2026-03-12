@@ -15,6 +15,8 @@ import (
 	"github.com/UnicomAI/wanwu/pkg/db"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/UnicomAI/wanwu/pkg/minio"
+	"github.com/UnicomAI/wanwu/pkg/redis"
+	"github.com/UnicomAI/wanwu/pkg/util"
 )
 
 var (
@@ -49,6 +51,10 @@ func main() {
 		log.Fatalf("init log err: %v", err)
 	}
 
+	if err := util.InitTimeLocal(); err != nil {
+		log.Fatalf("init time local err: %v", err)
+	}
+
 	err := minio.InitSafety(ctx, minio.Config{
 		Endpoint: config.Cfg().Minio.Endpoint,
 		User:     config.Cfg().Minio.User,
@@ -56,6 +62,10 @@ func main() {
 	}, config.Cfg().Minio.Bucket)
 	if err != nil {
 		log.Fatalf("init minio safety client err: %v", err)
+	}
+
+	if err := redis.InitApp(ctx, config.Cfg().Redis); err != nil {
+		log.Fatalf("init redis err: %v", err)
 	}
 
 	db, err := db.New(config.Cfg().DB)
@@ -68,6 +78,9 @@ func main() {
 		log.Fatalf("init client err: %v", err)
 	}
 
+	if err := orm.CronInit(ctx, db); err != nil {
+		log.Fatalf("init cron failed, err: %v", err)
+	}
 	s, err := grpc.NewServer(config.Cfg(), c)
 	if err != nil {
 		log.Fatalf("init server err: %v", err)
@@ -80,6 +93,8 @@ func main() {
 	signal.Notify(sc, os.Interrupt, syscall.SIGTERM)
 	<-sc
 	s.Stop(ctx)
+	orm.CronStop()
+	redis.StopApp()
 }
 
 func versionPrint() {

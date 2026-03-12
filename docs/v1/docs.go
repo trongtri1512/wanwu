@@ -13323,6 +13323,230 @@ const docTemplate = `{
                 }
             }
         },
+        "/statistic/model": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取模型统计数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app_observability.statistic"
+                ],
+                "summary": "获取模型统计数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "开始时间（格式yyyy-mm-dd）",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间（格式yyyy-mm-dd）",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "模型ID列表",
+                        "name": "models",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "模型类型",
+                        "name": "modelType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.ModelStatistic"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/statistic/model/export": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "导出模型统计列表数据",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "app_observability.statistic"
+                ],
+                "summary": "导出模型统计列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "开始时间（格式yyyy-mm-dd）",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间（格式yyyy-mm-dd）",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "模型ID列表",
+                        "name": "models",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "模型类型",
+                        "name": "modelType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/statistic/model/list": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "获取模型统计列表（分页）",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "app_observability.statistic"
+                ],
+                "summary": "获取模型统计列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "开始时间（格式yyyy-mm-dd）",
+                        "name": "startDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间（格式yyyy-mm-dd）",
+                        "name": "endDate",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "模型ID列表",
+                        "name": "models",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "模型类型",
+                        "name": "modelType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面编号，从1开始",
+                        "name": "pageNo",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "单页数量",
+                        "name": "pageSize",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/response.PageResult"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "list": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/response.ModelStatisticItem"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/tool/action/detail": {
             "get": {
                 "description": "获取工具详情",
@@ -24615,6 +24839,95 @@ const docTemplate = `{
                 },
                 "uuid": {
                     "type": "string"
+                }
+            }
+        },
+        "response.ModelStatistic": {
+            "type": "object",
+            "properties": {
+                "overview": {
+                    "$ref": "#/definitions/response.ModelStatisticOverview"
+                },
+                "trend": {
+                    "$ref": "#/definitions/response.ModelStatisticTrend"
+                }
+            }
+        },
+        "response.ModelStatisticItem": {
+            "type": "object",
+            "properties": {
+                "avgCosts": {
+                    "type": "number"
+                },
+                "avgFirstTokenLatency": {
+                    "type": "number"
+                },
+                "callCount": {
+                    "type": "integer"
+                },
+                "callFailure": {
+                    "type": "integer"
+                },
+                "completionTokens": {
+                    "type": "integer"
+                },
+                "failureRate": {
+                    "type": "number"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "modelId": {
+                    "type": "string"
+                },
+                "orgName": {
+                    "type": "string"
+                },
+                "promptTokens": {
+                    "type": "integer"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "totalTokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.ModelStatisticOverview": {
+            "type": "object",
+            "properties": {
+                "avgCosts": {
+                    "$ref": "#/definitions/response.StatisticOverviewItem"
+                },
+                "avgFirstTokenLatency": {
+                    "$ref": "#/definitions/response.StatisticOverviewItem"
+                },
+                "callCountTotal": {
+                    "$ref": "#/definitions/response.StatisticOverviewItem"
+                },
+                "callFailureTotal": {
+                    "$ref": "#/definitions/response.StatisticOverviewItem"
+                },
+                "completionTokensTotal": {
+                    "$ref": "#/definitions/response.StatisticOverviewItem"
+                },
+                "promptTokensTotal": {
+                    "$ref": "#/definitions/response.StatisticOverviewItem"
+                },
+                "totalTokensTotal": {
+                    "$ref": "#/definitions/response.StatisticOverviewItem"
+                }
+            }
+        },
+        "response.ModelStatisticTrend": {
+            "type": "object",
+            "properties": {
+                "modelCalls": {
+                    "$ref": "#/definitions/response.StatisticChart"
+                },
+                "tokensUsage": {
+                    "$ref": "#/definitions/response.StatisticChart"
                 }
             }
         },

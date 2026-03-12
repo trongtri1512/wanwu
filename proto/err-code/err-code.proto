@@ -213,6 +213,7 @@ enum Code {
   AppUrlExpired = 300011; // App WebUrl过期错误
   AppConversation = 300012; // 对话流相关错误
   ApiKey = 300013; //ApiKey相关错误
+  AppModelRecord = 300014; //模型统计相关错误
 
   // --- mcp-service ---
   // [310000, 319999]

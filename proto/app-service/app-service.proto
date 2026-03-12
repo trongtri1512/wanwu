@@ -3,6 +3,7 @@ syntax = "proto3";
 package app_service;
 
 import "google/protobuf/empty.proto";
+import "proto/common/common.proto";
 
 option go_package = "github.com/UnicomAI/wanwu/api/proto/app-service";
 
@@ -48,6 +49,11 @@ service AppService {
   rpc GetChatflowApplication(GetChatflowApplicationReq) returns (ChatflowApplicationInfo) {}
   rpc GetChatflowByApplicationID(GetChatflowByApplicationIDReq) returns (ChatflowApplicationInfo) {}
   rpc CreateChatflowApplication(CreateChatflowApplicationReq) returns (google.protobuf.Empty) {}
+
+  // --- statistic ---
+  rpc GetModelStatistic(GetModelStatisticReq) returns (ModelStatistic) {}
+  rpc RecordModelStatistic(RecordModelStatisticReq) returns (google.protobuf.Empty) {}
+  rpc GetModelStatisticList(GetModelStatisticListReq) returns (GetModelStatisticListResp) {}
 }
 
 // 创建API Key请求
@@ -339,4 +345,89 @@ message ChatflowApplicationInfo {
   int64 createdAt = 4;
   int64 updatedAt = 5;
   string workflowId =6;
+}
+
+// --- statistic ---
+
+message GetModelStatisticReq {
+  string userId = 1;
+  string orgId = 2;
+  string startDate = 3;
+  string endDate = 4;
+  repeated string modelIds = 5;
+  string modelType = 6;
+}
+
+message ModelStatistic {
+  ModelStatisticOverview overview = 1;
+  ModelStatisticTrend trend = 2;
+}
+
+message ModelStatisticOverview {
+  ModelStatisticOverviewItem callCount = 1; // 模型调用总数
+  ModelStatisticOverviewItem callFailure = 2; // 模型调用失败数
+  ModelStatisticOverviewItem totalTokens = 3; // tokens请求总数
+  ModelStatisticOverviewItem promptTokens = 4; // tokens输入
+  ModelStatisticOverviewItem completionTokens = 5; // tokens输出
+  ModelStatisticOverviewItem avgCosts = 6; // 平均耗时
+  ModelStatisticOverviewItem avgFirstTokenLatency = 7; // 平均首token时延
+}
+
+message ModelStatisticOverviewItem {
+  float value = 1;
+  float periodOverPeriod = 2;
+}
+
+message ModelStatisticTrend {
+  common.StatisticChart modelCalls = 1; // 模型调用趋势
+  common.StatisticChart tokensUsage = 2; // tokens使用趋势
+}
+
+message RecordModelStatisticReq {
+  string userId = 1;
+  string orgId = 2;
+  string modelId = 3;
+  string model = 4;
+  string provider = 5;
+  string modelType = 6;
+  int64 promptTokens = 7;
+  int64 completionTokens = 8;
+  int64 totalTokens = 9;
+  int32 firstTokenLatency = 10;
+  int32 costs = 11;
+  bool isSuccess = 12;
+  bool isStream = 13;
+}
+
+// --- model statistic list ---
+
+message GetModelStatisticListReq {
+  string userId = 1;
+  string orgId = 2;
+  string startDate = 3;
+  string endDate = 4;
+  repeated string modelIds = 5;
+  string modelType = 6;
+  int32 pageNo = 7;
+  int32 pageSize = 8;
+}
+
+message GetModelStatisticListResp {
+  repeated ModelStatisticItem items = 1;
+  int32 total = 2;
+}
+
+message ModelStatisticItem {
+  string orgId = 1; 
+  string modelId = 2;
+  string model = 3;
+  string provider = 4;
+  int32 callCount = 5;
+  int32 callFailure = 6;
+  float failureRate = 7;
+  int64 promptTokens = 8;
+  int64 completionTokens = 9;
+  int64 totalTokens = 10;
+  float avgCosts = 11;
+  float avgFirstTokenLatency = 12;
 }

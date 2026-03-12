@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	// v0.3.2 增加app版本管理，清楚之前发布的记录
+	// v0.3.2 增加app版本管理，清除之前发布的记录
 	initFlagKey = "v0.3.2_app_table_cleared"
 )
 
@@ -24,6 +24,88 @@ type Metadata struct {
 
 type Client struct {
 	db *gorm.DB
+}
+
+type ApiKey struct {
+	ApiId     string `json:"apiId"`
+	CreatedAt int64  `json:"createdAt"`
+	ApiKey    string `json:"apiKey"`
+}
+
+type ExplorationAppInfo struct {
+	AppId       string
+	AppType     string
+	CreatedAt   int64
+	UpdatedAt   int64
+	IsFavorite  bool
+	PublishType string
+	UserID      string
+}
+
+type SensitiveWordTableWithWord struct {
+	model.SensitiveWordTable
+	SensitiveWords []string
+}
+
+type ModelStatistic struct {
+	Overview ModelStatisticOverview `json:"overview"`
+	Trend    ModelStatisticTrend    `json:"trend"`
+}
+
+// ModelStatisticOverviewItem 模型统计概览项
+type ModelStatisticOverviewItem struct {
+	Value            float32 `json:"value"`
+	PeriodOverperiod float32 `json:"periodOverperiod"`
+}
+
+type ModelStatisticList struct {
+	Items []ModelStatisticItem
+	Total int32
+}
+
+type ModelStatisticItem struct {
+	ModelId              string
+	Model                string
+	Provider             string
+	OrgId                string
+	CallCount            int32
+	CallFailure          int32
+	FailureRate          float32
+	PromptTokens         int64
+	CompletionTokens     int64
+	TotalTokens          int64
+	AvgCosts             float32
+	AvgFirstTokenLatency float32
+}
+
+type ModelStatisticOverview struct {
+	CallCount            ModelStatisticOverviewItem `json:"callCount"`
+	CallFailure          ModelStatisticOverviewItem `json:"callFailure"`
+	TotalTokens          ModelStatisticOverviewItem `json:"totalTokens"`
+	CompletionTokens     ModelStatisticOverviewItem `json:"completionTokens"`
+	PromptTokens         ModelStatisticOverviewItem `json:"promptTokens"`
+	AvgCosts             ModelStatisticOverviewItem `json:"avgCosts"`
+	AvgFirstTokenLatency ModelStatisticOverviewItem `json:"avgFirstTokenLatency"`
+}
+
+type ModelStatisticTrend struct {
+	ModelCalls  StatisticChart `json:"modelCalls"`
+	TokensUsage StatisticChart `json:"tokensUsage"`
+}
+
+type StatisticChart struct {
+	Name  string               `json:"name"`
+	Lines []StatisticChartLine `json:"lines"`
+}
+
+type StatisticChartLine struct {
+	Name  string                   `json:"name"`
+	Items []StatisticChartLineItem `json:"items"`
+}
+
+type StatisticChartLineItem struct {
+	Key   string  `json:"key"`
+	Value float32 `json:"value"`
 }
 
 func NewClient(db *gorm.DB) (*Client, error) {
@@ -43,6 +125,7 @@ func NewClient(db *gorm.DB) (*Client, error) {
 		model.SensitiveWordTable{},
 		model.SensitiveWordVocabulary{},
 		model.ChatflowApplcation{},
+		model.ModelRecord{},
 	); err != nil {
 		return nil, err
 	}
@@ -65,16 +148,9 @@ func NewClient(db *gorm.DB) (*Client, error) {
 			return nil, fmt.Errorf("query metadata failed: %w", err)
 		}
 	}
-
 	return &Client{
 		db: db,
 	}, nil
-}
-
-type ApiKey struct {
-	ApiId     string `json:"apiId"`
-	CreatedAt int64  `json:"createdAt"`
-	ApiKey    string `json:"apiKey" `
 }
 
 func toErrStatus(key string, args ...string) *err_code.Status {
@@ -82,21 +158,6 @@ func toErrStatus(key string, args ...string) *err_code.Status {
 		TextKey: key,
 		Args:    args,
 	}
-}
-
-type ExplorationAppInfo struct {
-	AppId       string
-	AppType     string
-	CreatedAt   int64
-	UpdatedAt   int64
-	IsFavorite  bool
-	PublishType string
-	UserID      string
-}
-
-type SensitiveWordTableWithWord struct {
-	model.SensitiveWordTable
-	SensitiveWords []string
 }
 
 func canAccessApp(info *model.App, userId, orgId string) bool {
