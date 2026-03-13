@@ -106,7 +106,7 @@ func GetModelStatisticList(ctx *gin.Context, userId, orgId, startDate, endDate s
 		roundedAvgCosts := float32(math.Round(float64(item.AvgCosts)*100) / 100)
 		roundedAvgFirstTokenLatency := float32(math.Round(float64(item.AvgFirstTokenLatency)*100) / 100)
 		items = append(items, response.ModelStatisticItem{
-			UUID:                 uuidMap[item.Model], // 前端不需要展示uuid,excel导出需要
+			UUID:                 uuidMap[item.ModelId], // 前端不需要展示uuid,excel导出需要
 			ModelId:              item.ModelId,
 			Model:                getModelDisplayName(displayNameMap, item.ModelId),
 			Provider:             item.Provider,
@@ -133,24 +133,6 @@ func ExportModelStatisticList(ctx *gin.Context, userId, orgId, startDate, endDat
 	resp, err := GetModelStatisticList(ctx, userId, orgId, startDate, endDate, modelIds, modelType, -1, -1)
 	if err != nil {
 		return nil, err
-	}
-	// 调用模型服务获取模型信息
-	modelResp, err := model.GetModelByIds(ctx, &model_service.GetModelByIdsReq{
-		ModelIds: modelIds,
-	})
-	if err != nil {
-		return nil, err
-	}
-	// 创建modelId到modelInfo的映射
-	modelMap := make(map[string]string)
-	for _, model := range modelResp.Models {
-		modelMap[model.ModelId] = model.Uuid
-	}
-	//替换列表中的ModelId为Model的Uuid
-	for i, item := range resp.List.([]response.ModelStatisticItem) {
-		if uuid, ok := modelMap[item.ModelId]; ok {
-			resp.List.([]response.ModelStatisticItem)[i].ModelId = uuid
-		}
 	}
 	return writeModelListExcel(resp.List.([]response.ModelStatisticItem))
 }
