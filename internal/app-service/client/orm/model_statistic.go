@@ -34,20 +34,11 @@ if current then
 	record.firstTokenLatency = record.firstTokenLatency + delta.firstTokenLatency
 	record.costs = record.costs + delta.costs
 	record.callCount = record.callCount + 1
-	if delta.isFailure == 1 then
-		record.callFailure = record.callFailure + 1
-	end
-	if delta.isStream == 1 then
-		record.streamCount = record.streamCount + 1
-		if delta.isFailure == 1 then
-			record.streamFailure = record.streamFailure + 1
-		end
-	else
-		record.nonStreamCount = record.nonStreamCount + 1
-		if delta.isFailure == 1 then
-			record.nonStreamFailure = record.nonStreamFailure + 1
-		end
-	end
+	record.callFailure = record.callFailure + delta.callFailure
+	record.streamCount = record.streamCount + delta.streamCount
+	record.streamFailure = record.streamFailure + delta.streamFailure
+	record.nonStreamCount = record.nonStreamCount + delta.nonStreamCount
+	record.nonStreamFailure = record.nonStreamFailure + delta.nonStreamFailure
 	redis.call('HSET', key, field, cjson.encode(record))
 else
 	redis.call('HSET', key, field, ARGV[1])
