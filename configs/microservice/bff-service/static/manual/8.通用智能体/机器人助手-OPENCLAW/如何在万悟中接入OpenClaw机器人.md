@@ -10,7 +10,7 @@
 # 解压 Ubuntu.24.04_amd64.tar.gz
 tar -zxvf Ubuntu.24.04_amd64.tar.gz
 # wsl --import <名称>  <安装位置>  <tar文件名>
-wsl --import Ubuntu-24.04 .\Ubuntu-24.04 .\UUbuntu.24.04_amd64.tar --version 2
+wsl --import Ubuntu-24.04 .\Ubuntu-24.04 .\Ubuntu.24.04_amd64.tar --version 2
 # 启动wsl
 wsl -d Ubuntu-24.04
 ```
