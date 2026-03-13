@@ -3,7 +3,6 @@ package orm
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -239,36 +238,26 @@ func updateModelStats(ctx context.Context, date string, db *gorm.DB) error {
 
 // updateModelStatsByRecord 根据记录更新模型统计数据到数据库
 func updateModelStatsByRecord(ctx context.Context, db *gorm.DB, modelId, userId, orgId, provider, date string, record *ModelRecordStats) error {
-	var modelStat *model.ModelRecord
-	if err := sqlopt.SQLOptions(
-		sqlopt.WithModelID(modelId),
-		sqlopt.WithUserID(userId),
-		sqlopt.WithOrgID(orgId),
-		sqlopt.WithProvider(provider),
-		sqlopt.WithDate(date),
-	).Apply(db.WithContext(ctx)).First(&modelStat).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return db.WithContext(ctx).Create(&model.ModelRecord{
-				OrgID:             orgId,
-				UserID:            userId,
-				ModelID:           modelId,
-				Model:             record.Model,
-				Provider:          record.Provider,
-				ModelType:         record.ModelType,
-				PromptTokens:      record.PromptTokens,
-				CompletionTokens:  record.CompletionTokens,
-				TotalTokens:       record.TotalTokens,
-				FirstTokenLatency: record.FirstTokenLatency,
-				Costs:             record.Costs,
-				StreamCount:       record.StreamCount,
-				NonStreamCount:    record.NonStreamCount,
-				CallCount:         record.CallCount,
-				CallFailure:       record.CallFailure,
-				NonStreamFailure:  record.NonStreamFailure,
-				StreamFailure:     record.StreamFailure,
-				Date:              date,
-			}).Error
-		}
+	modelStat := &model.ModelRecord{
+		OrgID:     orgId,
+		UserID:    userId,
+		ModelID:   modelId,
+		Model:     record.Model,
+		ModelType: record.ModelType,
+		Provider:  provider,
+		Date:      date,
+	}
+
+	// 使用 FirstOrCreate 保证并发安全：当多个请求同时查询同一条记录时，只会创建一条记录，避免重复
+	// 查询条件：modelId + userId + orgId + provider + date（唯一标识一条统计记录）
+	// 创建时会设置 Model 和 ModelType 字段
+	if err := db.WithContext(ctx).Where(&model.ModelRecord{
+		OrgID:    orgId,
+		UserID:   userId,
+		ModelID:  modelId,
+		Provider: provider,
+		Date:     date,
+	}).FirstOrCreate(modelStat).Error; err != nil {
 		return err
 	}
 
@@ -276,26 +265,27 @@ func updateModelStatsByRecord(ctx context.Context, db *gorm.DB, modelId, userId,
 	if modelStat.PromptTokens == record.PromptTokens &&
 		modelStat.CompletionTokens == record.CompletionTokens &&
 		modelStat.TotalTokens == record.TotalTokens &&
+		modelStat.FirstTokenLatency == record.FirstTokenLatency &&
+		modelStat.Costs == record.Costs &&
 		modelStat.CallCount == record.CallCount &&
-		modelStat.NonStreamFailure == record.NonStreamFailure &&
-		modelStat.StreamFailure == record.StreamFailure &&
-		modelStat.CallFailure == record.CallFailure &&
 		modelStat.StreamCount == record.StreamCount &&
 		modelStat.NonStreamCount == record.NonStreamCount &&
-		modelStat.FirstTokenLatency == record.FirstTokenLatency &&
-		modelStat.Costs == record.Costs {
+		modelStat.CallFailure == record.CallFailure &&
+		modelStat.StreamFailure == record.StreamFailure &&
+		modelStat.NonStreamFailure == record.NonStreamFailure {
 		return nil
 	}
 
-	return db.WithContext(ctx).Model(&modelStat).Updates(map[string]any{
+	// 更新统计数据
+	return db.WithContext(ctx).Model(modelStat).Updates(map[string]any{
 		"prompt_tokens":       record.PromptTokens,
 		"completion_tokens":   record.CompletionTokens,
 		"total_tokens":        record.TotalTokens,
 		"first_token_latency": record.FirstTokenLatency,
 		"costs":               record.Costs,
+		"call_count":          record.CallCount,
 		"stream_count":        record.StreamCount,
 		"non_stream_count":    record.NonStreamCount,
-		"call_count":          record.CallCount,
 		"call_failure":        record.CallFailure,
 		"stream_failure":      record.StreamFailure,
 		"non_stream_failure":  record.NonStreamFailure,
