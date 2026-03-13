@@ -198,6 +198,7 @@ export default {
         conversationId: '',
         fileInfo: fileInfo,
         systemPrompt: this.systemPrompt,
+        isCompare: true, // 提示词对比true以避免影响草稿态的智能体历史上下文
       });
       this.echo = false;
       this.sendEventSource(promptText, '', lastIndex);

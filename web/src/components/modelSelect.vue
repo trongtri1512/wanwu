@@ -26,7 +26,7 @@
     >
       <div class="model-option-content">
         <div class="model-option-content-left">
-          <img class="model-img" :src="convertModelIcon(item.avatar.path)" />
+          <img class="model-img" :src="convertModelIcon(item?.avatar.path)" />
           <span class="model-name">{{ item.displayName }}</span>
         </div>
 
@@ -129,7 +129,7 @@ export default {
   computed: {
     modelAvatar() {
       const o = this.options.find(o => o.modelId === this.currentValue);
-      return this.currentValue.length && o.avatar.path
+      return this.currentValue.length && o?.avatar.path
         ? avatarSrc(o.avatar.path)
         : defaultModelAvatar;
     },
