@@ -1272,6 +1272,7 @@ func buildKnowledgeBases(ctx *gin.Context, kbInfoList *knowledgeBase_service.Kno
 				Share:                share,
 				OrgName:              orgName,
 				MetaDataFilterParams: params,
+				Avatar:               cacheKnowledgeAvatar(ctx, info.AvatarPath, info.Category),
 			})
 		}
 	} else {

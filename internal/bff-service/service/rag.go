@@ -511,6 +511,7 @@ func ragKBConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagKnowledge
 			Category:    kbInfo.Category,
 			OrgName:     orgName,
 			Share:       share,
+			Avatar:      cacheKnowledgeAvatar(ctx, kbInfo.AvatarPath, kbInfo.Category),
 		}
 		// 转换元数据过滤配置
 		metaFilter := perConfig.RagMetaFilter
@@ -575,6 +576,7 @@ func ragKBQAConfigProto2Model(ctx *gin.Context, kbConfig *rag_service.RagQAKnowl
 			Category: kbInfo.Category,
 			OrgName:  orgName,
 			Share:    share,
+			Avatar:   cacheKnowledgeAvatar(ctx, kbInfo.AvatarPath, kbInfo.Category),
 		}
 		// 转换元数据过滤配置
 		metaFilter := perConfig.RagMetaFilter

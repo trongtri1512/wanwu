@@ -726,6 +726,7 @@ func buildDocListResp(list []*model.KnowledgeDoc, importTaskList []*model.Knowle
 			Keywords:         buildKeywords(keywords),
 			LlmModelId:       knowledgeGraph.LlmModelId,
 			Category:         int32(knowledge.Category),
+			AvatarPath:       knowledge.AvatarPath,
 		},
 	}
 }

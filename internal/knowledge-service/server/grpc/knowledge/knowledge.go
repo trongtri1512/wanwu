@@ -135,7 +135,7 @@ func (s *Service) UpdateKnowledge(ctx context.Context, req *knowledgebase_servic
 		return nil, err
 	}
 	//3.更新知识库
-	err = orm.UpdateKnowledge(ctx, req.Name, req.Description, knowledge)
+	err = orm.UpdateKnowledge(ctx, req.Name, req.Description, req.AvatarPath, knowledge)
 	if err != nil {
 		log.Errorf("知识库更新失败(%v)  参数(%v)", err, req)
 		return nil, util.ErrCode(errs.Code_KnowledgeBaseUpdateFailed)
@@ -1003,6 +1003,7 @@ func buildKnowledgeInfo(knowledge *model.KnowledgeBase) *knowledgebase_service.K
 		UpdatedAt:             wanwu_util.Time2Str(knowledge.UpdatedAt),
 		External:              int32(knowledge.External),
 		KnowledgeExternalInfo: externalKnowledgeInfo,
+		AvatarPath:            knowledge.AvatarPath,
 	}
 }
 
@@ -1042,6 +1043,7 @@ func buildKnowledgeBaseModel(req *knowledgebase_service.CreateKnowledgeReq) (*mo
 		CreatedAt:            time.Now().UnixMilli(),
 		UpdatedAt:            time.Now().UnixMilli(),
 		Category:             int(req.Category),
+		AvatarPath:           req.AvatarPath,
 	}, nil
 }
 

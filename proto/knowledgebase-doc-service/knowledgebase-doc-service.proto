@@ -98,6 +98,7 @@ message KnowledgeInfo {
   repeated KeywordsInfo keywords = 7; // 关键词列表
   string llmModelId = 8; // llm模型id（知识图谱）
   int32 category = 9; // 知识库分类 0：知识库，1：问答库 2: 多模态知识库
+  string avatarPath = 10; // 知识库头像
 }
 
 message KeywordsInfo {

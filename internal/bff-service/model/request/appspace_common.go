@@ -71,6 +71,7 @@ type AppKnowledgeBase struct {
 	OrgName              string                `json:"orgName"`     //知识库所属名称
 	Share                bool                  `json:"share"`       //是分享，还是私有
 	MetaDataFilterParams *MetaDataFilterParams `json:"metaDataFilterParams"`
+	Avatar               Avatar                `json:"avatar"` // 头像
 }
 
 type AppKnowledgebaseParams struct {
@@ -99,6 +100,7 @@ type AppQAKnowledgeBase struct {
 	OrgName              string                `json:"orgName"`  //知识库所属名称
 	Share                bool                  `json:"share"`    //是分享，还是私有
 	MetaDataFilterParams *MetaDataFilterParams `json:"metaDataFilterParams"`
+	Avatar               Avatar                `json:"avatar"` // 头像
 }
 
 type AppQAKnowledgebaseParams struct {

@@ -69,3 +69,10 @@ const (
 	SensitiveTableTypeGlobal   = "global"   // 全局敏感词表
 	SensitiveTableTypePersonal = "personal" // 个人敏感词表
 )
+
+// knowledge type
+const (
+	KnowledgeBase       = 0 // 文本知识库
+	KnowledgeQA         = 1 // 问答库
+	MultiModalKnowledge = 2 // 多模态知识库
+)

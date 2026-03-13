@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/UnicomAI/wanwu/pkg/constant"
 	mp "github.com/UnicomAI/wanwu/pkg/model-provider"
 	mp_jina "github.com/UnicomAI/wanwu/pkg/model-provider/mp-jina"
 	utils "github.com/UnicomAI/wanwu/pkg/util"
@@ -28,10 +29,6 @@ import (
 	http_client "github.com/UnicomAI/wanwu/pkg/http-client"
 	"github.com/UnicomAI/wanwu/pkg/log"
 	"github.com/gin-gonic/gin"
-)
-
-const (
-	MultiModalKnowledge = 2
 )
 
 var knowHttp = http_client.CreateDefault()
@@ -160,6 +157,7 @@ func CreateKnowledge(ctx *gin.Context, userId, orgId string, r *request.CreateKn
 		},
 		KnowledgeGraph: knowledgeGraph,
 		Category:       r.Category,
+		AvatarPath:     r.Avatar.Key,
 	})
 	if err != nil {
 		return nil, err
@@ -191,6 +189,7 @@ func UpdateKnowledge(ctx *gin.Context, userId, orgId string, r *request.UpdateKn
 		Description: r.Description,
 		UserId:      userId,
 		OrgId:       orgId,
+		AvatarPath:  r.Avatar.Key,
 	})
 	return err
 }
@@ -369,7 +368,7 @@ func buildUserKnowledgeList(knowledgeList []*response.KnowledgeInfo) (map[string
 			KnowledgeName: knowledge.RagName,
 		})
 		retMap[knowledge.CreateUserId] = knowledgeInfos
-		if knowledge.Category == MultiModalKnowledge {
+		if knowledge.Category == constant.MultiModalKnowledge {
 			enableVision = true
 		}
 	}
@@ -447,9 +446,12 @@ func buildKnowledgeInfoList(ctx *gin.Context, knowledgeListResp *knowledgebase_s
 		return &response.KnowledgeListResp{}
 	}
 	orgMap := buildOtherOrgInfoMap(ctx, knowledgeListResp)
-
 	var list []*response.KnowledgeInfo
 	for _, knowledge := range knowledgeListResp.KnowledgeList {
+		avatar := cacheKnowledgeAvatar(ctx, knowledge.AvatarPath, knowledge.Category)
+		if avatar.Path != "" {
+			avatar.Path = config.Cfg().Server.ApiBaseUrl + avatar.Path
+		}
 		share := knowledge.ShareCount > 1
 		list = append(list, &response.KnowledgeInfo{
 			KnowledgeId: knowledge.KnowledgeId,
@@ -478,6 +480,7 @@ func buildKnowledgeInfoList(ctx *gin.Context, knowledgeListResp *knowledgebase_s
 				ExternalApiId:         knowledge.KnowledgeExternalInfo.ExternalAPIId,
 				ExternalApiName:       knowledge.KnowledgeExternalInfo.ExternalAPIName,
 			},
+			Avatar: avatar,
 		})
 	}
 	return &response.KnowledgeListResp{KnowledgeList: list}

@@ -96,6 +96,8 @@ default-icon:
   prompt: "/v1/static/icon/prompt-default-icon.png"
   skill: "/v1/static/icon/skill-default-icon.png"
   skillCustom: "/v1/static/icon/custom-skill-default-icon.png"
+  knowledge: "/v1/static/icon/knowledge-default-icon.png"
+  qa: "/v1/static/icon/knowledge-default-icon.png"
 
 doc-center:
   frontend_prefix: /aibase/docCenter/pages
