@@ -1,5 +1,7 @@
 package response
 
+import "github.com/UnicomAI/wanwu/internal/bff-service/model/request"
+
 type DocPageResult struct {
 	List             []*ListDocResp    `json:"list"`
 	Total            int64             `json:"total"`
@@ -38,6 +40,7 @@ type DocKnowledgeInfo struct {
 	EmbeddingModel  *ModelInfo      `json:"embeddingModel"`
 	LlmModelId      string          `json:"llmModelId"`
 	Category        int32           `json:"category"` // 0: 知识库 1: 问答库 2: 多模态知识库
+	Avatar          request.Avatar  `json:"avatar"`   // 头像
 }
 
 type ListDocResp struct {

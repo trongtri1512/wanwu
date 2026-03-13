@@ -3,6 +3,8 @@ package response
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/UnicomAI/wanwu/internal/bff-service/model/request"
 )
 
 type KnowledgeListResp struct {
@@ -57,6 +59,7 @@ type KnowledgeInfo struct {
 	UpdatedAt             string                 `json:"updatedAt"`             // 更新时间
 	External              int32                  `json:"external"`              // 0: 内部知识库 1：外部知识库
 	ExternalKnowledgeInfo *KnowledgeExternalInfo `json:"externalKnowledgeInfo"` //外部知识库信息
+	Avatar                request.Avatar         `json:"avatar"`                // 头像
 }
 
 type KnowledgeExternalInfo struct {

@@ -10350,7 +10350,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "format": "int32",
                         "description": "模型体验对话ID",
                         "name": "modelExperienceId",
                         "in": "query",
@@ -16374,6 +16373,14 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "avatar": {
+                    "description": "头像",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
                 "category": {
                     "description": "知识库类别 0-知识库，1-问答库，2-多模态知识库",
                     "type": "integer"
@@ -16521,6 +16528,14 @@ const docTemplate = `{
                 "id"
             ],
             "properties": {
+                "avatar": {
+                    "description": "头像",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
                 "category": {
                     "description": "知识库类别 0-知识库，1-问答库，2-多模态知识库",
                     "type": "integer"
@@ -17754,6 +17769,14 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
                 "category": {
                     "description": "0:知识库，1:问答库,2:多模态知识库",
                     "type": "integer"
@@ -20727,6 +20750,14 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "avatar": {
+                    "description": "图标",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
                 "description": {
                     "type": "string"
                 },
@@ -22877,6 +22908,14 @@ const docTemplate = `{
         "response.DocKnowledgeInfo": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "description": "头像",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
                 "category": {
                     "description": "0: 知识库 1: 问答库 2: 多模态知识库",
                     "type": "integer"
@@ -23620,6 +23659,14 @@ const docTemplate = `{
         "response.KnowledgeInfo": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "description": "头像",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/request.Avatar"
+                        }
+                    ]
+                },
                 "category": {
                     "description": "0: 知识库; 1: 问答库",
                     "type": "integer"

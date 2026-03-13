@@ -513,6 +513,10 @@ definitions:
     type: object
   request.AppKnowledgeBase:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 头像
       category:
         description: 知识库类别 0-知识库，1-问答库，2-多模态知识库
         type: integer
@@ -549,6 +553,10 @@ definitions:
     type: object
   request.CreateKnowledgeReq:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
       category:
         description: 0:知识库，1:问答库,2:多模态知识库
         type: integer
@@ -1030,6 +1038,10 @@ definitions:
     type: object
   request.UpdateKnowledgeReq:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 图标
       description:
         type: string
       knowledgeId:
@@ -1109,6 +1121,10 @@ definitions:
     type: object
   response.DocKnowledgeInfo:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 头像
       category:
         description: '0: 知识库 1: 问答库 2: 多模态知识库'
         type: integer
@@ -1252,6 +1268,10 @@ definitions:
     type: object
   response.KnowledgeInfo:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 头像
       category:
         description: '0: 知识库; 1: 问答库'
         type: integer

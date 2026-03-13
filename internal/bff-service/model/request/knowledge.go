@@ -28,6 +28,7 @@ type KnowledgeBatchSelectReq struct {
 }
 
 type CreateKnowledgeReq struct {
+	Avatar         Avatar          `json:"avatar"` // 图标
 	Name           string          `json:"name"  validate:"required"`
 	Description    string          `json:"description"`
 	EmbeddingModel *EmbeddingModel `json:"embeddingModelInfo" validate:"required"`
@@ -39,6 +40,7 @@ type UpdateKnowledgeReq struct {
 	KnowledgeId string `json:"knowledgeId"   validate:"required"`
 	Name        string `json:"name"   validate:"required"`
 	Description string `json:"description"`
+	Avatar      Avatar `json:"avatar"` // 图标
 	CommonCheck
 }
 

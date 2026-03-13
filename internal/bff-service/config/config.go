@@ -300,6 +300,8 @@ type DefaultIconConfig struct {
 	PromptIcon      string `json:"prompt" mapstructure:"prompt"`
 	SkillIcon       string `json:"skill" mapstructure:"skill"`
 	CustomSkillIcon string `json:"skillCustom" mapstructure:"skillCustom"`
+	KnowledgeIcon   string `json:"knowledge" mapstructure:"knowledge"`
+	QAIcon          string `json:"qa" mapstructure:"qa"`
 }
 
 func LoadConfig(in string) error {

@@ -208,12 +208,12 @@ func CreateKnowledgeExternal(ctx context.Context, knowledge *model.KnowledgeBase
 }
 
 // UpdateKnowledge 更新知识库
-func UpdateKnowledge(ctx context.Context, name, description string, knowledgeBase *model.KnowledgeBase) error {
+func UpdateKnowledge(ctx context.Context, name, description, avatarPath string, knowledgeBase *model.KnowledgeBase) error {
 	//return updateKnowledge(db.GetHandle(ctx), knowledgeBase.Id, name, description)
 	return db.GetHandle(ctx).Transaction(func(tx *gorm.DB) error {
 		//已经区分为知识库展示名称和rag知识库名称，不需要再通知rag修改名称
 		if knowledgeBase.Name != knowledgeBase.RagName {
-			return updateKnowledge(tx, knowledgeBase.Id, name, description)
+			return updateKnowledge(tx, knowledgeBase.Id, name, description, avatarPath)
 		}
 		//2.更新数据
 		ragName := wanwu_util.NewID()
@@ -371,10 +371,11 @@ func createKnowledge(tx *gorm.DB, knowledge *model.KnowledgeBase) error {
 	return tx.Create(knowledge).Error
 }
 
-func updateKnowledge(tx *gorm.DB, id uint32, name, description string) error {
+func updateKnowledge(tx *gorm.DB, id uint32, name, description, avatarPath string) error {
 	var updateParams = map[string]interface{}{
 		"name":        name,
 		"description": description,
+		"avatar_path": avatarPath,
 	}
 	return tx.Model(&model.KnowledgeBase{}).Where("id=?", id).Updates(updateParams).Error
 }

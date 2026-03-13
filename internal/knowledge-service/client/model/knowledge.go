@@ -22,6 +22,7 @@ type KnowledgeBase struct {
 	KnowledgeId          string       `gorm:"uniqueIndex:idx_unique_knowledge_id;column:knowledge_id;type:varchar(64)" json:"knowledgeId"` // Business Primary Key
 	Name                 string       `gorm:"column:name;index:idx_user_id_name,priority:2;type:varchar(256);not null;default:''" json:"name"`
 	RagName              string       `gorm:"column:rag_name;type:varchar(256);not null;default:''" json:"ragName"`
+	AvatarPath           string       `gorm:"column:avatar_path;type:varchar(256);not null;default:'';comment:知识库头像" json:"avatarPath"`
 	External             int          `gorm:"column:external;index:idx_external;type:tinyint(4);not null;default:0;comment:'0-知识库，1-外部知识库';" json:"external"`
 	ExternalKnowledge    string       `gorm:"column:external_knowledge;type:longtext;not null;comment:'外部知识库信息';" json:"externalKnowledge"`
 	Category             int          `gorm:"column:category;index:idx_category;type:tinyint(4);not null;default:0;comment:'0-知识库，1-问答库，2-多模态知识库';" json:"category"`

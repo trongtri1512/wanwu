@@ -75,6 +75,7 @@ message UpdateKnowledgeReq{
   string description = 3;
   string userId = 4;
   string orgId = 5;
+  string avatarPath = 6;
 }
 
 message UpdateKnowledgeStatusReq{
@@ -138,6 +139,7 @@ message CreateKnowledgeReq{
   EmbeddingModelInfo embeddingModelInfo = 5;
   KnowledgeGraph knowledgeGraph = 6; //知识图谱配置
   int32 category = 7; //分类信息，0:知识库，1：问答库，2：多模态知识库
+  string avatarPath = 8; // 头像路径
 }
 
 message EmbeddingModelInfo{
@@ -211,6 +213,7 @@ message KnowledgeInfo {
   string updatedAt = 16; // 更新时间
   int32 external = 17; //0:知识库 1:外部知识库
   KnowledgeExternalInfo knowledgeExternalInfo = 18; // 外部知识库信息
+  string avatarPath = 19; // 头像路径
 }
 
 message KnowledgeTagInfo {

@@ -114,6 +114,10 @@ definitions:
     type: object
   request.AppKnowledgeBase:
     properties:
+      avatar:
+        allOf:
+        - $ref: '#/definitions/request.Avatar'
+        description: 头像
       category:
         description: 知识库类别 0-知识库，1-问答库，2-多模态知识库
         type: integer

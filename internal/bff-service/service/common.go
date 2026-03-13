@@ -408,6 +408,23 @@ func cachePromptAvatar(ctx *gin.Context, avatarObjectPath string) request.Avatar
 	return CacheAvatar(ctx, avatarObjectPath, true)
 }
 
+// knowledge custom
+func cacheKnowledgeAvatar(ctx *gin.Context, avatarObjectPath string, knowledgeType int32) request.Avatar {
+	avatar := request.Avatar{}
+	if avatarObjectPath == "" {
+		switch knowledgeType {
+		case constant.KnowledgeBase:
+			avatar.Path = config.Cfg().DefaultIcon.KnowledgeIcon
+		case constant.KnowledgeQA:
+			avatar.Path = config.Cfg().DefaultIcon.QAIcon
+		default:
+			avatar.Path = config.Cfg().DefaultIcon.KnowledgeIcon
+		}
+		return avatar
+	}
+	return CacheAvatar(ctx, avatarObjectPath, true)
+}
+
 // resizeImage 压缩图像
 func resizeImage(imageData []byte) ([]byte, error) {
 	// 先解码获取图像尺寸
