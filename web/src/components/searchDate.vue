@@ -171,11 +171,7 @@ export default {
 .statistics_search_time {
   display: flex;
   align-items: center;
-  position: absolute;
-  top: 0px;
-  left: 0;
   width: 100%;
-  min-width: 1200px;
   padding: 10px 24px;
   z-index: 2001;
 
@@ -184,6 +180,10 @@ export default {
 
     .el-range-editor--mini.el-input__inner {
       height: 30px;
+      box-shadow:
+        0 0 15px 0 rgba(89, 104, 178, 0.06),
+        0 15px 20px 0 rgba(89, 104, 178, 0.06);
+      border: none;
     }
 
     .el-button--primary {

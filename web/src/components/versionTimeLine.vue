@@ -97,6 +97,7 @@
 import { getAppVersionList, rollbackAppVersion } from '@/api/appspace';
 import { exportWorkflow } from '@/api/workflow';
 import { WORKFLOW, CHAT } from '@/utils/commonSet';
+import { resDownloadFile } from '@/utils/util';
 
 export default {
   name: 'VersionPopover',
@@ -180,13 +181,10 @@ export default {
         { workflow_id: this.appId, version: this.versionList[index].version },
         this.appType,
       ).then(response => {
-        const blob = new Blob([response], { type: response.type });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${this.$route.query.name || ''}_${this.versionList[index].version}.json`;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+        resDownloadFile(
+          response,
+          `${this.$route.query.name || ''}_${this.versionList[index].version}.json`,
+        );
       });
     },
   },

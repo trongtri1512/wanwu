@@ -48,26 +48,37 @@
             class="name"
             @click="handleKnowledgeLink(item.category, item.id)"
           >
-            <span>
-              {{ item.name }}
-            </span>
-            <div class="knowledge-meta">
-              <span class="meta-text">
-                {{
-                  item.share
-                    ? $t('knowledgeManage.public')
-                    : $t('knowledgeManage.private')
-                }}
+            <img
+              class="avatar"
+              :src="
+                avatarSrc(
+                  item.avatar.path,
+                  require('@/assets/imgs/knowledgeIcon.png'),
+                )
+              "
+            />
+            <div>
+              <span>
+                {{ item.name }}
               </span>
-              <span v-if="item.share" class="meta-text">
-                {{ item.orgName }}
-              </span>
-              <span v-if="item.external === 1" class="meta-text">
-                {{ $t('knowledgeManage.ribbon.external') }}
-              </span>
-              <span v-if="item.category === 2" class="meta-text">
-                {{ $t('knowledgeManage.ribbon.multimodal') }}
-              </span>
+              <div class="knowledge-meta">
+                <span class="meta-text">
+                  {{
+                    item.share
+                      ? $t('knowledgeManage.public')
+                      : $t('knowledgeManage.private')
+                  }}
+                </span>
+                <span v-if="item.share" class="meta-text">
+                  {{ item.orgName }}
+                </span>
+                <span v-if="item.external === 1" class="meta-text">
+                  {{ $t('knowledgeManage.ribbon.external') }}
+                </span>
+                <span v-if="item.category === 2" class="meta-text">
+                  {{ $t('knowledgeManage.ribbon.multimodal') }}
+                </span>
+              </div>
             </div>
           </div>
           <div class="bt">
@@ -120,6 +131,7 @@ import knowledgeSelect from '@/components/knowledgeSelect.vue';
 import metaDataFilterField from './metaDataFilterField.vue';
 import knowledgeRecallField from './knowledgeRecallField.vue';
 import { KNOWLEDGE } from '@/views/knowledge/constants';
+import { avatarSrc } from '@/utils/util';
 export default {
   name: 'QaDatabase',
   components: { knowledgeSelect, metaDataFilterField, knowledgeRecallField },
@@ -210,6 +222,7 @@ export default {
     },
   },
   methods: {
+    avatarSrc,
     knowledgeRecallSet(data) {
       this.$emit('knowledgeRecallSet', data, this.type);
     },
@@ -247,10 +260,10 @@ export default {
       const routeData = this.$router.resolve({
         name: targetRouterName,
       });
-      const fullUrl = `${routeData.href}${routeData.location.name}`.replace(
-        /\/+/g,
-        '/',
-      );
+      const baseUrl = routeData.href;
+      const locationName = routeData.location.name;
+      const combinedUrl = baseUrl + locationName;
+      const fullUrl = combinedUrl.replace(/\/+/g, '/');
       window.open(fullUrl, '_blank');
     },
   },
@@ -342,16 +355,23 @@ export default {
 
         .name {
           flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 12px;
           color: #333;
           font-size: 14px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          margin-right: 12px;
           cursor: pointer;
 
           &:hover {
             color: $color;
+          }
+
+          img {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: #f0f0f0;
+            object-fit: cover;
           }
 
           .knowledge-meta {

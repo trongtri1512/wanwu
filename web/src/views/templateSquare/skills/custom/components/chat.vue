@@ -86,7 +86,6 @@
             :visibleClearHistory="true"
             minHeight="22px"
             :modelConfig="sharedModelConfig"
-            modelPopperClass="model-popper-bottom"
             @preSend="preSend"
             @setSessionStatus="setSessionStatus"
             @clearHistory="handleClearHistory"
@@ -133,6 +132,7 @@ import {
   delCustomSkillConversation,
   getCustomSkillConversationDetail,
   sendCustomSkillToResource,
+  clearSkillConversation,
 } from '@/api/templateSquare';
 import sseMethod from '@/mixins/sseMethod';
 import { md } from '@/mixins/markdown-it';
@@ -445,7 +445,20 @@ export default {
     async handleClearHistory() {
       const history = this.$refs['session-com'].session_data.history;
       if (!history || !history.length) return;
-      this.clearHistory();
+      this.handleClearSkillConversation();
+    },
+    // 清空skill会话
+    async handleClearSkillConversation() {
+      try {
+        const res = await clearSkillConversation({
+          conversationId: this.conversationId,
+        });
+        if (res.code === 0) {
+          this.clearHistory();
+        }
+      } catch (error) {
+        throw error;
+      }
     },
     // 处理输入框高度变化
     handleInputHeightChange(height) {
@@ -496,12 +509,6 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-.model-popper-bottom {
-  top: 570px !important;
-}
-</style>
 
 <style lang="scss" scoped>
 @import '@/style/chat.scss';

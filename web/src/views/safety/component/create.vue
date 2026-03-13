@@ -48,6 +48,9 @@
 import { createSensitive, editSensitive } from '@/api/safety';
 
 export default {
+  props: {
+    type: '',
+  },
   data() {
     var checkName = (rule, value, callback) => {
       const reg = /^[\u4e00-\u9fa5a-zA-Z0-9]+$/;
@@ -108,7 +111,7 @@ export default {
       });
     },
     createSensitive() {
-      createSensitive(this.ruleForm)
+      createSensitive({ ...this.ruleForm, type: this.type })
         .then(res => {
           if (res.code === 0) {
             this.$message.success(this.$t('common.info.create'));

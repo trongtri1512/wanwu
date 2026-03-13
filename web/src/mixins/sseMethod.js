@@ -464,11 +464,9 @@ export default {
         } else {
           this.sseApi = AGENT_API_URL;
         }
-        const trial = this.isTestChat;
         data = {
           ...this.sseParams,
           prompt,
-          trial,
           systemPrompt: this.sseParams.systemPrompt, //提示词对比参数
         };
         headers = {
@@ -1186,12 +1184,9 @@ export default {
       //判断是是不是openurl对话
       if (this.type === 'agentChat') {
         this.sseApi = getCustomSkillSSeUrl();
-        const trial = this.isTestChat;
         data = {
           ...this.sseParams,
           query: prompt,
-          trial,
-          systemPrompt: this.sseParams.systemPrompt, //提示词对比参数
         };
         headers = {
           'Content-Type': 'application/json',

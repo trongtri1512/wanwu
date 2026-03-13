@@ -26,10 +26,11 @@ export const delSensitive = data => {
   });
 };
 //查看敏感词表列表
-export const getSensitiveList = () => {
+export const getSensitiveList = params => {
   return request({
     url: `${USER_API}/safe/sensitive/table/list`,
     method: 'get',
+    params,
   });
 };
 //编辑回复设置

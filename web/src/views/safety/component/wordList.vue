@@ -119,7 +119,7 @@ export default {
       this.$refs.setReply.showDialog(this.docQuery.tableId);
     },
     goBack() {
-      this.$router.push({ path: '/safety' });
+      this.$router.go(-1);
     },
     handleDel(data) {
       this.$confirm(

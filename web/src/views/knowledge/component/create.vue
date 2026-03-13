@@ -79,6 +79,19 @@
         <el-form-item
           :label="
             category === KNOWLEDGE
+              ? $t('knowledgeManage.knowledgeAvatar')
+              : $t('knowledgeManage.qaDatabase.avatar')
+          "
+          prop="avatar"
+        >
+          <upload-avatar
+            v-model="ruleForm.avatar"
+            :default-avatar="require('@/assets/imgs/knowledgeIcon.png')"
+          />
+        </el-form-item>
+        <el-form-item
+          :label="
+            category === KNOWLEDGE
               ? $t('knowledgeManage.knowledgeName')
               : $t('knowledgeManage.qaDatabase.name')
           "
@@ -361,6 +374,7 @@ import {
   QA,
   MULTIMODAL,
 } from '@/views/knowledge/constants';
+import uploadAvatar from '@/components/uploadAvatar.vue';
 
 export default {
   props: {
@@ -370,6 +384,7 @@ export default {
     },
   },
   components: {
+    uploadAvatar,
     modelSelect,
   },
   mixins: [uploadChunk],
@@ -848,6 +863,7 @@ export default {
         this.localCategory = row.category;
         this.knowledgeId = row.knowledgeId;
         this.ruleForm = {
+          avatar: row.avatar,
           name: row.name,
           description: row.description,
           embeddingModelInfo: {
@@ -915,6 +931,7 @@ export default {
 @import '@/style/tabs';
 
 .card {
+  margin-left: 20px;
   display: flex;
 
   .card-item {

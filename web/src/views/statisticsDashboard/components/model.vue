@@ -1,13 +1,49 @@
 <template>
   <div id="statistics_client" class="statistics_common list-common">
-    <transition name="el-zoom-in-top">
-      <Search
-        v-show="searchShow"
-        ref="search"
-        @handleSetTime="handleSetTime"
-      ></Search>
-    </transition>
-    <div class="statistics_content_box" @scroll="handleScroll">
+    <div>
+      <div style="padding: 5px 24px">
+        <label>{{ $t('statisticsDashboard.modelSelect') }}:</label>
+        <el-select
+          v-model="modelParams.modelType"
+          :placeholder="$t('modelAccess.table.modelType')"
+          class="no-border-select"
+          style="margin-left: 15px"
+          clearable
+          @change="fetchModels()"
+        >
+          <el-option
+            v-for="item in modelTypeList"
+            :key="item.key"
+            :label="item.name"
+            :value="item.key"
+          />
+        </el-select>
+        <el-select
+          v-model="modelParams.models"
+          :placeholder="$t('statisticsDashboard.model')"
+          class="no-border-select"
+          style="margin-left: 15px; width: 600px"
+          clearable
+          multiple
+          filterable
+        >
+          <el-option
+            v-for="item in modelList"
+            :key="item.modelId"
+            :label="item.displayName || item.model"
+            :value="item.modelId"
+          />
+        </el-select>
+      </div>
+      <div>
+        <Search
+          v-show="searchShow"
+          ref="search"
+          @handleSetTime="handleSetTime"
+        ></Search>
+      </div>
+    </div>
+    <div class="statistics_content_box">
       <div class="item_box">
         <div class="dataOverview">
           <span class="title">
@@ -26,7 +62,7 @@
                   }"
                 ></i>
               </span>
-              <strong>{{ formatAmount(item.value) }}</strong>
+              <strong>{{ formatAmount(item.value) }}{{ item.unit }}</strong>
               <span>
                 {{ item.des }}
                 <label
@@ -57,17 +93,37 @@
         <div class="data_echart_box">
           <div class="data_echart">
             <UserEchart
-              :content="echartContent.client ? echartContent.client.lines : []"
-              :name="echartContent.client ? echartContent.client.tableName : ''"
+              :content="
+                echartContent.modelCalls ? echartContent.modelCalls.lines : []
+              "
+              :name="
+                echartContent.modelCalls
+                  ? echartContent.modelCalls.tableName
+                  : ''
+              "
               v-loading="loading"
             ></UserEchart>
           </div>
           <div class="data_echart">
-            <PcuEchart
-              :content="echartContent.browse ? echartContent.browse.lines : []"
-              :name="echartContent.browse ? echartContent.browse.tableName : ''"
+            <UserEchart
+              :content="
+                echartContent.tokensUsage ? echartContent.tokensUsage.lines : []
+              "
+              :name="
+                echartContent.tokensUsage
+                  ? echartContent.tokensUsage.tableName
+                  : ''
+              "
               v-loading="loading"
-            ></PcuEchart>
+            ></UserEchart>
+          </div>
+        </div>
+        <div class="dataOverview">
+          <span class="title">
+            {{ $t('statisticsDashboard.modelList') }}
+          </span>
+          <div style="margin-top: -20px">
+            <ModelList ref="modelList" />
           </div>
         </div>
       </div>
@@ -78,18 +134,22 @@
 <script>
 import Search from '@/components/searchDate.vue';
 import UserEchart from '@/components/echart/userEchart.vue';
-import PcuEchart from '@/components/echart/pcuEchart.vue';
+import ModelList from './modelList.vue';
 import { formatAmount } from '@/utils/util.js';
-import { getData } from '@/api/permission/statistic.js';
+import { getModelData } from '@/api/statisticsDashboard';
+import { MODEL_TYPE } from '@/views/modelAccess/constants';
+import { fetchModelList } from '@/api/modelAccess';
 
 export default {
   components: {
     UserEchart,
-    PcuEchart,
     Search,
+    ModelList,
   },
   data() {
     return {
+      modelTypeList: MODEL_TYPE,
+      modelList: [],
       loading: false,
       content: {}, // 存储返回的总揽数据
       echartContent: {}, // 存储返回的echart数据
@@ -97,38 +157,70 @@ export default {
       concurrentUser: {},
       count: [
         {
-          name: this.$t('statistics.cumulativeClient'),
+          name: this.$t('statisticsDashboard.tokenTotals'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: 'cumulativeClient',
+          key: 'totalTokensTotal',
           des_value: -9999,
+          unit: this.$t('statisticsDashboard.quantity'),
         },
         {
-          name: this.$t('statistics.additionClient'),
+          name: this.$t('statisticsDashboard.promptTokensTotals'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: 'additionClient',
+          key: 'promptTokensTotal',
           des_value: -9999,
+          unit: this.$t('statisticsDashboard.quantity'),
         },
         {
-          name: this.$t('statistics.activeClient'),
+          name: this.$t('statisticsDashboard.completionTokensTotals'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: 'activeClient',
+          key: 'completionTokensTotal',
           des_value: -9999,
+          unit: this.$t('statisticsDashboard.quantity'),
         },
         {
-          name: this.$t('statistics.browse'),
+          name: this.$t('statisticsDashboard.avgCosts'),
           value: 0,
           des: this.$t('statistics.percentage'),
-          key: 'browse',
+          key: 'avgCosts',
           des_value: -9999,
+          unit: 'ms',
+        },
+        {
+          name: this.$t('statisticsDashboard.callCount'),
+          value: 0,
+          des: this.$t('statistics.percentage'),
+          key: 'callCountTotal',
+          des_value: -9999,
+          unit: this.$t('statisticsDashboard.frequency'),
+        },
+        {
+          name: this.$t('statisticsDashboard.callFailure'),
+          value: 0,
+          des: this.$t('statistics.percentage'),
+          key: 'callFailureTotal',
+          des_value: -9999,
+          unit: this.$t('statisticsDashboard.frequency'),
+        },
+        {
+          name: this.$t('statisticsDashboard.avgFirstTokenLatency'),
+          value: 0,
+          des: this.$t('statistics.percentage'),
+          key: 'avgFirstTokenLatency',
+          des_value: -9999,
+          unit: 'ms',
         },
       ],
       searchShow: true,
       timeout: null, // 防抖定时
       searchTime: {
         time: [],
+      },
+      modelParams: {
+        modelType: '',
+        models: [],
       },
     };
   },
@@ -142,37 +234,30 @@ export default {
   },
   methods: {
     formatAmount,
-    handleScroll(val) {
-      this.$refs.search && this.$refs.search.$refs.time.handleClose();
-      this.$refs.adminDetail && this.$refs.adminDetail.$refs.sign.handleClose();
-      this.$refs.adminDetail &&
-        this.$refs.adminDetail.$refs.cycle.handleClose();
-
-      if (val.target.scrollTop >= 50) {
-        this.searchShow = false;
-
-        clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => {
-          document.getElementsByClassName('statistics_search_time')[0].style =
-            'background: #fff;box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.1)';
-          this.searchShow = true;
-        }, 500);
-      } else {
-        clearTimeout(this.timeout);
-        document.getElementsByClassName('statistics_search_time')[0].style =
-          'background: transparent;box-shadow: none';
-        this.searchShow = true;
-      }
+    formatParams(params) {
+      return {
+        ...params,
+        models: params.models ? params.models.toString() : '',
+      };
+    },
+    async fetchModels() {
+      const res = await fetchModelList({
+        filterScope: '',
+        modelType: this.modelParams.modelType,
+      });
+      const modelList = res.data ? res.data.list || [] : [];
+      this.modelList = modelList.filter(item => item.allowEdit);
     },
     handleSetTime(val) {
       this.loading = true;
       this.searchTime = val;
 
-      const params = {
+      const params = this.formatParams({
         startDate: val.time[0],
         endDate: val.time[1],
-      };
-      getData(params)
+        ...this.modelParams,
+      });
+      getModelData(params)
         .then(res => {
           const { overview, trend } = res.data || {};
           this.content = overview || {};
@@ -188,6 +273,7 @@ export default {
         .finally(() => {
           this.loading = false;
         });
+      this.$refs.modelList.getTableData(params);
     },
   },
 };
@@ -203,7 +289,7 @@ export default {
   .statistics_content_box {
     position: relative;
     height: 100%;
-    padding: 0 5px;
+    padding: 0 24px 0 24px;
     overflow-y: auto;
   }
   .el-radio-button__inner {
@@ -278,22 +364,6 @@ export default {
   }
   .el-empty__image {
     width: 15%;
-  }
-}
-
-#common_header {
-  display: flex;
-  align-items: center;
-  height: 48px;
-  padding-left: 24px;
-  background: #fff;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 2002;
-  span {
-    font-size: 14px;
   }
 }
 
@@ -376,32 +446,36 @@ export default {
     .dataOverview {
       padding: 20px;
       margin-bottom: 20px;
+      margin-top: 15px;
       background: #fff;
       flex: 1;
       border-radius: 5px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.08);
 
       .client_dataOverview_content {
         display: flex;
-        justify-content: space-around;
+        flex-wrap: wrap;
+        justify-content: flex-start;
         margin-top: 20px;
 
         .card {
           position: relative;
-          flex: 1;
-          min-width: 120px;
+          width: 24%;
           height: 120px;
           background: rgb(245, 246, 249);
           border-radius: 4px;
           padding: 15px 0;
+          margin-left: 0.5%;
+          margin-right: 0.5%;
           margin-bottom: 20px;
-          margin-right: 10px;
-          margin-left: 10px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: space-between;
-          flex-shrink: 0;
-          box-sizing: border-box;
+
+          &:nth-last-child(-n + 7) {
+            margin-bottom: 0;
+          }
 
           span {
             position: relative;

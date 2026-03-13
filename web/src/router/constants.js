@@ -30,6 +30,9 @@ export const PERMS = {
   STATISTIC: 'operation.statistic_client', // 运营管理-统计分析
   OAUTH: 'operation.oauth', // 运营管理-OAuth密钥管理
 
+  APP_OBSERVATION: 'app_observability', // 应用观测
+  OBSERVATION_STATISTIC: 'app_observability.statistic', // 应用观测-统计看板
+
   API_KEY: 'api_key', // API Key管理
   API_KEY_MANAGE: 'api_key.api_key_management', // API Key管理-API Key管理
 };

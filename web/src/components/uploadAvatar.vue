@@ -74,7 +74,7 @@ export default {
 
   .upload-img {
     object-fit: cover;
-    width: 100%;
+    width: 98px;
     height: 98px;
     background: #eee;
     border-radius: 8px;

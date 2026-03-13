@@ -312,6 +312,11 @@ const constantRoutes = [
         meta: { perm: [PERMS.RAG] },
       },
       {
+        path: '/statisticsDashboard',
+        component: resolve => require(['@/views/statisticsDashboard'], resolve),
+        meta: { perm: [PERMS.OBSERVATION_STATISTIC] },
+      },
+      {
         path: '/openApiKey',
         component: resolve => require(['@/views/apiKeyManagement'], resolve),
         meta: { perm: [PERMS.API_KEY_MANAGE] },

@@ -40,6 +40,7 @@
 </template>
 <script>
 import SkillCard from './card.vue';
+import { resDownloadFile } from '@/utils/util';
 import SearchInput from '@/components/searchInput.vue';
 import { getSkillTempList, downloadSkill } from '@/api/templateSquare';
 
@@ -76,13 +77,7 @@ export default {
     },
     handleDownload(info) {
       downloadSkill({ skillId: info.skillId }).then(response => {
-        const blob = new Blob([response], { type: response.type });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = info.name + '.zip';
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+        resDownloadFile(response, `${info.name}.zip`);
         this.doGetSkillTempList();
       });
     },

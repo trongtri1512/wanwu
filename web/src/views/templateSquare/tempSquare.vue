@@ -91,6 +91,7 @@
 </template>
 <script>
 import { getWorkflowTempList, downloadWorkflow } from '@/api/templateSquare';
+import { resDownloadFile } from '@/utils/util';
 import SearchInput from '@/components/searchInput.vue';
 import HintDialog from './components/hintDialog.vue';
 import CreateWorkflow from '@/components/createApp/createWorkflow.vue';
@@ -156,13 +157,7 @@ export default {
     },
     downloadTemplate(item) {
       downloadWorkflow({ templateId: item.templateId }).then(response => {
-        const blob = new Blob([response], { type: response.type });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = item.name + '.json';
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+        resDownloadFile(response, `${item.name}.json`);
         this.doGetWorkflowTempList();
       });
     },

@@ -223,7 +223,7 @@ import {
 } from '@/api/workflow';
 import { setFavorite } from '@/api/explore';
 import { AGENT, RAG, CHAT, WORKFLOW } from '@/utils/commonSet';
-import { avatarSrc } from '@/utils/util';
+import { avatarSrc, resDownloadFile } from '@/utils/util';
 
 export default {
   props: {
@@ -376,13 +376,7 @@ export default {
         row.appType,
         this.appFrom !== 'explore',
       ).then(response => {
-        const blob = new Blob([response], { type: response.type });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = row.name + '.json';
-        link.click();
-        window.URL.revokeObjectURL(link.href);
+        resDownloadFile(response, `${row.name}.json`);
       });
     },
     jumpToWorkflowPublicSet(row) {

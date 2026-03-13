@@ -197,3 +197,30 @@ export const sendCustomSkillToResource = data => {
     data,
   });
 };
+
+// 创建自定义skills
+export const createCustomSkill = data => {
+  return request({
+    url: `${USER_API}/agent/skill/custom`,
+    method: 'post',
+    data,
+  });
+};
+
+// 校验自定义skills
+export const checkCustomSkill = data => {
+  return request({
+    url: `${USER_API}/agent/skill/custom/check`,
+    method: 'post',
+    data,
+  });
+};
+
+// 清空skillChat对话
+export const clearSkillConversation = data => {
+  return request({
+    url: `${USER_API}/agent/skill/conversation/clear`,
+    method: 'delete',
+    data,
+  });
+};

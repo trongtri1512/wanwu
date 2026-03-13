@@ -137,7 +137,7 @@ import {
   downloadCustomSkill,
 } from '@/api/templateSquare';
 import { SKILL, WORKFLOW, SKILLCUSTOM } from './constants';
-import { avatarSrc, directDownload } from '@/utils/util';
+import { avatarSrc, directDownload, resDownloadFile } from '@/utils/util';
 import CreateWorkflow from '@/components/createApp/createWorkflow.vue';
 import MdRender from '@/components/mdRender.vue';
 
@@ -226,13 +226,7 @@ export default {
       } else {
         res = await downloadSkill({ skillId: item.skillId });
       }
-      const blob = new Blob([res], { type: res.type });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = item.name + (isWorkflow ? '.json' : '.zip');
-      link.click();
-      window.URL.revokeObjectURL(link.href);
+      resDownloadFile(res, `${item.name}${isWorkflow ? '.json' : '.zip'}`);
     },
     getPath() {
       return this.type === SKILL || this.type === SKILLCUSTOM
@@ -388,6 +382,7 @@ export default {
         padding: 20px 20px 20px 80px;
         text-align: left;
         cursor: pointer;
+        min-height: 100px;
         .logo {
           width: 46px;
           height: 46px;

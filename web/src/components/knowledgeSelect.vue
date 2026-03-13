@@ -35,26 +35,39 @@
           :key="item['knowledgeId']"
           class="toolContent_item"
         >
-          <div class="knowledge-info">
-            <span class="knowledge-name">{{ item.name }}</span>
-            <span class="knowledge-desc">{{ item.description }}</span>
-            <div class="knowledge-meta">
-              <span class="meta-text">
-                {{
-                  item.share
-                    ? $t('knowledgeManage.public')
-                    : $t('knowledgeManage.private')
-                }}
-              </span>
-              <span v-if="item.share" class="meta-text">
-                {{ item.orgName }}
-              </span>
-              <span v-if="item.external === 1" class="meta-text">
-                {{ $t('knowledgeManage.ribbon.external') }}
-              </span>
-              <span v-if="item.category === 2" class="meta-text">
-                {{ $t('knowledgeManage.ribbon.multimodal') }}
-              </span>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <img
+                class="avatar"
+                :src="
+                  avatarSrc(
+                    item.avatar?.path,
+                    require('@/assets/imgs/knowledgeIcon.png'),
+                  )
+                "
+              />
+              <div class="knowledge-info">
+                <span class="knowledge-name">{{ item.name }}</span>
+                <span class="knowledge-desc">{{ item.description }}</span>
+                <div class="knowledge-meta">
+                  <span class="meta-text">
+                    {{
+                      item.share
+                        ? $t('knowledgeManage.public')
+                        : $t('knowledgeManage.private')
+                    }}
+                  </span>
+                  <span v-if="item.share" class="meta-text">
+                    {{ item.orgName }}
+                  </span>
+                  <span v-if="item.external === 1" class="meta-text">
+                    {{ $t('knowledgeManage.ribbon.external') }}
+                  </span>
+                  <span v-if="item.category === 2" class="meta-text">
+                    {{ $t('knowledgeManage.ribbon.multimodal') }}
+                  </span>
+                </div>
+              </div>
             </div>
             <span class="knowledge-createAt">
               {{ $t('knowledgeSelect.createTime') }} {{ item.createAt }}
@@ -86,6 +99,7 @@
 </template>
 <script>
 import { getKnowledgeList } from '@/api/knowledge';
+import { avatarSrc } from '@/utils/util';
 export default {
   props: ['category'],
   data() {
@@ -102,6 +116,7 @@ export default {
     this.getKnowledgeList('');
   },
   methods: {
+    avatarSrc,
     getKnowledgeList(name) {
       getKnowledgeList({ name, category: this.category, external: -1 })
         .then(res => {
@@ -219,6 +234,13 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      background: #f0f0f0;
+      object-fit: cover;
+    }
     ::v-deep {
       .el-button--primary {
         background: #fff !important;

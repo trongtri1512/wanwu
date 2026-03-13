@@ -122,6 +122,20 @@ export const menuList = [
     ],
   },
   {
+    name: i18n.t('menu.appObservation'),
+    index: 'appObservation',
+    icon: 'appObservation',
+    perm: [PERMS.APP_OBSERVATION],
+    children: [
+      {
+        name: i18n.t('menu.statisticsDashboard'),
+        index: 'appObservation-statisticsDashboard',
+        path: '/statisticsDashboard',
+        perm: PERMS.OBSERVATION_STATISTIC,
+      },
+    ],
+  },
+  {
     name: i18n.t('menu.apiKey'),
     index: 'apiKey',
     icon: 'apiKey',
