@@ -515,23 +515,23 @@ func DraftAssistantConversionStream(ctx *gin.Context) {
 		return
 	}
 
-	// 获取会话id
-	conversationIdResp, _ := service.GetDraftConversationIdByAssistantID(ctx, userId, orgId, request.ConversationGetListRequest{
-		AssistantId: req.AssistantId,
-	})
-
-	// 创建会话id
-	if conversationIdResp == nil {
-		newConversationId, err := service.ConversationCreate(ctx, userId, orgId, request.ConversationCreateRequest{
+	if !req.IsCompare {
+		conversationIdResp, _ := service.GetDraftConversationIdByAssistantID(ctx, userId, orgId, request.ConversationGetListRequest{
 			AssistantId: req.AssistantId,
-			Prompt:      req.Prompt,
-		}, constant.ConversationTypeDraft)
-		if err != nil {
-			gin_util.Response(ctx, nil, err)
+		})
+
+		if conversationIdResp == nil {
+			newConversationId, err := service.ConversationCreate(ctx, userId, orgId, request.ConversationCreateRequest{
+				AssistantId: req.AssistantId,
+				Prompt:      req.Prompt,
+			}, constant.ConversationTypeDraft)
+			if err != nil {
+				gin_util.Response(ctx, nil, err)
+			}
+			req.ConversationId = newConversationId.ConversationId
+		} else {
+			req.ConversationId = conversationIdResp.ConversationId
 		}
-		req.ConversationId = newConversationId.ConversationId
-	} else {
-		req.ConversationId = conversationIdResp.ConversationId
 	}
 
 	if err := service.AssistantConversionStream(ctx, userId, orgId, req, false); err != nil {

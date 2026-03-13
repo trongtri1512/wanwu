@@ -170,6 +170,7 @@ type ConversionStreamRequest struct {
 	FileInfo       []ConversionStreamFile `json:"fileInfo" form:"fileInfo"`
 	Prompt         string                 `json:"prompt" form:"prompt"  validate:"required"`
 	SystemPrompt   string                 `json:"systemPrompt" form:"systemPrompt"`
+	IsCompare      bool                   `json:"isCompare" form:"isCompare"`
 }
 
 func (c *ConversionStreamRequest) Check() error {
